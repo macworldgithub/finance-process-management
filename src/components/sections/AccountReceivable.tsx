@@ -1,6 +1,6 @@
 "use client";
-import React from "react";
-import { Table, Tabs, Dropdown, Menu } from "antd";
+import React, { useEffect, useRef } from "react";
+import { Table, Tabs } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
 const { TabPane } = Tabs;
@@ -44,33 +44,24 @@ const AccountReceivable = () => {
       dataIndex: "stage",
       key: "stage",
       width: 200,
-      render: (text, record) => {
-        const menu = (
-          <Menu
-            onClick={({ key }) => {
-              // replace with your handler to update stage for the record
-              console.log("selected stage", key, "for row", record.key);
-            }}
-            items={stageOptions}
-          />
-        );
-
-        return (
-          <Dropdown overlay={menu} trigger={["click"]}>
-            <div className="flex items-center cursor-pointer">
-              {text}
-              <DownOutlined className="ml-1" />
-            </div>
-          </Dropdown>
-        );
-      },
+      render: (text: any) => (
+        <div className="flex items-center">
+          {text}
+          <DownOutlined className="ml-1" />
+        </div>
+      ),
     },
     {
       title: "Functions",
       dataIndex: "functions",
       key: "functions",
       width: 200,
-      render: (text) => <div className="flex items-center">{text}</div>, // removed dropdown icon/button
+      render: (text: any) => (
+        <div className="flex items-center">
+          {text}
+          <DownOutlined className="ml-1" />
+        </div>
+      ),
     },
   ];
 
@@ -150,7 +141,7 @@ const AccountReceivable = () => {
     {
       key: "9",
       no: "5.9",
-      process: "Sending statement of account to the customers",
+      process: "Sending statement of account to the customers.",
       activity: "Cash Collection from Customers",
       process2: "A/R Aging Analysis Process",
       stage: "Processing",
@@ -159,7 +150,7 @@ const AccountReceivable = () => {
     {
       key: "10",
       no: "5.10",
-      process: "Cash Receipts from Customers",
+      process: "Cash Receipts from Customers.",
       activity: "Vouching",
       process2: "A/R Aging Analysis Process",
       stage: "Processing",
@@ -190,10 +181,11 @@ const AccountReceivable = () => {
       <h1 className="text-2xl font-semibold mb-4 text-gray-800">
         RCM – Account Receivable
       </h1>
-      <div>
+
+      <div className="bg-white rounded-xl shadow-md">
         <Tabs
           defaultActiveKey="2"
-          className=" px-6 pt-3 mx-auto"
+          className="border-b px-6 pt-3"
           items={[
             { key: "1", label: "Process" },
             { key: "2", label: "Ownership" },
@@ -206,14 +198,44 @@ const AccountReceivable = () => {
           ]}
         />
 
-        <div className="p-4 overflow-x-auto">
-          <Table
-            columns={columns}
-            dataSource={data}
-            pagination={false}
-            scroll={{ x: 1300, y: 450 }}
-            bordered
-          />
+        <div className="p-4">
+          <div className="flex">
+            {/* Left fixed area: No. + Process */}
+            <div
+              ref={leftWrapperRef}
+              className="shrink-0"
+              style={{ width: 380, overflowX: "hidden" }} // <-- added overflowX hidden to prevent horizontal scroll on left
+            >
+              <Table
+                columns={leftColumns}
+                dataSource={data}
+                pagination={false}
+                bordered
+                // only vertical scroll to sync with right
+                scroll={{ y: 450 }}
+                rowKey="key"
+              />
+            </div>
+
+            {/* Right scrollable area: remaining 4 columns */}
+            <div
+              ref={rightWrapperRef}
+              className="flex-1 overflow-x-auto"
+              style={{ minWidth: 0 }}
+            >
+              <div style={{ minWidth: 1000 }}>
+                <Table
+                  columns={rightColumns}
+                  dataSource={data}
+                  pagination={false}
+                  bordered
+                  // remove scroll.x so outer wrapper shows horizontal scrollbar
+                  scroll={{ y: 450 }}
+                  rowKey="key"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
