@@ -1,23 +1,31 @@
 "use client";
-import React, { useEffect, useRef } from "react";
-import { Table, Tabs } from "antd";
+import React from "react";
+import { Table, Tabs, Dropdown, Menu } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
 const { TabPane } = Tabs;
 
 const AccountReceivable = () => {
+  const stageOptions = [
+    { label: "Initiation", key: "init" },
+    { label: "Processing", key: "proc" },
+    { label: "Completed", key: "comp" },
+  ];
+
   const columns = [
     {
       title: "No.",
       dataIndex: "no",
       key: "no",
       width: 80,
+      fixed: "left",
     },
     {
       title: "Process",
       dataIndex: "process",
       key: "process",
       width: 300,
+      fixed: "left",
     },
     {
       title: "Activity",
@@ -36,29 +44,35 @@ const AccountReceivable = () => {
       dataIndex: "stage",
       key: "stage",
       width: 200,
-      render: (text: any) => (
-        <div className="flex items-center">
-          {text}
-          <DownOutlined className="ml-1" />
-        </div>
-      ),
+      render: (text, record) => {
+        const menu = (
+          <Menu
+            onClick={({ key }) => {
+              // replace with your handler to update stage for the record
+              console.log("selected stage", key, "for row", record.key);
+            }}
+            items={stageOptions}
+          />
+        );
+
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {text}
+              <DownOutlined className="ml-1" />
+            </div>
+          </Dropdown>
+        );
+      },
     },
     {
       title: "Functions",
       dataIndex: "functions",
       key: "functions",
       width: 200,
-      render: (text: any) => (
-        <div className="flex items-center">
-          {text}
-          <DownOutlined className="ml-1" />
-        </div>
-      ),
+      render: (text) => <div className="flex items-center">{text}</div>, // removed dropdown icon/button
     },
   ];
-
-  const leftColumns = columns.slice(0, 2); // No., Process (fixed left area)
-  const rightColumns = columns.slice(2); // Activity, Process (process2), Process Stage, Functions
 
   const data = [
     {
@@ -171,62 +185,15 @@ const AccountReceivable = () => {
     },
   ];
 
-  // refs to wrapper divs so we can sync vertical scroll between left and right tables
-  const leftWrapperRef = useRef<HTMLDivElement | null>(null);
-  const rightWrapperRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    let leftBody: HTMLElement | null = null;
-    let rightBody: HTMLElement | null = null;
-    let syncing = false;
-
-    const findBodies = () => {
-      leftBody = leftWrapperRef.current?.querySelector(
-        ".ant-table-body"
-      ) as HTMLElement | null;
-      rightBody = rightWrapperRef.current?.querySelector(
-        ".ant-table-body"
-      ) as HTMLElement | null;
-    };
-
-    const onLeftScroll = () => {
-      if (!leftBody || !rightBody || syncing) return;
-      syncing = true;
-      rightBody.scrollTop = leftBody.scrollTop;
-      setTimeout(() => (syncing = false), 0);
-    };
-
-    const onRightScroll = () => {
-      if (!leftBody || !rightBody || syncing) return;
-      syncing = true;
-      leftBody.scrollTop = rightBody.scrollTop;
-      setTimeout(() => (syncing = false), 0);
-    };
-
-    findBodies();
-    // in case table renders later, try again after small delay
-    const retry = setTimeout(findBodies, 100);
-
-    if (leftBody) leftBody.addEventListener("scroll", onLeftScroll);
-    if (rightBody) rightBody.addEventListener("scroll", onRightScroll);
-
-    return () => {
-      clearTimeout(retry);
-      if (leftBody) leftBody.removeEventListener("scroll", onLeftScroll);
-      if (rightBody) rightBody.removeEventListener("scroll", onRightScroll);
-    };
-  }, [data.length]);
-
   return (
     <div className="p-6 bg-[#f8fafc] min-h-screen overflow-y-auto">
       <h1 className="text-2xl font-semibold mb-4 text-gray-800">
         RCM – Account Receivable
       </h1>
-
-      <div className="bg-white rounded-xl shadow-md">
+      <div>
         <Tabs
           defaultActiveKey="2"
-          className="border-b px-6 pt-3"
+          className=" px-6 pt-3 mx-auto"
           items={[
             { key: "1", label: "Process" },
             { key: "2", label: "Ownership" },
@@ -239,44 +206,14 @@ const AccountReceivable = () => {
           ]}
         />
 
-        <div className="p-4">
-          <div className="flex">
-            {/* Left fixed area: No. + Process */}
-            <div
-              ref={leftWrapperRef}
-              className="shrink-0"
-              style={{ width: 380, overflowX: "hidden" }} // <-- added overflowX hidden to prevent horizontal scroll on left
-            >
-              <Table
-                columns={leftColumns}
-                dataSource={data}
-                pagination={false}
-                bordered
-                // only vertical scroll to sync with right
-                scroll={{ y: 450 }}
-                rowKey="key"
-              />
-            </div>
-
-            {/* Right scrollable area: remaining 4 columns */}
-            <div
-              ref={rightWrapperRef}
-              className="flex-1 overflow-x-auto"
-              style={{ minWidth: 0 }}
-            >
-              <div style={{ minWidth: 1000 }}>
-                <Table
-                  columns={rightColumns}
-                  dataSource={data}
-                  pagination={false}
-                  bordered
-                  // remove scroll.x so outer wrapper shows horizontal scrollbar
-                  scroll={{ y: 450 }}
-                  rowKey="key"
-                />
-              </div>
-            </div>
-          </div>
+        <div className="p-4 overflow-x-auto">
+          <Table
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+            scroll={{ x: 1300, y: 450 }}
+            bordered
+          />
         </div>
       </div>
     </div>
