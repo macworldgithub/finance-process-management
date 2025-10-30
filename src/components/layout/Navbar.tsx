@@ -79,9 +79,9 @@ import { FaPlay } from "react-icons/fa";
 
 const Navbar = () => {
   return (
-    <div className="bg-gray-100 flex justify-center items-center py-3">
+    <div className="bg-gray-100 flex justify-center items-center py-3 ">
       {/* White container */}
-      <nav className="w-[90%] max-w-6xl bg-white rounded-2xl shadow-md px-6 py-3 flex items-center justify-between">
+      <nav className="w-[96%] max-w-[1600px] bg-white rounded-2xl shadow-md px-6 py-3 flex items-center justify-between">
         {/* Left: Logo */}
         <div className="flex items-center space-x-1">
           <span className="text-xl font-semibold text-gray-900">GCR</span>

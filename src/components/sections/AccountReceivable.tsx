@@ -1,9 +1,7 @@
 "use client";
 import React from "react";
 import { Table, Tabs, Dropdown, Menu } from "antd";
-import { DownOutlined } from "@ant-design/icons";
-
-const { TabPane } = Tabs;
+import { DownOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 
 const AccountReceivable = () => {
   const stageOptions = [
@@ -44,13 +42,12 @@ const AccountReceivable = () => {
       dataIndex: "stage",
       key: "stage",
       width: 200,
-      render: (text, record) => {
+      render: (text: any, record: any) => {
         const menu = (
           <Menu
-            onClick={({ key }) => {
-              // replace with your handler to update stage for the record
-              console.log("selected stage", key, "for row", record.key);
-            }}
+            onClick={({ key }) =>
+              console.log("selected stage", key, "for row", record.key)
+            }
             items={stageOptions}
           />
         );
@@ -59,7 +56,7 @@ const AccountReceivable = () => {
           <Dropdown overlay={menu} trigger={["click"]}>
             <div className="flex items-center cursor-pointer">
               {text}
-              <DownOutlined className="ml-1" />
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
             </div>
           </Dropdown>
         );
@@ -70,7 +67,7 @@ const AccountReceivable = () => {
       dataIndex: "functions",
       key: "functions",
       width: 200,
-      render: (text) => <div className="flex items-center">{text}</div>, // removed dropdown icon/button
+      render: (text: any) => <div className="flex items-center">{text}</div>,
     },
   ];
 
@@ -150,7 +147,7 @@ const AccountReceivable = () => {
     {
       key: "9",
       no: "5.9",
-      process: "Sending statement of account to the customers",
+      process: "Sending statement of account to the customers.",
       activity: "Cash Collection from Customers",
       process2: "A/R Aging Analysis Process",
       stage: "Processing",
@@ -159,7 +156,7 @@ const AccountReceivable = () => {
     {
       key: "10",
       no: "5.10",
-      process: "Cash Receipts from Customers",
+      process: "Cash Receipts from Customers.",
       activity: "Vouching",
       process2: "A/R Aging Analysis Process",
       stage: "Processing",
@@ -187,13 +184,27 @@ const AccountReceivable = () => {
 
   return (
     <div className="p-6 bg-[#f8fafc] min-h-screen overflow-y-auto">
-      <h1 className="text-2xl font-semibold mb-4 text-gray-800">
-        RCM – Account Receivable
-      </h1>
-      <div>
+      {/* 🔹 Header with title + arrows */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-semibold text-gray-800">
+          RCM – Account Receivable
+        </h1>
+        <div className="flex space-x-3 bg-white border border-black shadow-sm ">
+          <button className="p-2 rounded-md  hover:bg-gray-50 transition text-black font-bold">
+            <LeftOutlined />
+          </button>
+          <div className="bg-black w-[2px] h-6 my-auto"></div>
+          <button className="p-2 ounded-md hover:bg-gray-50 transition text-black font-bold">
+            <RightOutlined />
+          </button>
+        </div>
+      </div>
+
+      {/* 🔹 Tabs section */}
+      <div className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm mb-6 px-6 py-2">
         <Tabs
           defaultActiveKey="2"
-          className=" px-6 pt-3 mx-auto"
+          className="text-lg"
           items={[
             { key: "1", label: "Process" },
             { key: "2", label: "Ownership" },
@@ -205,16 +216,17 @@ const AccountReceivable = () => {
             { key: "8", label: "Risk Assessment (Residual Risk)" },
           ]}
         />
+      </div>
 
-        <div className="p-4 overflow-x-auto">
-          <Table
-            columns={columns}
-            dataSource={data}
-            pagination={false}
-            scroll={{ x: 1300, y: 450 }}
-            bordered
-          />
-        </div>
+      {/* 🔹 Table Section */}
+      <div className="p-4 bg-white shadow-md overflow-x-auto">
+        <Table
+          columns={columns}
+          dataSource={data}
+          pagination={false}
+          scroll={{ x: 1300, y: 450 }}
+          bordered
+        />
       </div>
     </div>
   );
