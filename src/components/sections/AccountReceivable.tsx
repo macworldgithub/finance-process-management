@@ -232,7 +232,7 @@ const AccountReceivable = () => {
             </div>
           </div>
 
-          {/* 🔹 Tabs section */}
+          {/*  Tabs section */}
           <div className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm mb-6 px-6 py-2">
             <Tabs
               defaultActiveKey="2"
@@ -250,7 +250,7 @@ const AccountReceivable = () => {
             />
           </div>
 
-          {/* 🔹 Table Section */}
+          {/*  Table Section */}
           <div className="p-4 bg-white shadow-md overflow-x-auto">
             <Table
               columns={columns}
@@ -267,3 +267,4 @@ const AccountReceivable = () => {
 };
 
 export default AccountReceivable;
+
