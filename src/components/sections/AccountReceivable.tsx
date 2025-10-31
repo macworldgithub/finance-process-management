@@ -1,9 +1,21 @@
-"use client";
-import React, { useEffect, useRef } from "react";
-import { Table, Tabs } from "antd";
-import { DownOutlined } from "@ant-design/icons";
 
-const { TabPane } = Tabs;
+
+"use client";
+import React from "react";
+import { Table, Tabs, Dropdown, Menu } from "antd";
+import { DownOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
+import type { ColumnsType } from "antd/es/table"; // Add this import
+
+// Define the data type
+interface DataType {
+  key: string;
+  no: string;
+  process: string;
+  activity: string;
+  process2: string;
+  stage: string;
+  functions: string;
+}
 
 const AccountReceivable = () => {
   const stageOptions = [
@@ -12,20 +24,20 @@ const AccountReceivable = () => {
     { label: "Completed", key: "comp" },
   ];
 
-  const columns = [
+  const columns: ColumnsType<DataType> = [
     {
       title: "No.",
       dataIndex: "no",
       key: "no",
       width: 80,
-      fixed: "left",
+      fixed: "left" as const, // Fix: use 'as const'
     },
     {
       title: "Process",
       dataIndex: "process",
       key: "process",
       width: 300,
-      fixed: "left",
+      fixed: "left" as const, // Fix: use 'as const'
     },
     {
       title: "Activity",
@@ -44,28 +56,36 @@ const AccountReceivable = () => {
       dataIndex: "stage",
       key: "stage",
       width: 200,
-      render: (text: any) => (
-        <div className="flex items-center">
-          {text}
-          <DownOutlined className="ml-1" />
-        </div>
-      ),
+      render: (text: any, record: any) => {
+        const menu = (
+          <Menu
+            onClick={({ key }) =>
+              console.log("selected stage", key, "for row", record.key)
+            }
+            items={stageOptions}
+          />
+        );
+
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {text}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
+      },
     },
     {
       title: "Functions",
       dataIndex: "functions",
       key: "functions",
       width: 200,
-      render: (text: any) => (
-        <div className="flex items-center">
-          {text}
-          <DownOutlined className="ml-1" />
-        </div>
-      ),
+      render: (text: any) => <div className="flex items-center">{text}</div>,
     },
   ];
 
-  const data = [
+  const data: DataType[] = [
     {
       key: "1",
       no: "5.1",
@@ -178,14 +198,27 @@ const AccountReceivable = () => {
 
   return (
     <div className="p-6 bg-[#f8fafc] min-h-screen overflow-y-auto">
-      <h1 className="text-2xl font-semibold mb-4 text-gray-800">
-        RCM – Account Receivable
-      </h1>
+      {/* Header with title + arrows */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-semibold text-gray-800">
+          RCM – Account Receivable
+        </h1>
+        <div className="flex space-x-3 bg-white border border-black shadow-sm ">
+          <button className="p-2 rounded-md hover:bg-gray-50 transition text-black font-bold">
+            <LeftOutlined />
+          </button>
+          <div className="bg-black w-[2px] h-6 my-auto"></div>
+          <button className="p-2 rounded-md hover:bg-gray-50 transition text-black font-bold">
+            <RightOutlined />
+          </button>
+        </div>
+      </div>
 
-      <div className="bg-white rounded-xl shadow-md">
+      {/* Tabs section */}
+      <div className="bg-white/50 backdrop-blur-sm rounded-xl shadow-sm mb-6 px-6 py-2">
         <Tabs
           defaultActiveKey="2"
-          className="border-b px-6 pt-3"
+          className="text-lg"
           items={[
             { key: "1", label: "Process" },
             { key: "2", label: "Ownership" },
@@ -197,46 +230,17 @@ const AccountReceivable = () => {
             { key: "8", label: "Risk Assessment (Residual Risk)" },
           ]}
         />
+      </div>
 
-        <div className="p-4">
-          <div className="flex">
-            {/* Left fixed area: No. + Process */}
-            <div
-              ref={leftWrapperRef}
-              className="shrink-0"
-              style={{ width: 380, overflowX: "hidden" }} // <-- added overflowX hidden to prevent horizontal scroll on left
-            >
-              <Table
-                columns={leftColumns}
-                dataSource={data}
-                pagination={false}
-                bordered
-                // only vertical scroll to sync with right
-                scroll={{ y: 450 }}
-                rowKey="key"
-              />
-            </div>
-
-            {/* Right scrollable area: remaining 4 columns */}
-            <div
-              ref={rightWrapperRef}
-              className="flex-1 overflow-x-auto"
-              style={{ minWidth: 0 }}
-            >
-              <div style={{ minWidth: 1000 }}>
-                <Table
-                  columns={rightColumns}
-                  dataSource={data}
-                  pagination={false}
-                  bordered
-                  // remove scroll.x so outer wrapper shows horizontal scrollbar
-                  scroll={{ y: 450 }}
-                  rowKey="key"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Table Section */}
+      <div className="p-4 bg-white shadow-md overflow-x-auto">
+        <Table
+          columns={columns}
+          dataSource={data}
+          pagination={false}
+          scroll={{ x: 1300, y: 450 }}
+          bordered
+        />
       </div>
     </div>
   );
