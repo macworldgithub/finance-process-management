@@ -3,8 +3,9 @@ import React, { useEffect, useState } from "react";
 import { Table, Tabs, Spin } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { getColumns } from "./columns";
-import { data as importedData } from "./data";
+import { data as importedData, controlAssessmentData, financialAssertionsData , internalAuditData } from "./data";
 import { DataType } from "./types";
+
 
 const AccountReceivable: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -13,13 +14,21 @@ const AccountReceivable: React.FC = () => {
   const [tableData, setTableData] = useState<DataType[]>([]);
 
   useEffect(() => {
-    // Simulate small loading delay; replace with real fetch if needed
-    const timer = setTimeout(() => {
-      setTableData(importedData);
+
+  const timer = setTimeout(() => {
+      if (activeTab === "7") {
+        setTableData(controlAssessmentData);
+      } else if (activeTab === "9") {
+        setTableData(financialAssertionsData);
+      } else if (activeTab === "10") {
+        setTableData(internalAuditData);
+      } else {
+        setTableData(importedData);
+      }
       setLoading(false);
     }, 100);
     return () => clearTimeout(timer);
-  }, []);
+  }, [activeTab]);
 
   // Handler examples - these are passed to columns so column actions can modify state
   const handlers = {
