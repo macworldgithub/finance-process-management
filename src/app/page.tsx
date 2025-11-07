@@ -14,7 +14,7 @@
 "use client";
 
 import Navbar from "@/components/layout/Navbar";
-import AccountReceivable, { AccountReceivableRef } from "@/components/sections/AccountReceivable";
+import AccountReceivable, { AccountReceivableRef } from "@/components/sections/AccountReceivable"
 import { useRef } from "react";
 
 export default function HomePage() {
