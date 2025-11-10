@@ -1633,9 +1633,10 @@ import { DownOutlined, PlusOutlined } from "@ant-design/icons";
 import { DataType } from "./types";
 const { TextArea } = Input;
 export const stageOptions = [
-  { label: "Initiation", key: "Initiation" },
   { label: "Processing", key: "Processing" },
-  { label: "Completed", key: "Completed" },
+  { label: "Posting", key: "Posting" },
+  { label: "Initiation", key: "Initiation" },
+  { label: "Confirmation", key: "Confirmation" },
 ];
 export const severityOptions = [
   { label: "Catastrophic", key: "Catastrophic" },
@@ -1643,6 +1644,12 @@ export const severityOptions = [
   { label: "Moderate", key: "Moderate" },
   { label: "Minor", key: "Minor" },
   { label: "Insignificant", key: "Insignificant" },
+];
+export const processSeverityLevelsOptions = [
+  { label: "Critical", key: "Critical" },
+  { label: "High", key: "High" },
+  { label: "Medium", key: "Medium" },
+  { label: "Low", key: "Low" },
 ];
 // Helper to build dropdown menu
 const buildMenu = (
@@ -1793,22 +1800,18 @@ export function getColumns(
       dataIndex: "processSeverityLevels",
       key: "processSeverityLevels",
       width: 200,
-      render: (text: string, record: DataType) => {
-        if (editingKeys.includes(record.key)) {
-          return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "processSeverityLevels",
-                  e.target.value
-                )
-              }
-            />
-          );
-        }
-        return text;
+      render: (text: any, record: DataType) => {
+        const menu = buildMenu(processSeverityLevelsOptions, (key) =>
+          handlers?.onSelectGeneric?.(key, record.key, "processSeverityLevels")
+        );
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {text || "Select"}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
       },
     },
   ];
@@ -1894,7 +1897,7 @@ export function getColumns(
       },
     },
     {
-      title: "Client Segment",
+      title: "Client Segment / Functional Segment",
       dataIndex: "clientSegment",
       key: "clientSegment",
       width: 180,
