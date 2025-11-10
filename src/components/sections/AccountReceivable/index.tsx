@@ -315,6 +315,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
       controlDefinition: "",
       controlDescription: "",
       controlResponsibility: "",
+      processStage: "",
       levelResponsibility: "",
       cosoPrinciple: "",
       operationalApproach: "",

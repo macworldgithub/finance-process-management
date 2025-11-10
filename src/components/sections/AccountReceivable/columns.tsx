@@ -1651,6 +1651,40 @@ export const processSeverityLevelsOptions = [
   { label: "Medium", key: "Medium" },
   { label: "Low", key: "Low" },
 ];
+export const cosoPrincipleOptions = [
+  { label: "1. Demonstrates commitment to integrity and ethical values", key: "1. Demonstrates commitment to integrity and ethical values" },
+  { label: "2. Exercises oversight responsibility", key: "2. Exercises oversight responsibility" },
+  { label: "3. Establishes structure, authority, and responsibility", key: "3. Establishes structure, authority, and responsibility" },
+  { label: "4. Demonstrates commitment to competence", key: "4. Demonstrates commitment to competence" },
+  { label: "5. Enforces accountability", key: "5. Enforces accountability" },
+  { label: "6. Specifies suitable objectives", key: "6. Specifies suitable objectives" },
+  { label: "7. Identifies and analyzes risk", key: "7. Identifies and analyzes risk" },
+  { label: "8. Assesses fraud risk", key: "8. Assesses fraud risk" },
+  { label: "9. Identifies and analyzes significant change", key: "9. Identifies and analyzes significant change" },
+  { label: "10. Selects and develops control activities", key: "10. Selects and develops control activities" },
+  { label: "11. Selects and develops general controls over technology", key: "11. Selects and develops general controls over technology" },
+  { label: "12. Deploys through policies and procedures", key: "12. Deploys through policies and procedures" },
+  { label: "13. Uses relevant information", key: "13. Uses relevant information" },
+  { label: "14. Communicates internally", key: "14. Communicates internally" },
+  { label: "15. Communicates externally", key: "15. Communicates externally" },
+  { label: "16. Conducts ongoing and/or separate evaluations", key: "16. Conducts ongoing and/or separate evaluations" },
+  { label: "17. Evaluates and communicates deficiencies", key: "17. Evaluates and communicates deficiencies" },
+];
+export const yesNoOptions = [
+  { label: "Yes", key: "Yes" },
+  { label: "No", key: "No" },
+];
+export const operationalFrequencyOptions = [
+  { label: "Daily", key: "Daily" },
+  { label: "Weekly", key: "Weekly" },
+  { label: "Monthly", key: "Monthly" },
+  { label: "Quarterly", key: "Quarterly" },
+  { label: "Semiannually", key: "Semiannually" },
+  { label: "Annually", key: "Annually" },
+  { label: "Every 2 Years", key: "Every 2 Years" },
+  { label: "Every 3 Years", key: "Every 3 Years" },
+  { label: "As and When", key: "As and When" },
+];
 // Helper to build dropdown menu
 const buildMenu = (
   items: { label: string; key: string }[],
@@ -2746,6 +2780,25 @@ export function getColumns(
       },
     },
     {
+      title: "Process Stage",
+      dataIndex: "processStage",
+      key: "processStage",
+      width: 150,
+      render: (text: any, record: DataType) => {
+        const menu = buildMenu(yesNoOptions, (key) =>
+          handlers?.onSelectGeneric?.(key, record.key, "processStage")
+        );
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {text || "Select"}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
+      },
+    },
+    {
       title: "Key Control",
       dataIndex: "keyControl",
       key: "keyControl",
@@ -2787,26 +2840,22 @@ export function getColumns(
       },
     },
     {
-      title: "COSO Principle #",
+      title: "COSO Principle",
       dataIndex: "cosoPrinciple",
       key: "cosoPrinciple",
-      width: 150,
-      render: (text: string, record: DataType) => {
-        if (editingKeys.includes(record.key)) {
-          return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "cosoPrinciple",
-                  e.target.value
-                )
-              }
-            />
-          );
-        }
-        return text;
+      width: 250,
+      render: (text: any, record: DataType) => {
+        const menu = buildMenu(cosoPrincipleOptions, (key) =>
+          handlers?.onSelectGeneric?.(key, record.key, "cosoPrinciple")
+        );
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {text || "Select"}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
       },
     },
     {
@@ -2837,22 +2886,18 @@ export function getColumns(
       dataIndex: "operationalFrequency",
       key: "operationalFrequency",
       width: 200,
-      render: (text: string, record: DataType) => {
-        if (editingKeys.includes(record.key)) {
-          return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "operationalFrequency",
-                  e.target.value
-                )
-              }
-            />
-          );
-        }
-        return text;
+      render: (text: any, record: DataType) => {
+        const menu = buildMenu(operationalFrequencyOptions, (key) =>
+          handlers?.onSelectGeneric?.(key, record.key, "operationalFrequency")
+        );
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {text || "Select"}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
       },
     },
     {
@@ -2862,9 +2907,10 @@ export function getColumns(
       width: 200,
       render: (text: any, record: DataType) => {
         const classificationOptions = [
-          { label: "Preventive", key: "preventive" },
-          { label: "Detective", key: "detective" },
-          { label: "Corrective", key: "corrective" },
+          { label: "Directive Control", key: "Directive Control" },
+          { label: "Preventive Control", key: "Preventive Control" },
+          { label: "Detective Control", key: "Detective Control" },
+          { label: "Corrective Control", key: "Corrective Control" },
         ];
         const menu = buildMenu(classificationOptions, (key) =>
           handlers?.onSelectGeneric?.(key, record.key, "controlClassification")
@@ -2911,13 +2957,25 @@ export function getColumns(
       dataIndex: "internalControlFinancial",
       key: "internalControlFinancial",
       width: 280,
-      render: (checked: boolean, record: DataType) =>
-        renderEditableCheckbox(
-          checked,
-          record,
-          "internalControlFinancial",
-          handlers?.onCheckboxChange
-        ),
+      render: (value: any, record: DataType) => {
+        // Convert boolean to string for display, or use existing string value
+        const displayValue = 
+          value === true ? "Yes" : 
+          value === false ? "No" : 
+          value === "Yes" || value === "No" ? value : 
+          "";
+        const menu = buildMenu(yesNoOptions, (key) =>
+          handlers?.onSelectGeneric?.(key, record.key, "internalControlFinancial")
+        );
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {displayValue || "Select"}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
+      },
     },
     {
       title: "Occurrence",
