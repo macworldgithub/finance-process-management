@@ -682,7 +682,8 @@ const AccountReceivable = () => {
   ];
 
   // Tab 8: Risk Assessment (Residual Risk) columns - same as Inherent Risk
-  const riskAssessmentResidualColumns: ColumnType[] = riskAssessmentInherentColumns;
+  const riskAssessmentResidualColumns: ColumnType[] =
+    riskAssessmentInherentColumns;
 
   // Tab 9: SOX - Financial Statement Assertions columns
   const soxColumns: ColumnType[] = [
@@ -1193,8 +1194,8 @@ const AccountReceivable = () => {
         </div>
       ) : (
         <>
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-semibold text-gray-800">
+          <div className="flex items-center justify-between mb-6 ">
+            <h1 className="text-2xl font-semibold text-gray-800 text-black ">
               RCM – Account Receivable
             </h1>
             <div className="flex space-x-3 bg-white border border-black shadow-sm ">
@@ -1215,7 +1216,7 @@ const AccountReceivable = () => {
               onChange={setActiveTab}
               className="text-lg"
               items={[
-                { key: "1", label: "Process" },
+                { key: "1", label: "Processes" },
                 { key: "2", label: "Ownership" },
                 { key: "3", label: "Control Environment" },
                 { key: "4", label: "Risk Assessment (Inherent Risk)" },
@@ -1239,7 +1240,10 @@ const AccountReceivable = () => {
                 className="text-sm"
                 items={[
                   { key: "coso", label: "COSO" },
-                  { key: "intosai", label: "INTOSAI, IFAC, and Government Audit Standards" },
+                  {
+                    key: "intosai",
+                    label: "INTOSAI, IFAC, and Government Audit Standards",
+                  },
                   { key: "other", label: "Other" },
                 ]}
               />
@@ -1263,4 +1267,3 @@ const AccountReceivable = () => {
 };
 
 export default AccountReceivable;
-

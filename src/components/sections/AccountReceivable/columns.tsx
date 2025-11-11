@@ -1652,23 +1652,62 @@ export const processSeverityLevelsOptions = [
   { label: "Low", key: "Low" },
 ];
 export const cosoPrincipleOptions = [
-  { label: "1. Demonstrates commitment to integrity and ethical values", key: "1. Demonstrates commitment to integrity and ethical values" },
-  { label: "2. Exercises oversight responsibility", key: "2. Exercises oversight responsibility" },
-  { label: "3. Establishes structure, authority, and responsibility", key: "3. Establishes structure, authority, and responsibility" },
-  { label: "4. Demonstrates commitment to competence", key: "4. Demonstrates commitment to competence" },
+  {
+    label: "1. Demonstrates commitment to integrity and ethical values",
+    key: "1. Demonstrates commitment to integrity and ethical values",
+  },
+  {
+    label: "2. Exercises oversight responsibility",
+    key: "2. Exercises oversight responsibility",
+  },
+  {
+    label: "3. Establishes structure, authority, and responsibility",
+    key: "3. Establishes structure, authority, and responsibility",
+  },
+  {
+    label: "4. Demonstrates commitment to competence",
+    key: "4. Demonstrates commitment to competence",
+  },
   { label: "5. Enforces accountability", key: "5. Enforces accountability" },
-  { label: "6. Specifies suitable objectives", key: "6. Specifies suitable objectives" },
-  { label: "7. Identifies and analyzes risk", key: "7. Identifies and analyzes risk" },
+  {
+    label: "6. Specifies suitable objectives",
+    key: "6. Specifies suitable objectives",
+  },
+  {
+    label: "7. Identifies and analyzes risk",
+    key: "7. Identifies and analyzes risk",
+  },
   { label: "8. Assesses fraud risk", key: "8. Assesses fraud risk" },
-  { label: "9. Identifies and analyzes significant change", key: "9. Identifies and analyzes significant change" },
-  { label: "10. Selects and develops control activities", key: "10. Selects and develops control activities" },
-  { label: "11. Selects and develops general controls over technology", key: "11. Selects and develops general controls over technology" },
-  { label: "12. Deploys through policies and procedures", key: "12. Deploys through policies and procedures" },
-  { label: "13. Uses relevant information", key: "13. Uses relevant information" },
+  {
+    label: "9. Identifies and analyzes significant change",
+    key: "9. Identifies and analyzes significant change",
+  },
+  {
+    label: "10. Selects and develops control activities",
+    key: "10. Selects and develops control activities",
+  },
+  {
+    label: "11. Selects and develops general controls over technology",
+    key: "11. Selects and develops general controls over technology",
+  },
+  {
+    label: "12. Deploys through policies and procedures",
+    key: "12. Deploys through policies and procedures",
+  },
+  {
+    label: "13. Uses relevant information",
+    key: "13. Uses relevant information",
+  },
   { label: "14. Communicates internally", key: "14. Communicates internally" },
   { label: "15. Communicates externally", key: "15. Communicates externally" },
-  { label: "16. Conducts ongoing and/or separate evaluations", key: "16. Conducts ongoing and/or separate evaluations" },
-  { label: "17. Evaluates and communicates deficiencies", key: "17. Evaluates and communicates deficiencies" },
+  {
+    label: "16. Conducts ongoing and/or separate evaluations",
+    key: "16. Conducts ongoing and/or separate evaluations",
+  },
+  {
+    label: "17. Evaluates and communicates deficiencies",
+    key: "17. Evaluates and communicates deficiencies",
+  },
 ];
 export const yesNoOptions = [
   { label: "Yes", key: "Yes" },
@@ -1760,7 +1799,7 @@ export function getColumns(
       fixed: "left",
     },
     {
-      title: "Process",
+      title: "Processes",
       dataIndex: "process",
       key: "process",
       width: 300,
@@ -2959,13 +2998,20 @@ export function getColumns(
       width: 280,
       render: (value: any, record: DataType) => {
         // Convert boolean to string for display, or use existing string value
-        const displayValue = 
-          value === true ? "Yes" : 
-          value === false ? "No" : 
-          value === "Yes" || value === "No" ? value : 
-          "";
+        const displayValue =
+          value === true
+            ? "Yes"
+            : value === false
+            ? "No"
+            : value === "Yes" || value === "No"
+            ? value
+            : "";
         const menu = buildMenu(yesNoOptions, (key) =>
-          handlers?.onSelectGeneric?.(key, record.key, "internalControlFinancial")
+          handlers?.onSelectGeneric?.(
+            key,
+            record.key,
+            "internalControlFinancial"
+          )
         );
         return (
           <Dropdown overlay={menu} trigger={["click"]}>

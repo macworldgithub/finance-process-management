@@ -6,7 +6,7 @@
 //     <main className="relative">
 //       <Navbar />
 //       <AccountReceivable />
-     
+
 //     </main>
 //   );
 // }
@@ -14,7 +14,9 @@
 "use client";
 
 import Navbar from "@/components/layout/Navbar";
-import AccountReceivable, { AccountReceivableRef } from "@/components/sections/AccountReceivable"
+import AccountReceivable, {
+  AccountReceivableRef,
+} from "@/components/sections/AccountReceivable/index";
 import { useRef } from "react";
 
 export default function HomePage() {
