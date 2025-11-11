@@ -191,6 +191,27 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
     onCancel: (key: string) => {
       setEditingKeys((prev) => prev.filter((k) => k !== key));
     },
+    onCheckboxChange: (
+      rowKey: string,
+      field: keyof DataType,
+      checked: boolean
+    ) => {
+      const setter = getCurrentSetter();
+      setter((prev) =>
+        prev.map((item) =>
+          item.key === rowKey ? { ...item, [field]: checked } : item
+        )
+      );
+    },
+    onSelectGeneric: (key: string, rowKey: string, field?: string) => {
+      if (!field) return;
+      const setter = getCurrentSetter();
+      setter((prev) =>
+        prev.map((item) =>
+          item.key === rowKey ? { ...item, [field]: key } : item
+        )
+      );
+    },
   };
 
   return (
