@@ -46,6 +46,15 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("1");
   const [activeSubTab, setActiveSubTab] = useState("coso");
+  
+  // Reset sub-tab when switching main tabs
+  useEffect(() => {
+    if (activeTab === "3") {
+      setActiveSubTab("coso");
+    } else if (activeTab === "9") {
+      setActiveSubTab("sox");
+    }
+  }, [activeTab]);
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [editingKeys, setEditingKeys] = useState<string[]>([]);
   const tabKeys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
@@ -140,6 +149,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
       key: "9",
       label: "SOX - Financial Statement Assertions",
       dataSource: "financial",
+      subTabs: ["sox", "financial"],
     },
     { key: "10", label: "Internal Audit Management", dataSource: "audit" },
   ];
@@ -212,6 +222,43 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
         )
       );
     },
+    onTextChange: (rowKey: string, field: keyof DataType, value: string) => {
+      const setter = getCurrentSetter();
+      setter((prev) =>
+        prev.map((item) =>
+          item.key === rowKey ? { ...item, [field]: value } : item
+        )
+      );
+    },
+    onAddRow: () => {
+      const setter = getCurrentSetter();
+      const newKey = String(Date.now());
+      const newRow: DataType = {
+        key: newKey,
+        no: "",
+        process: "",
+      };
+      setter((prev) => [...prev, newRow]);
+      setEditingKeys((prev) => [...prev, newKey]);
+    },
+    onEditRow: (key: string) => {
+      setEditingKeys((prev) => [...prev, key]);
+    },
+    onSaveRow: (key: string) => {
+      setEditingKeys((prev) => prev.filter((k) => k !== key));
+    },
+    onDeleteRow: (key: string) => {
+      const setter = getCurrentSetter();
+      setter((prev) => prev.filter((item) => item.key !== key));
+    },
+    onStageChange: (key: string, rowKey: string) => {
+      const setter = getCurrentSetter();
+      setter((prev) =>
+        prev.map((item) =>
+          item.key === rowKey ? { ...item, stage: key } : item
+        )
+      );
+    },
   };
 
   return (
@@ -279,6 +326,22 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
                     label: "INTOSAI, IFAC, and Government Audit Standards",
                   },
                   { key: "other", label: "Other" },
+                ]}
+              />
+            </div>
+          )}
+          {activeTab === "9" && (
+            <div className="bg-white/50 backdrop-blur-sm rounded-b-xl shadow-sm mb-4">
+              <Tabs
+                activeKey={activeSubTab}
+                onChange={setActiveSubTab}
+                className="text-sm"
+                items={[
+                  { key: "sox", label: "SOX" },
+                  {
+                    key: "financial",
+                    label: "Financial Statement Assertions",
+                  },
                 ]}
               />
             </div>
