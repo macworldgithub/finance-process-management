@@ -55,6 +55,8 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
       setActiveSubTab("coso");
     } else if (activeTab === "9") {
       setActiveSubTab("sox");
+    } else if (activeTab === "10") {
+      setActiveSubTab("audit");
     }
   }, [activeTab]);
   const [tableData, setTableData] = useState<DataType[]>([]);
@@ -192,7 +194,12 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
       dataSource: "financial",
       subTabs: ["sox", "financial"],
     },
-    { key: "10", label: "Internal Audit Management", dataSource: "audit" },
+    {
+      key: "10",
+      label: "Internal Audit Management",
+      dataSource: "audit",
+      subTabs: ["audit", "grc"],
+    },
   ];
 
   const handleExport = () => {
@@ -382,6 +389,22 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
                   {
                     key: "financial",
                     label: "Financial Statement Assertions",
+                  },
+                ]}
+              />
+            </div>
+          )}
+          {activeTab === "10" && (
+            <div className="bg-white/50 backdrop-blur-sm rounded-b-xl shadow-sm mb-4">
+              <Tabs
+                activeKey={activeSubTab}
+                onChange={setActiveSubTab}
+                className="text-sm"
+                items={[
+                  { key: "audit", label: "Internal Audit Test" },
+                  {
+                    key: "grc",
+                    label: "GRC Exception Logs",
                   },
                 ]}
               />

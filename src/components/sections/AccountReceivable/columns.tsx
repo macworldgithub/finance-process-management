@@ -3324,7 +3324,9 @@ export function getColumns(
       else dynamicColumns = soxSubTabColumns; // default to sox
       break;
     case "10":
-      dynamicColumns = [...internalAuditTestColumns, ...grcExceptionLogColumns];
+      if (activeSubTab === "audit") dynamicColumns = internalAuditTestColumns;
+      else if (activeSubTab === "grc") dynamicColumns = grcExceptionLogColumns;
+      else dynamicColumns = internalAuditTestColumns; // default to audit
       break;
     default:
       dynamicColumns = processColumns;
