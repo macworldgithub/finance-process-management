@@ -48,7 +48,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("1");
   const [activeSubTab, setActiveSubTab] = useState("coso");
-  
+
   // Reset sub-tab when switching main tabs
   useEffect(() => {
     if (activeTab === "3") {
@@ -131,7 +131,9 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
   // Sync scrollbars when table loads
   useEffect(() => {
     const syncScrollbars = () => {
-      const tableBody = tableWrapperRef.current?.querySelector('.ant-table-body') as HTMLElement;
+      const tableBody = tableWrapperRef.current?.querySelector(
+        ".ant-table-body"
+      ) as HTMLElement;
       if (tableBody && topScrollbarRef.current) {
         // Sync top scrollbar with table body
         const handleTableScroll = () => {
@@ -139,30 +141,31 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
             topScrollbarRef.current.scrollLeft = tableBody.scrollLeft;
           }
         };
-        
-        tableBody.addEventListener('scroll', handleTableScroll);
-        
+
+        tableBody.addEventListener("scroll", handleTableScroll);
+
         // Set scrollbar width to match table scroll width
         const updateScrollbarWidth = () => {
           if (topScrollbarRef.current) {
-            const scrollbarContent = topScrollbarRef.current.querySelector('div');
+            const scrollbarContent =
+              topScrollbarRef.current.querySelector("div");
             if (scrollbarContent && tableBody.scrollWidth > 0) {
               scrollbarContent.style.minWidth = `${tableBody.scrollWidth}px`;
             }
           }
         };
-        
+
         // Update width initially and after a short delay to ensure table is rendered
         updateScrollbarWidth();
         const widthTimer = setTimeout(updateScrollbarWidth, 300);
-        
+
         return () => {
-          tableBody.removeEventListener('scroll', handleTableScroll);
+          tableBody.removeEventListener("scroll", handleTableScroll);
           clearTimeout(widthTimer);
         };
       }
     };
-    
+
     const timer = setTimeout(syncScrollbars, 200);
     return () => clearTimeout(timer);
   }, [tableData, activeTab, activeSubTab]);
@@ -190,7 +193,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
     { key: "8", label: "Risk Assessment (Residual Risk)", dataSource: "main" },
     {
       key: "9",
-      label: "SOX - Financial Statement Assertions",
+      label: "Compliance Management",
       dataSource: "financial",
       subTabs: ["sox", "financial"],
     },
@@ -430,16 +433,19 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
 
               <div className="relative">
                 {/* Top scrollbar - synchronized with table */}
-                <div 
+                <div
                   ref={topScrollbarRef}
                   className="sticky top-0 z-20 overflow-x-auto bg-white pb-2 mb-2"
-                  style={{ 
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: '#cbd5e1 #f1f5f9'
+                  style={{
+                    scrollbarWidth: "thin",
+                    // scrollbarColor: "#374151 #1f2937",
+                    scrollbarColor: "#4b5563 #374151",
                   }}
                   onScroll={(e) => {
                     const target = e.target as HTMLDivElement;
-                    const tableBody = tableWrapperRef.current?.querySelector('.ant-table-body') as HTMLElement;
+                    const tableBody = tableWrapperRef.current?.querySelector(
+                      ".ant-table-body"
+                    ) as HTMLElement;
                     if (tableBody) {
                       tableBody.scrollLeft = target.scrollLeft;
                     }
@@ -447,14 +453,13 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
                 >
                   <div style={{ minWidth: "1300px", height: "1px" }}></div>
                 </div>
-                
 
                 {/* Table */}
-                <div 
+                <div
                   ref={tableWrapperRef}
                   className="bg-white shadow-md rounded-b-lg overflow-hidden"
                   style={{
-                    maxHeight: "calc(100vh - 380px)"
+                    maxHeight: "calc(100vh - 380px)",
                   }}
                 >
                   <style>{`
@@ -483,9 +488,10 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
                       onScroll: (e: React.UIEvent<HTMLDivElement>) => {
                         const target = e.target as HTMLDivElement;
                         if (topScrollbarRef.current) {
-                          topScrollbarRef.current.scrollLeft = target.scrollLeft;
+                          topScrollbarRef.current.scrollLeft =
+                            target.scrollLeft;
                         }
-                      }
+                      },
                     })}
                   />
                 </div>

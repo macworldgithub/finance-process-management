@@ -1769,6 +1769,112 @@ const renderEditableCheckbox = (
   );
 };
 
+// Helper function to get color based on severity/impact level
+const getColorForSeverity = (
+  value: string
+): { bgColor: string; textColor: string; borderColor: string } => {
+  switch (value) {
+    case "Catastrophic":
+      return {
+        bgColor: "#FE0000",
+        textColor: "#FFFFFF",
+        borderColor: "#CC0000",
+      };
+    case "Major":
+      return {
+        bgColor: "#FFC000",
+        textColor: "#000000",
+        borderColor: "#CCAA00",
+      };
+    case "Moderate":
+      return {
+        bgColor: "#FFFD04",
+        textColor: "#000000",
+        borderColor: "#99CC00",
+      };
+    case "Minor":
+      return {
+        bgColor: "#8FD154",
+        textColor: "#000000",
+        borderColor: "#00AA00",
+      };
+    case "Insignificant":
+      return {
+        bgColor: "#00AF50",
+        textColor: "#000000",
+        borderColor: "#00AA44",
+      };
+    case "Critical":
+      return {
+        bgColor: "#FE0000",
+        textColor: "#FFFFFF",
+        borderColor: "#CC0000",
+      };
+    case "High":
+      return {
+        bgColor: "#FFC000",
+        textColor: "#000000",
+        borderColor: "#CCAA00",
+      };
+    case "Moderate":
+      return {
+        bgColor: "#FFFD04",
+        textColor: "#000000",
+        borderColor: "#99CC00",
+      };
+    case "Low":
+      return {
+        bgColor: "#8FD154",
+        textColor: "#000000",
+        borderColor: "#00AA00",
+      };
+    case "Lowest":
+      return {
+        bgColor: "#00AF50",
+
+        textColor: "#000000",
+        borderColor: "#00AA44",
+      };
+    // Probability/Likelihood colors
+    case "Certain":
+      return {
+        bgColor: "#FE0000",
+        textColor: "#FFFFFF",
+        borderColor: "#CC0000",
+      };
+    case "Likely":
+      return {
+        bgColor: "#FFC000",
+        textColor: "#000000",
+        borderColor: "#CCAA00",
+      };
+    case "Possible":
+      return {
+        bgColor: "#FFFD04",
+        textColor: "#000000",
+        borderColor: "#99CC00",
+      };
+    case "Unlikely":
+      return {
+        bgColor: "#8FD154",
+        textColor: "#000000",
+        borderColor: "#00AA00",
+      };
+    case "Rare":
+      return {
+        bgColor: "#00AF50",
+        textColor: "#000000",
+        borderColor: "#00AA44",
+      };
+    default:
+      return {
+        bgColor: "#F5F5F5",
+        textColor: "#000000",
+        borderColor: "#D9D9D9",
+      };
+  }
+};
+
 export function getColumns(
   activeTab: string,
   activeSubTab: string,
@@ -2623,11 +2729,20 @@ export function getColumns(
         const menu = buildMenu(severityOptions, (key) =>
           handlers?.onSelectGeneric?.(key, record.key, "severityImpact")
         );
+        const { bgColor, textColor, borderColor } = getColorForSeverity(text);
         return (
           <Dropdown overlay={menu} trigger={["click"]}>
-            <div className="flex items-center cursor-pointer">
+            <div
+              className="flex items-center cursor-pointer p-2 rounded"
+              style={{
+                backgroundColor: bgColor,
+                color: textColor,
+                border: `1px solid ${borderColor}`,
+                fontWeight: "600",
+              }}
+            >
               {text || "Select"}
-              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+              <DownOutlined className="ml-2" style={{ color: textColor }} />
             </div>
           </Dropdown>
         );
@@ -2649,11 +2764,20 @@ export function getColumns(
         const menu = buildMenu(probabilityOptions, (key) =>
           handlers?.onSelectGeneric?.(key, record.key, "probabilityLikelihood")
         );
+        const { bgColor, textColor, borderColor } = getColorForSeverity(text);
         return (
           <Dropdown overlay={menu} trigger={["click"]}>
-            <div className="flex items-center cursor-pointer">
+            <div
+              className="flex items-center cursor-pointer p-2 rounded"
+              style={{
+                backgroundColor: bgColor,
+                color: textColor,
+                border: `1px solid ${borderColor}`,
+                fontWeight: "600",
+              }}
+            >
               {text || "Select"}
-              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+              <DownOutlined className="ml-2" style={{ color: textColor }} />
             </div>
           </Dropdown>
         );
@@ -2675,11 +2799,20 @@ export function getColumns(
         const menu = buildMenu(classificationOptions, (key) =>
           handlers?.onSelectGeneric?.(key, record.key, "classification")
         );
+        const { bgColor, textColor, borderColor } = getColorForSeverity(text);
         return (
           <Dropdown overlay={menu} trigger={["click"]}>
-            <div className="flex items-center cursor-pointer">
+            <div
+              className="flex items-center cursor-pointer p-2 rounded"
+              style={{
+                backgroundColor: bgColor,
+                color: textColor,
+                border: `1px solid ${borderColor}`,
+                fontWeight: "600",
+              }}
+            >
               {text || "Select"}
-              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+              <DownOutlined className="ml-2" style={{ color: textColor }} />
             </div>
           </Dropdown>
         );
