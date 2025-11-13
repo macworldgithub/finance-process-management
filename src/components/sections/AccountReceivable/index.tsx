@@ -43,9 +43,22 @@ export interface AccountReceivableRef {
 
 const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const tableWrapperRef = useRef<HTMLDivElement>(null);
+  const topScrollbarRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("1");
   const [activeSubTab, setActiveSubTab] = useState("coso");
+  
+  // Reset sub-tab when switching main tabs
+  useEffect(() => {
+    if (activeTab === "3") {
+      setActiveSubTab("coso");
+    } else if (activeTab === "9") {
+      setActiveSubTab("sox");
+    } else if (activeTab === "10") {
+      setActiveSubTab("audit");
+    }
+  }, [activeTab]);
   const [tableData, setTableData] = useState<DataType[]>([]);
   const [editingKeys, setEditingKeys] = useState<string[]>([]);
   const tabKeys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
@@ -115,6 +128,45 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
     return () => clearTimeout(timer);
   }, [activeTab, mainData, controlData, financialData, auditData]);
 
+  // Sync scrollbars when table loads
+  useEffect(() => {
+    const syncScrollbars = () => {
+      const tableBody = tableWrapperRef.current?.querySelector('.ant-table-body') as HTMLElement;
+      if (tableBody && topScrollbarRef.current) {
+        // Sync top scrollbar with table body
+        const handleTableScroll = () => {
+          if (topScrollbarRef.current) {
+            topScrollbarRef.current.scrollLeft = tableBody.scrollLeft;
+          }
+        };
+        
+        tableBody.addEventListener('scroll', handleTableScroll);
+        
+        // Set scrollbar width to match table scroll width
+        const updateScrollbarWidth = () => {
+          if (topScrollbarRef.current) {
+            const scrollbarContent = topScrollbarRef.current.querySelector('div');
+            if (scrollbarContent && tableBody.scrollWidth > 0) {
+              scrollbarContent.style.minWidth = `${tableBody.scrollWidth}px`;
+            }
+          }
+        };
+        
+        // Update width initially and after a short delay to ensure table is rendered
+        updateScrollbarWidth();
+        const widthTimer = setTimeout(updateScrollbarWidth, 300);
+        
+        return () => {
+          tableBody.removeEventListener('scroll', handleTableScroll);
+          clearTimeout(widthTimer);
+        };
+      }
+    };
+    
+    const timer = setTimeout(syncScrollbars, 200);
+    return () => clearTimeout(timer);
+  }, [tableData, activeTab, activeSubTab]);
+
   const getCurrentSetter = () => {
     if (activeTab === "7") return setControlData;
     else if (activeTab === "9") return setFinancialData;
@@ -140,8 +192,14 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
       key: "9",
       label: "SOX - Financial Statement Assertions",
       dataSource: "financial",
+      subTabs: ["sox", "financial"],
     },
-    { key: "10", label: "Internal Audit Management", dataSource: "audit" },
+    {
+      key: "10",
+      label: "Internal Audit Management",
+      dataSource: "audit",
+      subTabs: ["audit", "grc"],
+    },
   ];
 
   const handleExport = () => {
@@ -209,6 +267,43 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
       setter((prev) =>
         prev.map((item) =>
           item.key === rowKey ? { ...item, [field]: key } : item
+        )
+      );
+    },
+    onTextChange: (rowKey: string, field: keyof DataType, value: string) => {
+      const setter = getCurrentSetter();
+      setter((prev) =>
+        prev.map((item) =>
+          item.key === rowKey ? { ...item, [field]: value } : item
+        )
+      );
+    },
+    onAddRow: () => {
+      const setter = getCurrentSetter();
+      const newKey = String(Date.now());
+      const newRow: DataType = {
+        key: newKey,
+        no: "",
+        process: "",
+      };
+      setter((prev) => [...prev, newRow]);
+      setEditingKeys((prev) => [...prev, newKey]);
+    },
+    onEditRow: (key: string) => {
+      setEditingKeys((prev) => [...prev, key]);
+    },
+    onSaveRow: (key: string) => {
+      setEditingKeys((prev) => prev.filter((k) => k !== key));
+    },
+    onDeleteRow: (key: string) => {
+      const setter = getCurrentSetter();
+      setter((prev) => prev.filter((item) => item.key !== key));
+    },
+    onStageChange: (key: string, rowKey: string) => {
+      const setter = getCurrentSetter();
+      setter((prev) =>
+        prev.map((item) =>
+          item.key === rowKey ? { ...item, stage: key } : item
         )
       );
     },
@@ -283,6 +378,38 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
               />
             </div>
           )}
+          {activeTab === "9" && (
+            <div className="bg-white/50 backdrop-blur-sm rounded-b-xl shadow-sm mb-4">
+              <Tabs
+                activeKey={activeSubTab}
+                onChange={setActiveSubTab}
+                className="text-sm"
+                items={[
+                  { key: "sox", label: "SOX" },
+                  {
+                    key: "financial",
+                    label: "Financial Statement Assertions",
+                  },
+                ]}
+              />
+            </div>
+          )}
+          {activeTab === "10" && (
+            <div className="bg-white/50 backdrop-blur-sm rounded-b-xl shadow-sm mb-4">
+              <Tabs
+                activeKey={activeSubTab}
+                onChange={setActiveSubTab}
+                className="text-sm"
+                items={[
+                  { key: "audit", label: "Internal Audit Test" },
+                  {
+                    key: "grc",
+                    label: "GRC Exception Logs",
+                  },
+                ]}
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -302,14 +429,43 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
               </div>
 
               <div className="relative">
-                {/* Top scrollbar */}
-                <div className="sticky top-0 z-10 overflow-x-auto bg-white pb-1">
+                {/* Top scrollbar - synchronized with table */}
+                <div 
+                  ref={topScrollbarRef}
+                  className="sticky top-0 z-20 overflow-x-auto bg-white pb-2 mb-2"
+                  style={{ 
+                    scrollbarWidth: 'thin',
+                    scrollbarColor: '#cbd5e1 #f1f5f9'
+                  }}
+                  onScroll={(e) => {
+                    const target = e.target as HTMLDivElement;
+                    const tableBody = tableWrapperRef.current?.querySelector('.ant-table-body') as HTMLElement;
+                    if (tableBody) {
+                      tableBody.scrollLeft = target.scrollLeft;
+                    }
+                  }}
+                >
                   <div style={{ minWidth: "1300px", height: "1px" }}></div>
                 </div>
                 
 
                 {/* Table */}
-                <div className="bg-white shadow-md rounded-b-lg overflow-hidden">
+                <div 
+                  ref={tableWrapperRef}
+                  className="bg-white shadow-md rounded-b-lg overflow-hidden"
+                  style={{
+                    maxHeight: "calc(100vh - 380px)"
+                  }}
+                >
+                  <style>{`
+                    .ant-table-body {
+                      scrollbar-width: none; /* Firefox */
+                      -ms-overflow-style: none; /* IE and Edge */
+                    }
+                    .ant-table-body::-webkit-scrollbar {
+                      display: none; /* Chrome, Safari, Opera */
+                    }
+                  `}</style>
                   <Table
                     columns={getColumns(
                       activeTab,
@@ -323,6 +479,14 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
                     scroll={{ x: 1300, y: "calc(100vh - 380px)" }}
                     bordered
                     rowKey="key"
+                    onHeaderRow={() => ({
+                      onScroll: (e: React.UIEvent<HTMLDivElement>) => {
+                        const target = e.target as HTMLDivElement;
+                        if (topScrollbarRef.current) {
+                          topScrollbarRef.current.scrollLeft = target.scrollLeft;
+                        }
+                      }
+                    })}
                   />
                 </div>
               </div>

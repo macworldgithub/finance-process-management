@@ -2967,7 +2967,7 @@ export function getColumns(
   ];
   const riskAssessmentResidualColumns: ColumnsType<DataType> =
     riskAssessmentInherentColumns.map((col) => ({ ...col })); // copy to avoid reference issues
-  const soxColumns: ColumnsType<DataType> = [
+  const soxSubTabColumns: ColumnsType<DataType> = [
     {
       title: "SOX Control Activity",
       dataIndex: "soxControlActivity",
@@ -2991,6 +2991,8 @@ export function getColumns(
         return text;
       },
     },
+  ];
+  const financialStatementAssertionsColumns: ColumnsType<DataType> = [
     {
       title: "Internal Control Over Financial Reporting?",
       dataIndex: "internalControlFinancial",
@@ -3089,10 +3091,10 @@ export function getColumns(
         ),
     },
     {
-      title: "Classification",
+      title: "Classification and Understandability",
       dataIndex: "classificationSOX",
       key: "classificationSOX",
-      width: 150,
+      width: 200,
       render: (checked: boolean, record: DataType) =>
         renderEditableCheckbox(
           checked,
@@ -3317,13 +3319,14 @@ export function getColumns(
       dynamicColumns = riskAssessmentResidualColumns;
       break;
     case "9":
-      dynamicColumns = soxColumns;
+      if (activeSubTab === "sox") dynamicColumns = soxSubTabColumns;
+      else if (activeSubTab === "financial") dynamicColumns = financialStatementAssertionsColumns;
+      else dynamicColumns = soxSubTabColumns; // default to sox
       break;
     case "10":
-      dynamicColumns = internalAuditTestColumns;
-      break;
-    case "11":
-      dynamicColumns = grcExceptionLogColumns;
+      if (activeSubTab === "audit") dynamicColumns = internalAuditTestColumns;
+      else if (activeSubTab === "grc") dynamicColumns = grcExceptionLogColumns;
+      else dynamicColumns = internalAuditTestColumns; // default to audit
       break;
     default:
       dynamicColumns = processColumns;
