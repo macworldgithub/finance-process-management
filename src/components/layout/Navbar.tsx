@@ -426,7 +426,7 @@ const Navbar: React.FC<NavbarProps> = ({ onImport }) => {
               </span>
             </button>
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-white  rounded-lg shadow-lg border border-gray-200 z-[9999]">
+              <div className="absolute right-0 mt-2 w-80 bg-white  rounded-lg shadow-lg border border-gray-200 z-9999">
                 <div className="px-4 py-3 border-b border-gray-200">
                   <h3 className="text-sm font-semibold text-gray-900">
                     Notifications
@@ -480,7 +480,7 @@ const Navbar: React.FC<NavbarProps> = ({ onImport }) => {
               </span>
             </button>
             {showMessages && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-[9999]">
+              <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-9999">
                 <div className="px-4 py-3 border-b border-gray-200">
                   <h3 className="text-sm font-semibold text-gray-900">
                     Messages
