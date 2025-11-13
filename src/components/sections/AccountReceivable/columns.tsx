@@ -172,22 +172,18 @@
 //       dataIndex: "processSeverityLevels",
 //       key: "processSeverityLevels",
 //       width: 200,
-//       render: (text: string, record: DataType) => {
-//         if (editingKeys.includes(record.key)) {
-//           return (
-//             <Input
-//               value={text}
-//               onChange={(e) =>
-//                 handlers?.onTextChange?.(
-//                   record.key,
-//                   "processSeverityLevels",
-//                   e.target.value
-//                 )
-//               }
-//             />
-//           );
-//         }
-//         return text;
+//       render: (text: any, record: DataType) => {
+//         const menu = buildMenu(processSeverityLevelsOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "processSeverityLevels")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {text || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
 //       },
 //     },
 //   ];
@@ -273,7 +269,7 @@
 //       },
 //     },
 //     {
-//       title: "Client Segment",
+//       title: "Client Segment / Functional Segment",
 //       dataIndex: "clientSegment",
 //       key: "clientSegment",
 //       width: 180,
@@ -1122,6 +1118,25 @@
 //       },
 //     },
 //     {
+//       title: "Process Stage",
+//       dataIndex: "processStage",
+//       key: "processStage",
+//       width: 150,
+//       render: (text: any, record: DataType) => {
+//         const menu = buildMenu(yesNoOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "processStage")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {text || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
+//     },
+//     {
 //       title: "Key Control",
 //       dataIndex: "keyControl",
 //       key: "keyControl",
@@ -1163,26 +1178,22 @@
 //       },
 //     },
 //     {
-//       title: "COSO Principle #",
+//       title: "COSO Principle",
 //       dataIndex: "cosoPrinciple",
 //       key: "cosoPrinciple",
-//       width: 150,
-//       render: (text: string, record: DataType) => {
-//         if (editingKeys.includes(record.key)) {
-//           return (
-//             <Input
-//               value={text}
-//               onChange={(e) =>
-//                 handlers?.onTextChange?.(
-//                   record.key,
-//                   "cosoPrinciple",
-//                   e.target.value
-//                 )
-//               }
-//             />
-//           );
-//         }
-//         return text;
+//       width: 250,
+//       render: (text: any, record: DataType) => {
+//         const menu = buildMenu(cosoPrincipleOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "cosoPrinciple")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {text || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
 //       },
 //     },
 //     {
@@ -1213,22 +1224,18 @@
 //       dataIndex: "operationalFrequency",
 //       key: "operationalFrequency",
 //       width: 200,
-//       render: (text: string, record: DataType) => {
-//         if (editingKeys.includes(record.key)) {
-//           return (
-//             <Input
-//               value={text}
-//               onChange={(e) =>
-//                 handlers?.onTextChange?.(
-//                   record.key,
-//                   "operationalFrequency",
-//                   e.target.value
-//                 )
-//               }
-//             />
-//           );
-//         }
-//         return text;
+//       render: (text: any, record: DataType) => {
+//         const menu = buildMenu(operationalFrequencyOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "operationalFrequency")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {text || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
 //       },
 //     },
 //     {
@@ -1238,9 +1245,10 @@
 //       width: 200,
 //       render: (text: any, record: DataType) => {
 //         const classificationOptions = [
-//           { label: "Preventive", key: "preventive" },
-//           { label: "Detective", key: "detective" },
-//           { label: "Corrective", key: "corrective" },
+//           { label: "Directive Control", key: "Directive Control" },
+//           { label: "Preventive Control", key: "Preventive Control" },
+//           { label: "Detective Control", key: "Detective Control" },
+//           { label: "Corrective Control", key: "Corrective Control" },
 //         ];
 //         const menu = buildMenu(classificationOptions, (key) =>
 //           handlers?.onSelectGeneric?.(key, record.key, "controlClassification")
@@ -1361,10 +1369,10 @@
 //         ),
 //     },
 //     {
-//       title: "Classification",
+//       title: "Classification and Understandability",
 //       dataIndex: "classificationSOX",
 //       key: "classificationSOX",
-//       width: 150,
+//       width: 200,
 //       render: (checked: boolean, record: DataType) =>
 //         renderEditableCheckbox(
 //           checked,
@@ -1494,22 +1502,22 @@
 //       dataIndex: "grcAdequacy",
 //       key: "grcAdequacy",
 //       width: 200,
-//       render: (text: string, record: DataType) => {
-//         if (editingKeys.includes(record.key)) {
-//           return (
-//             <Input
-//               value={text}
-//               onChange={(e) =>
-//                 handlers?.onTextChange?.(
-//                   record.key,
-//                   "grcAdequacy",
-//                   e.target.value
-//                 )
-//               }
-//             />
-//           );
-//         }
-//         return text;
+//       render: (value: any, record: DataType) => {
+//         // display booleans or string values consistently
+//         const display =
+//           value === true ? "Yes" : value === false ? "No" : value || "Select";
+//         // build menu that updates row via handler
+//         const menu = buildMenu(yesNoOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {display}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
 //       },
 //     },
 //     {
@@ -1517,22 +1525,20 @@
 //       dataIndex: "grcEffectiveness",
 //       key: "grcEffectiveness",
 //       width: 200,
-//       render: (text: string, record: DataType) => {
-//         if (editingKeys.includes(record.key)) {
-//           return (
-//             <Input
-//               value={text}
-//               onChange={(e) =>
-//                 handlers?.onTextChange?.(
-//                   record.key,
-//                   "grcEffectiveness",
-//                   e.target.value
-//                 )
-//               }
-//             />
-//           );
-//         }
-//         return text;
+//       render: (value: any, record: DataType) => {
+//         const display =
+//           value === true ? "Yes" : value === false ? "No" : value || "Select";
+//         const menu = buildMenu(yesNoOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {display}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
 //       },
 //     },
 //     {
@@ -1546,11 +1552,7 @@
 //             <TextArea
 //               value={text}
 //               onChange={(e) =>
-//                 handlers?.onTextChange?.(
-//                   record.key,
-//                   "explanation",
-//                   e.target.value
-//                 )
+//                 handlers?.onTextChange?.(record.key, "explanation", e.target.value)
 //               }
 //               autoSize={{ minRows: 2 }}
 //             />
@@ -1757,6 +1759,7 @@ const renderEditableCheckbox = (
     />
   );
 };
+
 export function getColumns(
   activeTab: string,
   activeSubTab: string,
@@ -3224,22 +3227,22 @@ export function getColumns(
       dataIndex: "grcAdequacy",
       key: "grcAdequacy",
       width: 200,
-      render: (text: string, record: DataType) => {
-        if (editingKeys.includes(record.key)) {
-          return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "grcAdequacy",
-                  e.target.value
-                )
-              }
-            />
-          );
-        }
-        return text;
+      render: (value: any, record: DataType) => {
+        // display booleans or string values consistently
+        const display =
+          value === true ? "Yes" : value === false ? "No" : value || "Select";
+        // build menu that updates row via handler
+        const menu = buildMenu(yesNoOptions, (key) =>
+          handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
+        );
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {display}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
       },
     },
     {
@@ -3247,22 +3250,20 @@ export function getColumns(
       dataIndex: "grcEffectiveness",
       key: "grcEffectiveness",
       width: 200,
-      render: (text: string, record: DataType) => {
-        if (editingKeys.includes(record.key)) {
-          return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "grcEffectiveness",
-                  e.target.value
-                )
-              }
-            />
-          );
-        }
-        return text;
+      render: (value: any, record: DataType) => {
+        const display =
+          value === true ? "Yes" : value === false ? "No" : value || "Select";
+        const menu = buildMenu(yesNoOptions, (key) =>
+          handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
+        );
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {display}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
       },
     },
     {
@@ -3320,7 +3321,8 @@ export function getColumns(
       break;
     case "9":
       if (activeSubTab === "sox") dynamicColumns = soxSubTabColumns;
-      else if (activeSubTab === "financial") dynamicColumns = financialStatementAssertionsColumns;
+      else if (activeSubTab === "financial")
+        dynamicColumns = financialStatementAssertionsColumns;
       else dynamicColumns = soxSubTabColumns; // default to sox
       break;
     case "10":

@@ -826,12 +826,59 @@ const AccountReceivable = () => {
       dataIndex: "grcAdequacy",
       key: "grcAdequacy",
       width: 200,
+      render: (text: any, record: any) => {
+        const menu = (
+          <Menu
+            onClick={({ key }) =>
+              console.log("GRC Adequacy selected", key, "for row", record.key)
+            }
+            items={[
+              { label: "Yes", key: "Yes" },
+              { label: "No", key: "No" },
+            ]}
+          />
+        );
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {text || "Select"}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
+      },
     },
     {
       title: "GRC Effectiveness",
       dataIndex: "grcEffectiveness",
       key: "grcEffectiveness",
       width: 200,
+      render: (text: any, record: any) => {
+        const menu = (
+          <Menu
+            onClick={({ key }) =>
+              console.log(
+                "GRC Effectiveness selected",
+                key,
+                "for row",
+                record.key
+              )
+            }
+            items={[
+              { label: "Yes", key: "Yes" },
+              { label: "No", key: "No" },
+            ]}
+          />
+        );
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {text || "Select"}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
+      },
     },
     {
       title: "Explanation",
