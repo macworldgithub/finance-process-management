@@ -1,19 +1,17 @@
 // "use client";
 // import React from "react";
-// import { EditOutlined } from "@ant-design/icons";
+// import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 // import { ColumnsType } from "antd/es/table";
-// import { Menu, Dropdown, Checkbox, Button, Input } from "antd";
+// import { Menu, Dropdown, Checkbox, Button, Input, Popconfirm } from "antd";
 // import { DownOutlined, PlusOutlined } from "@ant-design/icons";
 // import { DataType } from "./types";
-
 // const { TextArea } = Input;
-
 // export const stageOptions = [
-//   { label: "Initiation", key: "Initiation" },
 //   { label: "Processing", key: "Processing" },
-//   { label: "Completed", key: "Completed" },
+//   { label: "Posting", key: "Posting" },
+//   { label: "Initiation", key: "Initiation" },
+//   { label: "Confirmation", key: "Confirmation" },
 // ];
-
 // export const severityOptions = [
 //   { label: "Catastrophic", key: "Catastrophic" },
 //   { label: "Major", key: "Major" },
@@ -21,7 +19,93 @@
 //   { label: "Minor", key: "Minor" },
 //   { label: "Insignificant", key: "Insignificant" },
 // ];
+// export const processSeverityLevelsOptions = [
+//   { label: "Critical", key: "Critical" },
+//   { label: "High", key: "High" },
+//   { label: "Medium", key: "Medium" },
+//   { label: "Low", key: "Low" },
+// ];
+// export const cosoPrincipleOptions = [
+//   {
+//     label: "1. Demonstrates commitment to integrity and ethical values",
+//     key: "1. Demonstrates commitment to integrity and ethical values",
+//   },
+//   {
+//     label: "2. Exercises oversight responsibility",
+//     key: "2. Exercises oversight responsibility",
+//   },
+//   {
+//     label: "3. Establishes structure, authority, and responsibility",
+//     key: "3. Establishes structure, authority, and responsibility",
+//   },
+//   {
+//     label: "4. Demonstrates commitment to competence",
+//     key: "4. Demonstrates commitment to competence",
+//   },
+//   { label: "5. Enforces accountability", key: "5. Enforces accountability" },
+//   {
+//     label: "6. Specifies suitable objectives",
+//     key: "6. Specifies suitable objectives",
+//   },
+//   {
+//     label: "7. Identifies and analyzes risk",
+//     key: "7. Identifies and analyzes risk",
+//   },
+//   { label: "8. Assesses fraud risk", key: "8. Assesses fraud risk" },
+//   {
+//     label: "9. Identifies and analyzes significant change",
+//     key: "9. Identifies and analyzes significant change",
+//   },
+//   {
+//     label: "10. Selects and develops control activities",
+//     key: "10. Selects and develops control activities",
+//   },
+//   {
+//     label: "11. Selects and develops general controls over technology",
+//     key: "11. Selects and develops general controls over technology",
+//   },
+//   {
+//     label: "12. Deploys through policies and procedures",
+//     key: "12. Deploys through policies and procedures",
+//   },
+//   {
+//     label: "13. Uses relevant information",
+//     key: "13. Uses relevant information",
+//   },
+//   { label: "14. Communicates internally", key: "14. Communicates internally" },
+//   { label: "15. Communicates externally", key: "15. Communicates externally" },
+//   {
+//     label: "16. Conducts ongoing and/or separate evaluations",
+//     key: "16. Conducts ongoing and/or separate evaluations",
+//   },
+//   {
+//     label: "17. Evaluates and communicates deficiencies",
+//     key: "17. Evaluates and communicates deficiencies",
+//   },
+// ];
+// export const yesNoOptions = [
+//   { label: "Yes", key: "Yes" },
+//   { label: "No", key: "No" },
+// ];
+// export const operationalFrequencyOptions = [
+//   { label: "Daily", key: "Daily" },
+//   { label: "Weekly", key: "Weekly" },
+//   { label: "Monthly", key: "Monthly" },
+//   { label: "Quarterly", key: "Quarterly" },
+//   { label: "Semiannually", key: "Semiannually" },
+//   { label: "Annually", key: "Annually" },
+//   { label: "Every 2 Years", key: "Every 2 Years" },
+//   { label: "Every 3 Years", key: "Every 3 Years" },
+//   { label: "As and When", key: "As and When" },
+// ];
 
+// export const soxControlActivityOptions = [
+//   {
+//     label: "Financial Controller Activity",
+//     key: "Financial Controller Activity",
+//   },
+//   { label: "Other", key: "Other" },
+// ];
 // // Helper to build dropdown menu
 // const buildMenu = (
 //   items: { label: string; key: string }[],
@@ -36,7 +120,6 @@
 //     />
 //   );
 // };
-
 // // Render editable checkbox
 // const renderEditableCheckbox = (
 //   value: boolean,
@@ -55,6 +138,112 @@
 //       className="flex justify-center"
 //     />
 //   );
+// };
+
+// // Helper function to get color based on severity/impact level
+// const getColorForSeverity = (
+//   value: string
+// ): { bgColor: string; textColor: string; borderColor: string } => {
+//   switch (value) {
+//     case "Catastrophic":
+//       return {
+//         bgColor: "#FE0000",
+//         textColor: "#FFFFFF",
+//         borderColor: "#CC0000",
+//       };
+//     case "Major":
+//       return {
+//         bgColor: "#FFC000",
+//         textColor: "#000000",
+//         borderColor: "#CCAA00",
+//       };
+//     case "Moderate":
+//       return {
+//         bgColor: "#FFFD04",
+//         textColor: "#000000",
+//         borderColor: "#99CC00",
+//       };
+//     case "Minor":
+//       return {
+//         bgColor: "#8FD154",
+//         textColor: "#000000",
+//         borderColor: "#00AA00",
+//       };
+//     case "Insignificant":
+//       return {
+//         bgColor: "#00AF50",
+//         textColor: "#000000",
+//         borderColor: "#00AA44",
+//       };
+//     case "Critical":
+//       return {
+//         bgColor: "#FE0000",
+//         textColor: "#FFFFFF",
+//         borderColor: "#CC0000",
+//       };
+//     case "High":
+//       return {
+//         bgColor: "#FFC000",
+//         textColor: "#000000",
+//         borderColor: "#CCAA00",
+//       };
+//     case "Moderate":
+//       return {
+//         bgColor: "#FFFD04",
+//         textColor: "#000000",
+//         borderColor: "#99CC00",
+//       };
+//     case "Low":
+//       return {
+//         bgColor: "#8FD154",
+//         textColor: "#000000",
+//         borderColor: "#00AA00",
+//       };
+//     case "Lowest":
+//       return {
+//         bgColor: "#00AF50",
+
+//         textColor: "#000000",
+//         borderColor: "#00AA44",
+//       };
+//     // Probability/Likelihood colors
+//     case "Certain":
+//       return {
+//         bgColor: "#FE0000",
+//         textColor: "#FFFFFF",
+//         borderColor: "#CC0000",
+//       };
+//     case "Likely":
+//       return {
+//         bgColor: "#FFC000",
+//         textColor: "#000000",
+//         borderColor: "#CCAA00",
+//       };
+//     case "Possible":
+//       return {
+//         bgColor: "#FFFD04",
+//         textColor: "#000000",
+//         borderColor: "#99CC00",
+//       };
+//     case "Unlikely":
+//       return {
+//         bgColor: "#8FD154",
+//         textColor: "#000000",
+//         borderColor: "#00AA00",
+//       };
+//     case "Rare":
+//       return {
+//         bgColor: "#00AF50",
+//         textColor: "#000000",
+//         borderColor: "#00AA44",
+//       };
+//     default:
+//       return {
+//         bgColor: "#F5F5F5",
+//         textColor: "#000000",
+//         borderColor: "#D9D9D9",
+//       };
+//   }
 // };
 
 // export function getColumns(
@@ -76,6 +265,7 @@
 //     onAddRow?: () => void;
 //     onSaveRow?: (rowKey: string) => void;
 //     onEditRow?: (rowKey: string) => void;
+//     onDeleteRow?: (rowKey: string) => void;
 //   },
 //   editingKeys: string[] = []
 // ): ColumnsType<DataType> {
@@ -98,7 +288,7 @@
 //       fixed: "left",
 //     },
 //     {
-//       title: "Process",
+//       title: "Processes",
 //       dataIndex: "process",
 //       key: "process",
 //       width: 300,
@@ -910,11 +1100,20 @@
 //         const menu = buildMenu(severityOptions, (key) =>
 //           handlers?.onSelectGeneric?.(key, record.key, "severityImpact")
 //         );
+//         const { bgColor, textColor, borderColor } = getColorForSeverity(text);
 //         return (
 //           <Dropdown overlay={menu} trigger={["click"]}>
-//             <div className="flex items-center cursor-pointer">
+//             <div
+//               className="flex items-center cursor-pointer p-2 rounded"
+//               style={{
+//                 backgroundColor: bgColor,
+//                 color: textColor,
+//                 border: `1px solid ${borderColor}`,
+//                 fontWeight: "600",
+//               }}
+//             >
 //               {text || "Select"}
-//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//               <DownOutlined className="ml-2" style={{ color: textColor }} />
 //             </div>
 //           </Dropdown>
 //         );
@@ -936,11 +1135,20 @@
 //         const menu = buildMenu(probabilityOptions, (key) =>
 //           handlers?.onSelectGeneric?.(key, record.key, "probabilityLikelihood")
 //         );
+//         const { bgColor, textColor, borderColor } = getColorForSeverity(text);
 //         return (
 //           <Dropdown overlay={menu} trigger={["click"]}>
-//             <div className="flex items-center cursor-pointer">
+//             <div
+//               className="flex items-center cursor-pointer p-2 rounded"
+//               style={{
+//                 backgroundColor: bgColor,
+//                 color: textColor,
+//                 border: `1px solid ${borderColor}`,
+//                 fontWeight: "600",
+//               }}
+//             >
 //               {text || "Select"}
-//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//               <DownOutlined className="ml-2" style={{ color: textColor }} />
 //             </div>
 //           </Dropdown>
 //         );
@@ -962,11 +1170,20 @@
 //         const menu = buildMenu(classificationOptions, (key) =>
 //           handlers?.onSelectGeneric?.(key, record.key, "classification")
 //         );
+//         const { bgColor, textColor, borderColor } = getColorForSeverity(text);
 //         return (
 //           <Dropdown overlay={menu} trigger={["click"]}>
-//             <div className="flex items-center cursor-pointer">
+//             <div
+//               className="flex items-center cursor-pointer p-2 rounded"
+//               style={{
+//                 backgroundColor: bgColor,
+//                 color: textColor,
+//                 border: `1px solid ${borderColor}`,
+//                 fontWeight: "600",
+//               }}
+//             >
 //               {text || "Select"}
-//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//               <DownOutlined className="ml-2" style={{ color: textColor }} />
 //             </div>
 //           </Dropdown>
 //         );
@@ -1266,42 +1483,59 @@
 //   ];
 //   const riskAssessmentResidualColumns: ColumnsType<DataType> =
 //     riskAssessmentInherentColumns.map((col) => ({ ...col })); // copy to avoid reference issues
-//   const soxColumns: ColumnsType<DataType> = [
+//   const soxSubTabColumns: ColumnsType<DataType> = [
 //     {
 //       title: "SOX Control Activity",
 //       dataIndex: "soxControlActivity",
 //       key: "soxControlActivity",
 //       width: 250,
-//       render: (text: string, record: DataType) => {
-//         if (editingKeys.includes(record.key)) {
-//           return (
-//             <Input
-//               value={text}
-//               onChange={(e) =>
-//                 handlers?.onTextChange?.(
-//                   record.key,
-//                   "soxControlActivity",
-//                   e.target.value
-//                 )
-//               }
-//             />
-//           );
-//         }
-//         return text;
+//       render: (text: any, record: DataType) => {
+//         const menu = buildMenu(soxControlActivityOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "soxControlActivity")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {text || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
 //       },
 //     },
+//   ];
+//   const financialStatementAssertionsColumns: ColumnsType<DataType> = [
 //     {
 //       title: "Internal Control Over Financial Reporting?",
 //       dataIndex: "internalControlFinancial",
 //       key: "internalControlFinancial",
 //       width: 280,
-//       render: (checked: boolean, record: DataType) =>
-//         renderEditableCheckbox(
-//           checked,
-//           record,
-//           "internalControlFinancial",
-//           handlers?.onCheckboxChange
-//         ),
+//       render: (value: any, record: DataType) => {
+//         // Convert boolean to string for display, or use existing string value
+//         const displayValue =
+//           value === true
+//             ? "Yes"
+//             : value === false
+//             ? "No"
+//             : value === "Yes" || value === "No"
+//             ? value
+//             : "";
+//         const menu = buildMenu(yesNoOptions, (key) =>
+//           handlers?.onSelectGeneric?.(
+//             key,
+//             record.key,
+//             "internalControlFinancial"
+//           )
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {displayValue || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
 //     },
 //     {
 //       title: "Occurrence",
@@ -1496,6 +1730,7 @@
 //       },
 //     },
 //   ];
+//   // Tab 11: GRC Exception Log columns
 //   const grcExceptionLogColumns: ColumnsType<DataType> = [
 //     {
 //       title: "GRC Adequacy",
@@ -1503,10 +1738,7 @@
 //       key: "grcAdequacy",
 //       width: 200,
 //       render: (value: any, record: DataType) => {
-//         // display booleans or string values consistently
-//         const display =
-//           value === true ? "Yes" : value === false ? "No" : value || "Select";
-//         // build menu that updates row via handler
+//         const display = value === "Yes" ? "Yes" : "No"; // Default to "No"
 //         const menu = buildMenu(yesNoOptions, (key) =>
 //           handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
 //         );
@@ -1526,9 +1758,7 @@
 //       key: "grcEffectiveness",
 //       width: 200,
 //       render: (value: any, record: DataType) => {
-//         // display booleans or string values consistently
-//         const display =
-//           value === true ? "Yes" : value === false ? "No" : value || "Select";
+//         const display = value === "Yes" ? "Yes" : "No"; // Default to "No"
 //         const menu = buildMenu(yesNoOptions, (key) =>
 //           handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
 //         );
@@ -1547,20 +1777,6 @@
 //       dataIndex: "explanation",
 //       key: "explanation",
 //       width: 400,
-//       render: (text: string, record: DataType) => {
-//         if (editingKeys.includes(record.key)) {
-//           return (
-//             <TextArea
-//               value={text}
-//               onChange={(e) =>
-//                 handlers?.onTextChange?.(record.key, "explanation", e.target.value)
-//               }
-//               autoSize={{ minRows: 2 }}
-//             />
-//           );
-//         }
-//         return text;
-//       },
 //     },
 //   ];
 //   let dynamicColumns: ColumnsType<DataType> = processColumns;
@@ -1592,13 +1808,15 @@
 //       dynamicColumns = riskAssessmentResidualColumns;
 //       break;
 //     case "9":
-//       dynamicColumns = soxColumns;
+//       if (activeSubTab === "sox") dynamicColumns = soxSubTabColumns;
+//       else if (activeSubTab === "financial")
+//         dynamicColumns = financialStatementAssertionsColumns;
+//       else dynamicColumns = soxSubTabColumns; // default to sox
 //       break;
 //     case "10":
-//       dynamicColumns = internalAuditTestColumns;
-//       break;
-//     case "11":
-//       dynamicColumns = grcExceptionLogColumns;
+//       if (activeSubTab === "audit") dynamicColumns = internalAuditTestColumns;
+//       else if (activeSubTab === "grc") dynamicColumns = grcExceptionLogColumns;
+//       else dynamicColumns = internalAuditTestColumns; // default to audit
 //       break;
 //     default:
 //       dynamicColumns = processColumns;
@@ -1606,7 +1824,7 @@
 //   const actionsColumn: ColumnsType<DataType>[0] = {
 //     title: "Actions",
 //     key: "actions",
-//     width: 100,
+//     width: 150,
 //     render: (_, record: DataType) => {
 //       if (editingKeys.includes(record.key)) {
 //         return (
@@ -1616,16 +1834,27 @@
 //         );
 //       } else {
 //         return (
-//           <Button
-//             icon={<EditOutlined />}
-//             onClick={() => handlers?.onEditRow?.(record.key)}
-//           />
+//           <>
+//             <Button
+//               icon={<EditOutlined />}
+//               onClick={() => handlers?.onEditRow?.(record.key)}
+//               style={{ marginRight: 8 }}
+//             />
+//             <Popconfirm
+//               title="Sure to delete?"
+//               onConfirm={() => handlers?.onDeleteRow?.(record.key)}
+//             >
+//               <Button icon={<DeleteOutlined />} danger />
+//             </Popconfirm>
+//           </>
 //         );
 //       }
 //     },
 //   };
 //   return [...baseColumns, ...dynamicColumns, actionsColumn];
 // }
+
+// src\components\sections\AccountReceivable\columns.tsx
 
 "use client";
 import React from "react";
@@ -3360,54 +3589,122 @@ export function getColumns(
     },
   ];
   // Tab 11: GRC Exception Log columns
-  const grcExceptionLogColumns: ColumnsType<DataType> = [
-    {
-      title: "GRC Adequacy",
-      dataIndex: "grcAdequacy",
-      key: "grcAdequacy",
-      width: 200,
-      render: (value: any, record: DataType) => {
-        const display = value === "Yes" ? "Yes" : "No"; // Default to "No"
-        const menu = buildMenu(yesNoOptions, (key) =>
-          handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
-        );
+  // const grcExceptionLogColumns: ColumnsType<DataType> = [
+  //   {
+  //     title: "GRC Adequacy",
+  //     dataIndex: "grcAdequacy",
+  //     key: "grcAdequacy",
+  //     width: 200,
+  //     render: (value: any, record: DataType) => {
+  //       const display = value === "Yes" ? "Yes" : "No"; // Default to "No"
+  //       const menu = buildMenu(yesNoOptions, (key) =>
+  //         handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
+  //       );
+  //       return (
+  //         <Dropdown overlay={menu} trigger={["click"]}>
+  //           <div className="flex items-center cursor-pointer">
+  //             {display}
+  //             <DownOutlined className="ml-1 text-gray-500 text-xs" />
+  //           </div>
+  //         </Dropdown>
+  //       );
+  //     },
+  //   },
+  //   {
+  //     title: "GRC Effectiveness",
+  //     dataIndex: "grcEffectiveness",
+  //     key: "grcEffectiveness",
+  //     width: 200,
+  //     render: (value: any, record: DataType) => {
+  //       const display = value === "Yes" ? "Yes" : "No"; // Default to "No"
+  //       const menu = buildMenu(yesNoOptions, (key) =>
+  //         handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
+  //       );
+  //       return (
+  //         <Dropdown overlay={menu} trigger={["click"]}>
+  //           <div className="flex items-center cursor-pointer">
+  //             {display}
+  //             <DownOutlined className="ml-1 text-gray-500 text-xs" />
+  //           </div>
+  //         </Dropdown>
+  //       );
+  //     },
+  //   },
+  //   {
+  //     title: "Explanation",
+  //     dataIndex: "explanation",
+  //     key: "explanation",
+  //     width: 400,
+  //   },
+  // ];
+  // Inside getColumns function, replace the grcExceptionLogColumns block:
+const grcExceptionLogColumns: ColumnsType<DataType> = [
+  {
+    title: "GRC Adequacy",
+    dataIndex: "grcAdequacy",
+    key: "grcAdequacy",
+    width: 200,
+    render: (value: any, record: DataType) => {
+      const display = value === "Yes" ? "Yes" : "No";
+      const menu = buildMenu(yesNoOptions, (key) =>
+        handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
+      );
+      return (
+        <Dropdown overlay={menu} trigger={["click"]}>
+          <div className="flex items-center cursor-pointer">
+            {display}
+            <DownOutlined className="ml-1 text-gray-500 text-xs" />
+          </div>
+        </Dropdown>
+      );
+    },
+  },
+  {
+    title: "GRC Effectiveness",
+    dataIndex: "grcEffectiveness",
+    key: "grcEffectiveness",
+    width: 200,
+    render: (value: any, record: DataType) => {
+      const display = value === "Yes" ? "Yes" : "No";
+      const menu = buildMenu(yesNoOptions, (key) =>
+        handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
+      );
+      return (
+        <Dropdown overlay={menu} trigger={["click"]}>
+          <div className="flex items-center cursor-pointer">
+            {display}
+            <DownOutlined className="ml-1 text-gray-500 text-xs" />
+          </div>
+        </Dropdown>
+      );
+    },
+  },
+  {
+    title: "Explanation",
+    dataIndex: "explanation",
+    key: "explanation",
+    width: 400,
+    render: (text: string, record: DataType) => {
+      if (editingKeys.includes(record.key)) {
         return (
-          <Dropdown overlay={menu} trigger={["click"]}>
-            <div className="flex items-center cursor-pointer">
-              {display}
-              <DownOutlined className="ml-1 text-gray-500 text-xs" />
-            </div>
-          </Dropdown>
+          <TextArea
+            value={text}
+            onChange={(e) =>
+              handlers?.onTextChange?.(
+                record.key,
+                "explanation",
+                e.target.value
+              )
+            }
+            autoSize={{ minRows: 2, maxRows: 6 }}
+            placeholder="Enter explanation..."
+          />
         );
-      },
+      }
+      return <div style={{ whiteSpace: "pre-line" }}>{text || "-"}</div>;
     },
-    {
-      title: "GRC Effectiveness",
-      dataIndex: "grcEffectiveness",
-      key: "grcEffectiveness",
-      width: 200,
-      render: (value: any, record: DataType) => {
-        const display = value === "Yes" ? "Yes" : "No"; // Default to "No"
-        const menu = buildMenu(yesNoOptions, (key) =>
-          handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
-        );
-        return (
-          <Dropdown overlay={menu} trigger={["click"]}>
-            <div className="flex items-center cursor-pointer">
-              {display}
-              <DownOutlined className="ml-1 text-gray-500 text-xs" />
-            </div>
-          </Dropdown>
-        );
-      },
-    },
-    {
-      title: "Explanation",
-      dataIndex: "explanation",
-      key: "explanation",
-      width: 400,
-    },
-  ];
+  },
+];
   let dynamicColumns: ColumnsType<DataType> = processColumns;
   switch (activeTab) {
     case "1":
