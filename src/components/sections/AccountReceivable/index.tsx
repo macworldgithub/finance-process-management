@@ -439,7 +439,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
                   style={{
                     scrollbarWidth: "thin",
                     // scrollbarColor: "#374151 #1f2937",
-                    scrollbarColor: "#4b5563 #374151",
+                    scrollbarColor: "#4b5563 #aeb4bf",
                   }}
                   onScroll={(e) => {
                     const target = e.target as HTMLDivElement;
