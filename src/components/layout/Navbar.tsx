@@ -60,8 +60,6 @@
 
 // // export default Navbar;
 
-
-
 // "use client";
 // import React, { useState, useRef, useEffect } from "react";
 // import { Search } from "lucide-react";
@@ -312,25 +310,70 @@ const Navbar: React.FC<NavbarProps> = ({ onImport }) => {
 
   const notifications = [
     { id: 1, title: "New user registered", time: "2 min ago", unread: true },
-    { id: 2, title: "Server backup completed", time: "15 min ago", unread: true },
+    {
+      id: 2,
+      title: "Server backup completed",
+      time: "15 min ago",
+      unread: true,
+    },
     { id: 3, title: "Payment received", time: "1 hour ago", unread: false },
-    { id: 4, title: "New comment on your post", time: "2 hours ago", unread: false },
-    { id: 5, title: "System update available", time: "3 hours ago", unread: false },
+    {
+      id: 4,
+      title: "New comment on your post",
+      time: "2 hours ago",
+      unread: false,
+    },
+    {
+      id: 5,
+      title: "System update available",
+      time: "3 hours ago",
+      unread: false,
+    },
     { id: 6, title: "Task assigned to you", time: "5 hours ago", unread: true },
     { id: 7, title: "Task assigned to you", time: "8 hours ago", unread: true },
     { id: 8, title: "Task assigned to you", time: "9 hours ago", unread: true },
   ];
 
   const messages = [
-    { id: 1, sender: "Alice Johnson", preview: "Hey, can we reschedule?", time: "1 min ago", unread: true },
-    { id: 2, sender: "Team Sync", preview: "Meeting at 3 PM today", time: "10 min ago", unread: true },
-    { id: 3, sender: "HR Dept", preview: "New policy update", time: "1 hour ago", unread: false },
-    { id: 4, sender: "Dev Team", preview: "Build failed on CI", time: "2 hours ago", unread: false },
-    { id: 5, sender: "Support", preview: "Ticket #123 resolved", time: "4 hours ago", unread: false },
+    {
+      id: 1,
+      sender: "Alice Johnson",
+      preview: "Hey, can we reschedule?",
+      time: "1 min ago",
+      unread: true,
+    },
+    {
+      id: 2,
+      sender: "Team Sync",
+      preview: "Meeting at 3 PM today",
+      time: "10 min ago",
+      unread: true,
+    },
+    {
+      id: 3,
+      sender: "HR Dept",
+      preview: "New policy update",
+      time: "1 hour ago",
+      unread: false,
+    },
+    {
+      id: 4,
+      sender: "Dev Team",
+      preview: "Build failed on CI",
+      time: "2 hours ago",
+      unread: false,
+    },
+    {
+      id: 5,
+      sender: "Support",
+      preview: "Ticket #123 resolved",
+      time: "4 hours ago",
+      unread: false,
+    },
   ];
 
   return (
-    <div className="bg-gray-100 flex justify-center items-center py-3">
+    <div className="bg-gray-100 flex justify-center items-center py-3 relative">
       <nav className="w-[96%] max-w-[1600px] bg-white rounded-2xl shadow-md px-6 py-3 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center space-x-1">
@@ -383,9 +426,11 @@ const Navbar: React.FC<NavbarProps> = ({ onImport }) => {
               </span>
             </button>
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+              <div className="absolute right-0 mt-2 w-80 bg-white  rounded-lg shadow-lg border border-gray-200 z-[9999]">
                 <div className="px-4 py-3 border-b border-gray-200">
-                  <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
+                  <h3 className="text-sm font-semibold text-gray-900">
+                    Notifications
+                  </h3>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
                   {notifications.map((notif) => (
@@ -396,10 +441,16 @@ const Navbar: React.FC<NavbarProps> = ({ onImport }) => {
                       }`}
                     >
                       <div className="flex justify-between items-start">
-                        <p className={`text-sm font-medium ${notif.unread ? "text-gray-900" : "text-gray-700"}`}>
+                        <p
+                          className={`text-sm font-medium ${
+                            notif.unread ? "text-gray-900" : "text-gray-700"
+                          }`}
+                        >
                           {notif.title}
                         </p>
-                        {notif.unread && <span className="ml-2 w-2 h-2 bg-blue-500 rounded-full"></span>}
+                        {notif.unread && (
+                          <span className="ml-2 w-2 h-2 bg-blue-500 rounded-full"></span>
+                        )}
                       </div>
                       <p className="text-xs text-gray-500 mt-1">{notif.time}</p>
                     </div>
@@ -429,9 +480,11 @@ const Navbar: React.FC<NavbarProps> = ({ onImport }) => {
               </span>
             </button>
             {showMessages && (
-              <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+              <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-[9999]">
                 <div className="px-4 py-3 border-b border-gray-200">
-                  <h3 className="text-sm font-semibold text-gray-900">Messages</h3>
+                  <h3 className="text-sm font-semibold text-gray-900">
+                    Messages
+                  </h3>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
                   {messages.map((msg) => (
@@ -444,12 +497,20 @@ const Navbar: React.FC<NavbarProps> = ({ onImport }) => {
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex-shrink-0"></div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start">
-                          <p className={`text-sm font-medium truncate ${msg.unread ? "text-gray-900" : "text-gray-700"}`}>
+                          <p
+                            className={`text-sm font-medium truncate ${
+                              msg.unread ? "text-gray-900" : "text-gray-700"
+                            }`}
+                          >
                             {msg.sender}
                           </p>
-                          {msg.unread && <span className="ml-2 w-2 h-2 bg-blue-500 rounded-full"></span>}
+                          {msg.unread && (
+                            <span className="ml-2 w-2 h-2 bg-blue-500 rounded-full"></span>
+                          )}
                         </div>
-                        <p className="text-xs text-gray-600 truncate">{msg.preview}</p>
+                        <p className="text-xs text-gray-600 truncate">
+                          {msg.preview}
+                        </p>
                         <p className="text-xs text-gray-500 mt-1">{msg.time}</p>
                       </div>
                     </div>
