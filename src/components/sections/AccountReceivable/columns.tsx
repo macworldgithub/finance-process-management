@@ -1526,6 +1526,7 @@
 //       key: "grcEffectiveness",
 //       width: 200,
 //       render: (value: any, record: DataType) => {
+//         // display booleans or string values consistently
 //         const display =
 //           value === true ? "Yes" : value === false ? "No" : value || "Select";
 //         const menu = buildMenu(yesNoOptions, (key) =>
@@ -1725,6 +1726,14 @@ export const operationalFrequencyOptions = [
   { label: "Every 2 Years", key: "Every 2 Years" },
   { label: "Every 3 Years", key: "Every 3 Years" },
   { label: "As and When", key: "As and When" },
+];
+
+export const soxControlActivityOptions = [
+  {
+    label: "Financial Controller Activity",
+    key: "Financial Controller Activity",
+  },
+  { label: "Other", key: "Other" },
 ];
 // Helper to build dropdown menu
 const buildMenu = (
@@ -2976,22 +2985,18 @@ export function getColumns(
       dataIndex: "soxControlActivity",
       key: "soxControlActivity",
       width: 250,
-      render: (text: string, record: DataType) => {
-        if (editingKeys.includes(record.key)) {
-          return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "soxControlActivity",
-                  e.target.value
-                )
-              }
-            />
-          );
-        }
-        return text;
+      render: (text: any, record: DataType) => {
+        const menu = buildMenu(soxControlActivityOptions, (key) =>
+          handlers?.onSelectGeneric?.(key, record.key, "soxControlActivity")
+        );
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {text || "Select"}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
       },
     },
   ];
@@ -3221,6 +3226,7 @@ export function getColumns(
       },
     },
   ];
+  // Tab 11: GRC Exception Log columns
   const grcExceptionLogColumns: ColumnsType<DataType> = [
     {
       title: "GRC Adequacy",
@@ -3228,10 +3234,7 @@ export function getColumns(
       key: "grcAdequacy",
       width: 200,
       render: (value: any, record: DataType) => {
-        // display booleans or string values consistently
-        const display =
-          value === true ? "Yes" : value === false ? "No" : value || "Select";
-        // build menu that updates row via handler
+        const display = value === "Yes" ? "Yes" : "No"; // Default to "No"
         const menu = buildMenu(yesNoOptions, (key) =>
           handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
         );
@@ -3251,8 +3254,7 @@ export function getColumns(
       key: "grcEffectiveness",
       width: 200,
       render: (value: any, record: DataType) => {
-        const display =
-          value === true ? "Yes" : value === false ? "No" : value || "Select";
+        const display = value === "Yes" ? "Yes" : "No"; // Default to "No"
         const menu = buildMenu(yesNoOptions, (key) =>
           handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
         );
@@ -3271,24 +3273,6 @@ export function getColumns(
       dataIndex: "explanation",
       key: "explanation",
       width: 400,
-      render: (text: string, record: DataType) => {
-        if (editingKeys.includes(record.key)) {
-          return (
-            <TextArea
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "explanation",
-                  e.target.value
-                )
-              }
-              autoSize={{ minRows: 2 }}
-            />
-          );
-        }
-        return text;
-      },
     },
   ];
   let dynamicColumns: ColumnsType<DataType> = processColumns;
