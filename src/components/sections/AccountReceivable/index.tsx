@@ -306,6 +306,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef>((_, ref) => {
                 <div className="sticky top-0 z-10 overflow-x-auto bg-white pb-1">
                   <div style={{ minWidth: "1300px", height: "1px" }}></div>
                 </div>
+                
 
                 {/* Table */}
                 <div className="bg-white shadow-md rounded-b-lg overflow-hidden">
