@@ -1858,7 +1858,7 @@
 
 "use client";
 import React from "react";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, LockOutlined, UnlockOutlined } from "@ant-design/icons";
 import { ColumnsType } from "antd/es/table";
 import { Menu, Dropdown, Checkbox, Button, Input, Popconfirm } from "antd";
 import { DownOutlined, PlusOutlined } from "@ant-design/icons";
@@ -1965,20 +1965,6 @@ export const soxControlActivityOptions = [
   },
   { label: "Other", key: "Other" },
 ];
-// Helper to build dropdown menu
-// const buildMenu = (
-//   items: { label: string; key: string }[],
-//   onClick?: (key: string) => void
-// ) => {
-//   return (
-//     <Menu
-//       onClick={(info) => {
-//         onClick?.(String(info.key));
-//       }}
-//       items={items as any}
-//     />
-//   );
-// };
 
 const buildMenu = (
   items: { label: string; key: string }[],
@@ -2000,20 +1986,7 @@ const buildMenu = (
     />
   );
 };
-// const buildMenu = (
-//   items: { label: string; key: string }[],
-//   onClick?: (key: string) => void
-// ) => {
-//   return (
-//     <Menu
-//       onClick={(info) => {
-//         onClick?.(String(info.key));
-//       }}
-//       items={items as any}
-//     />
-//   );
-// };
-// Render editable checkbox
+
 const renderEditableCheckbox = (
   value: boolean,
   record: DataType,
@@ -2159,6 +2132,7 @@ export function getColumns(
     onSaveRow?: (rowKey: string) => void;
     onEditRow?: (rowKey: string) => void;
     onDeleteRow?: (rowKey: string) => void;
+    onToggleStatus?: (rowKey: string) => void;
   },
   editingKeys: string[] = []
 ): ColumnsType<DataType> {
@@ -3424,170 +3398,7 @@ export function getColumns(
       },
     },
   ];
-  // const financialStatementAssertionsColumns: ColumnsType<DataType> = [
-  //   {
-  //     title: "Internal Control Over Financial Reporting?",
-  //     dataIndex: "internalControlFinancial",
-  //     key: "internalControlFinancial",
-  //     width: 280,
-  //     render: (value: any, record: DataType) => {
-  //       // Convert boolean to string for display, or use existing string value
-  //       const displayValue =
-  //         value === true
-  //           ? "Yes"
-  //           : value === false
-  //           ? "No"
-  //           : value === "Yes" || value === "No"
-  //           ? value
-  //           : "";
-  //       const menu = buildMenu(yesNoOptions, (key) =>
-  //         handlers?.onSelectGeneric?.(
-  //           key,
-  //           record.key,
-  //           "internalControlFinancial"
-  //         )
-  //       );
-  //       return (
-  //         <Dropdown overlay={menu} trigger={["click"]}>
-  //           <div className="flex items-center cursor-pointer">
-  //             {displayValue || "Select"}
-  //             <DownOutlined className="ml-1 text-gray-500 text-xs" />
-  //           </div>
-  //         </Dropdown>
-  //       );
-  //     },
-  //   },
-  //   {
-  //     title: "Occurrence",
-  //     dataIndex: "occurrence",
-  //     key: "occurrence",
-  //     width: 150,
-  //     render: (checked: boolean, record: DataType) =>
-  //       renderEditableCheckbox(
-  //         checked,
-  //         record,
-  //         "occurrence",
-  //         handlers?.onCheckboxChange
-  //       ),
-  //   },
-  //   {
-  //     title: "Completeness",
-  //     dataIndex: "completeness",
-  //     key: "completeness",
-  //     width: 150,
-  //     render: (checked: boolean, record: DataType) =>
-  //       renderEditableCheckbox(
-  //         checked,
-  //         record,
-  //         "completeness",
-  //         handlers?.onCheckboxChange
-  //       ),
-  //   },
-  //   {
-  //     title: "Accuracy",
-  //     dataIndex: "accuracy",
-  //     key: "accuracy",
-  //     width: 150,
-  //     render: (checked: boolean, record: DataType) =>
-  //       renderEditableCheckbox(
-  //         checked,
-  //         record,
-  //         "accuracy",
-  //         handlers?.onCheckboxChange
-  //       ),
-  //   },
-  //   {
-  //     title: "Authorization",
-  //     dataIndex: "authorization",
-  //     key: "authorization",
-  //     width: 150,
-  //     render: (checked: boolean, record: DataType) =>
-  //       renderEditableCheckbox(
-  //         checked,
-  //         record,
-  //         "authorization",
-  //         handlers?.onCheckboxChange
-  //       ),
-  //   },
-  //   {
-  //     title: "Cutoff",
-  //     dataIndex: "cutoff",
-  //     key: "cutoff",
-  //     width: 120,
-  //     render: (checked: boolean, record: DataType) =>
-  //       renderEditableCheckbox(
-  //         checked,
-  //         record,
-  //         "cutoff",
-  //         handlers?.onCheckboxChange
-  //       ),
-  //   },
-  //   {
-  //     title: "Classification and Understandability",
-  //     dataIndex: "classificationSOX",
-  //     key: "classificationSOX",
-  //     width: 200,
-  //     render: (checked: boolean, record: DataType) =>
-  //       renderEditableCheckbox(
-  //         checked,
-  //         record,
-  //         "classificationSOX",
-  //         handlers?.onCheckboxChange
-  //       ),
-  //   },
-  //   {
-  //     title: "Existence",
-  //     dataIndex: "existence",
-  //     key: "existence",
-  //     width: 150,
-  //     render: (checked: boolean, record: DataType) =>
-  //       renderEditableCheckbox(
-  //         checked,
-  //         record,
-  //         "existence",
-  //         handlers?.onCheckboxChange
-  //       ),
-  //   },
-  //   {
-  //     title: "Rights and Obligations",
-  //     dataIndex: "rightsObligations",
-  //     key: "rightsObligations",
-  //     width: 180,
-  //     render: (checked: boolean, record: DataType) =>
-  //       renderEditableCheckbox(
-  //         checked,
-  //         record,
-  //         "rightsObligations",
-  //         handlers?.onCheckboxChange
-  //       ),
-  //   },
-  //   {
-  //     title: "Valuation and Allocation",
-  //     dataIndex: "valuationAllocation",
-  //     key: "valuationAllocation",
-  //     width: 200,
-  //     render: (checked: boolean, record: DataType) =>
-  //       renderEditableCheckbox(
-  //         checked,
-  //         record,
-  //         "valuationAllocation",
-  //         handlers?.onCheckboxChange
-  //       ),
-  //   },
-  //   {
-  //     title: "Presentation / Disclosure",
-  //     dataIndex: "presentationDisclosure",
-  //     key: "presentationDisclosure",
-  //     width: 200,
-  //     render: (checked: boolean, record: DataType) =>
-  //       renderEditableCheckbox(
-  //         checked,
-  //         record,
-  //         "presentationDisclosure",
-  //         handlers?.onCheckboxChange
-  //       ),
-  //   },
-  // ];
+  
 
   const financialStatementAssertionsColumns: ColumnsType<DataType> = [
     // REMOVED: Internal Control Over Financial Reporting? from here
@@ -3819,170 +3630,7 @@ export function getColumns(
       },
     },
   ];
-  // Tab 11: GRC Exception Log columns
-  // const grcExceptionLogColumns: ColumnsType<DataType> = [
-  //   {
-  //     title: "GRC Adequacy",
-  //     dataIndex: "grcAdequacy",
-  //     key: "grcAdequacy",
-  //     width: 200,
-  //     render: (value: any, record: DataType) => {
-  //       const display = value === "Yes" ? "Yes" : "No"; // Default to "No"
-  //       const menu = buildMenu(yesNoOptions, (key) =>
-  //         handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
-  //       );
-  //       return (
-  //         <Dropdown overlay={menu} trigger={["click"]}>
-  //           <div className="flex items-center cursor-pointer">
-  //             {display}
-  //             <DownOutlined className="ml-1 text-gray-500 text-xs" />
-  //           </div>
-  //         </Dropdown>
-  //       );
-  //     },
-  //   },
-  //   {
-  //     title: "GRC Effectiveness",
-  //     dataIndex: "grcEffectiveness",
-  //     key: "grcEffectiveness",
-  //     width: 200,
-  //     render: (value: any, record: DataType) => {
-  //       const display = value === "Yes" ? "Yes" : "No"; // Default to "No"
-  //       const menu = buildMenu(yesNoOptions, (key) =>
-  //         handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
-  //       );
-  //       return (
-  //         <Dropdown overlay={menu} trigger={["click"]}>
-  //           <div className="flex items-center cursor-pointer">
-  //             {display}
-  //             <DownOutlined className="ml-1 text-gray-500 text-xs" />
-  //           </div>
-  //         </Dropdown>
-  //       );
-  //     },
-  //   },
-  //   {
-  //     title: "Explanation",
-  //     dataIndex: "explanation",
-  //     key: "explanation",
-  //     width: 400,
-  //   },
-  // ];
-  // Inside getColumns function, replace the grcExceptionLogColumns block:
-  // const grcExceptionLogColumns: ColumnsType<DataType> = [
-  //   // {
-  //   //   title: "GRC Adequacy",
-  //   //   dataIndex: "grcAdequacy",
-  //   //   key: "grcAdequacy",
-  //   //   width: 200,
-  //   //   render: (value: any, record: DataType) => {
-  //   //     const display = value === "Yes" ? "Yes" : "No";
-  //   //     const menu = buildMenu(yesNoOptions, (key) =>
-  //   //       handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
-  //   //     );
-  //   //     return (
-  //   //       <Dropdown overlay={menu} trigger={["click"]}>
-  //   //         <div className="flex items-center cursor-pointer">
-  //   //           {display}
-  //   //           <DownOutlined className="ml-1 text-gray-500 text-xs" />
-  //   //         </div>
-  //   //       </Dropdown>
-  //   //     );
-  //   //   },
-  //   // },
-  //   // {
-  //   //   title: "GRC Effectiveness",
-  //   //   dataIndex: "grcEffectiveness",
-  //   //   key: "grcEffectiveness",
-  //   //   width: 200,
-  //   //   render: (value: any, record: DataType) => {
-  //   //     const display = value === "Yes" ? "Yes" : "No";
-  //   //     const menu = buildMenu(yesNoOptions, (key) =>
-  //   //       handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
-  //   //     );
-  //   //     return (
-  //   //       <Dropdown overlay={menu} trigger={["click"]}>
-  //   //         <div className="flex items-center cursor-pointer">
-  //   //           {display}
-  //   //           <DownOutlined className="ml-1 text-gray-500 text-xs" />
-  //   //         </div>
-  //   //       </Dropdown>
-  //   //     );
-  //   //   },
-  //   // },
 
-  //   {
-  //     title: "GRC Adequacy",
-  //     dataIndex: "grcAdequacy",
-  //     key: "grcAdequacy",
-  //     width: 200,
-  //     render: (value: any, record: DataType) => {
-  //       const display = value === "Yes" ? "Yes" : value === "No" ? "No" : "";
-  //       return (
-  //         <Input
-  //           placeholder="Enter GRC Adequacy"
-  //           value={display}
-  //           onChange={(e) => {
-  //             const newValue = e.target.value;
-  //             handlers?.onSelectGeneric?.(newValue, record.key, "grcAdequacy");
-  //           }}
-  //           style={{ width: "100%" }}
-  //           allowClear
-  //         />
-  //       );
-  //     },
-  //   },
-  //   {
-  //     title: "GRC Effectiveness",
-  //     dataIndex: "grcEffectiveness",
-  //     key: "grcEffectiveness",
-  //     width: 200,
-  //     render: (value: any, record: DataType) => {
-  //       const display = value === "Yes" ? "Yes" : value === "No" ? "No" : "";
-  //       return (
-  //         <Input
-  //           placeholder="Enter GRC Effectiveness"
-  //           value={display}
-  //           onChange={(e) => {
-  //             const newValue = e.target.value;
-  //             handlers?.onSelectGeneric?.(
-  //               newValue,
-  //               record.key,
-  //               "grcEffectiveness"
-  //             );
-  //           }}
-  //           style={{ width: "100%" }}
-  //           allowClear
-  //         />
-  //       );
-  //     },
-  //   },
-  //   {
-  //     title: "Explanation",
-  //     dataIndex: "explanation",
-  //     key: "explanation",
-  //     width: 400,
-  //     render: (text: string, record: DataType) => {
-  //       if (editingKeys.includes(record.key)) {
-  //         return (
-  //           <TextArea
-  //             value={text}
-  //             onChange={(e) =>
-  //               handlers?.onTextChange?.(
-  //                 record.key,
-  //                 "explanation",
-  //                 e.target.value
-  //               )
-  //             }
-  //             autoSize={{ minRows: 2, maxRows: 6 }}
-  //             placeholder="Enter explanation..."
-  //           />
-  //         );
-  //       }
-  //       return <div style={{ whiteSpace: "pre-line" }}>{text || "-"}</div>;
-  //     },
-  //   },
-  // ];
   const grcExceptionLogColumns: ColumnsType<DataType> = [
     {
       title: "GRC Adequacy",
@@ -4086,12 +3734,7 @@ export function getColumns(
     case "8":
       dynamicColumns = riskAssessmentResidualColumns;
       break;
-    // case "9":
-    //   if (activeSubTab === "sox") dynamicColumns = soxSubTabColumns;
-    //   else if (activeSubTab === "financial")
-    //     dynamicColumns = financialStatementAssertionsColumns;
-    //   else dynamicColumns = soxSubTabColumns; // default to sox
-    //   break;
+  
 
     case "9":
       if (activeSubTab === "sox") dynamicColumns = soxSubTabColumns;
@@ -4112,8 +3755,11 @@ export function getColumns(
   const actionsColumn: ColumnsType<DataType>[0] = {
     title: "Actions",
     key: "actions",
-    width: 150,
+    width: 200,
     render: (_, record: DataType) => {
+      // use isActive boolean (default true when undefined)
+      const isActive = record.isActive !== false;
+
       if (editingKeys.includes(record.key)) {
         return (
           <Button onClick={() => handlers?.onSaveRow?.(record.key)}>
@@ -4122,19 +3768,26 @@ export function getColumns(
         );
       } else {
         return (
-          <>
-            <Button
-              icon={<EditOutlined />}
-              onClick={() => handlers?.onEditRow?.(record.key)}
-              style={{ marginRight: 8 }}
-            />
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            {isActive && (
+              <Button
+                icon={<EditOutlined />}
+                onClick={() => handlers?.onEditRow?.(record.key)}
+              />
+            )}
             <Popconfirm
               title="Sure to delete?"
               onConfirm={() => handlers?.onDeleteRow?.(record.key)}
             >
               <Button icon={<DeleteOutlined />} danger />
             </Popconfirm>
-          </>
+            <Button
+              icon={isActive ? <LockOutlined /> : <UnlockOutlined />}
+              onClick={() => handlers?.onToggleStatus?.(record.key)}
+              type={isActive ? "default" : "primary"}
+              title={isActive ? "Deactivate" : "Activate"}
+            />
+          </div>
         );
       }
     },
