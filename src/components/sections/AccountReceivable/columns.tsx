@@ -1965,6 +1965,20 @@ export const soxControlActivityOptions = [
   { label: "Other", key: "Other" },
 ];
 // Helper to build dropdown menu
+// const buildMenu = (
+//   items: { label: string; key: string }[],
+//   onClick?: (key: string) => void
+// ) => {
+//   return (
+//     <Menu
+//       onClick={(info) => {
+//         onClick?.(String(info.key));
+//       }}
+//       items={items as any}
+//     />
+//   );
+// };
+
 const buildMenu = (
   items: { label: string; key: string }[],
   onClick?: (key: string) => void
@@ -1975,6 +1989,13 @@ const buildMenu = (
         onClick?.(String(info.key));
       }}
       items={items as any}
+      style={{
+        maxHeight: "300px",
+        overflowY: "auto",
+        scrollbarWidth: "thin",
+        msOverflowStyle: "none",
+      }}
+      className="custom-scrollbar"
     />
   );
 };
@@ -3638,73 +3659,73 @@ export function getColumns(
   //   },
   // ];
   // Inside getColumns function, replace the grcExceptionLogColumns block:
-const grcExceptionLogColumns: ColumnsType<DataType> = [
-  {
-    title: "GRC Adequacy",
-    dataIndex: "grcAdequacy",
-    key: "grcAdequacy",
-    width: 200,
-    render: (value: any, record: DataType) => {
-      const display = value === "Yes" ? "Yes" : "No";
-      const menu = buildMenu(yesNoOptions, (key) =>
-        handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
-      );
-      return (
-        <Dropdown overlay={menu} trigger={["click"]}>
-          <div className="flex items-center cursor-pointer">
-            {display}
-            <DownOutlined className="ml-1 text-gray-500 text-xs" />
-          </div>
-        </Dropdown>
-      );
-    },
-  },
-  {
-    title: "GRC Effectiveness",
-    dataIndex: "grcEffectiveness",
-    key: "grcEffectiveness",
-    width: 200,
-    render: (value: any, record: DataType) => {
-      const display = value === "Yes" ? "Yes" : "No";
-      const menu = buildMenu(yesNoOptions, (key) =>
-        handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
-      );
-      return (
-        <Dropdown overlay={menu} trigger={["click"]}>
-          <div className="flex items-center cursor-pointer">
-            {display}
-            <DownOutlined className="ml-1 text-gray-500 text-xs" />
-          </div>
-        </Dropdown>
-      );
-    },
-  },
-  {
-    title: "Explanation",
-    dataIndex: "explanation",
-    key: "explanation",
-    width: 400,
-    render: (text: string, record: DataType) => {
-      if (editingKeys.includes(record.key)) {
-        return (
-          <TextArea
-            value={text}
-            onChange={(e) =>
-              handlers?.onTextChange?.(
-                record.key,
-                "explanation",
-                e.target.value
-              )
-            }
-            autoSize={{ minRows: 2, maxRows: 6 }}
-            placeholder="Enter explanation..."
-          />
+  const grcExceptionLogColumns: ColumnsType<DataType> = [
+    {
+      title: "GRC Adequacy",
+      dataIndex: "grcAdequacy",
+      key: "grcAdequacy",
+      width: 200,
+      render: (value: any, record: DataType) => {
+        const display = value === "Yes" ? "Yes" : "No";
+        const menu = buildMenu(yesNoOptions, (key) =>
+          handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
         );
-      }
-      return <div style={{ whiteSpace: "pre-line" }}>{text || "-"}</div>;
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {display}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
+      },
     },
-  },
-];
+    {
+      title: "GRC Effectiveness",
+      dataIndex: "grcEffectiveness",
+      key: "grcEffectiveness",
+      width: 200,
+      render: (value: any, record: DataType) => {
+        const display = value === "Yes" ? "Yes" : "No";
+        const menu = buildMenu(yesNoOptions, (key) =>
+          handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
+        );
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {display}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
+      },
+    },
+    {
+      title: "Explanation",
+      dataIndex: "explanation",
+      key: "explanation",
+      width: 400,
+      render: (text: string, record: DataType) => {
+        if (editingKeys.includes(record.key)) {
+          return (
+            <TextArea
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "explanation",
+                  e.target.value
+                )
+              }
+              autoSize={{ minRows: 2, maxRows: 6 }}
+              placeholder="Enter explanation..."
+            />
+          );
+        }
+        return <div style={{ whiteSpace: "pre-line" }}>{text || "-"}</div>;
+      },
+    },
+  ];
   let dynamicColumns: ColumnsType<DataType> = processColumns;
   switch (activeTab) {
     case "1":
