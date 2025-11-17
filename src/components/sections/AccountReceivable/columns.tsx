@@ -3788,6 +3788,7 @@ export function getColumns(
         );
       },
     },
+   
     {
       title: "Explanation",
       dataIndex: "explanation",
