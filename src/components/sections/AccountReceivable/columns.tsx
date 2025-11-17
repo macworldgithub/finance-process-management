@@ -3424,39 +3424,173 @@ export function getColumns(
       },
     },
   ];
+  // const financialStatementAssertionsColumns: ColumnsType<DataType> = [
+  //   {
+  //     title: "Internal Control Over Financial Reporting?",
+  //     dataIndex: "internalControlFinancial",
+  //     key: "internalControlFinancial",
+  //     width: 280,
+  //     render: (value: any, record: DataType) => {
+  //       // Convert boolean to string for display, or use existing string value
+  //       const displayValue =
+  //         value === true
+  //           ? "Yes"
+  //           : value === false
+  //           ? "No"
+  //           : value === "Yes" || value === "No"
+  //           ? value
+  //           : "";
+  //       const menu = buildMenu(yesNoOptions, (key) =>
+  //         handlers?.onSelectGeneric?.(
+  //           key,
+  //           record.key,
+  //           "internalControlFinancial"
+  //         )
+  //       );
+  //       return (
+  //         <Dropdown overlay={menu} trigger={["click"]}>
+  //           <div className="flex items-center cursor-pointer">
+  //             {displayValue || "Select"}
+  //             <DownOutlined className="ml-1 text-gray-500 text-xs" />
+  //           </div>
+  //         </Dropdown>
+  //       );
+  //     },
+  //   },
+  //   {
+  //     title: "Occurrence",
+  //     dataIndex: "occurrence",
+  //     key: "occurrence",
+  //     width: 150,
+  //     render: (checked: boolean, record: DataType) =>
+  //       renderEditableCheckbox(
+  //         checked,
+  //         record,
+  //         "occurrence",
+  //         handlers?.onCheckboxChange
+  //       ),
+  //   },
+  //   {
+  //     title: "Completeness",
+  //     dataIndex: "completeness",
+  //     key: "completeness",
+  //     width: 150,
+  //     render: (checked: boolean, record: DataType) =>
+  //       renderEditableCheckbox(
+  //         checked,
+  //         record,
+  //         "completeness",
+  //         handlers?.onCheckboxChange
+  //       ),
+  //   },
+  //   {
+  //     title: "Accuracy",
+  //     dataIndex: "accuracy",
+  //     key: "accuracy",
+  //     width: 150,
+  //     render: (checked: boolean, record: DataType) =>
+  //       renderEditableCheckbox(
+  //         checked,
+  //         record,
+  //         "accuracy",
+  //         handlers?.onCheckboxChange
+  //       ),
+  //   },
+  //   {
+  //     title: "Authorization",
+  //     dataIndex: "authorization",
+  //     key: "authorization",
+  //     width: 150,
+  //     render: (checked: boolean, record: DataType) =>
+  //       renderEditableCheckbox(
+  //         checked,
+  //         record,
+  //         "authorization",
+  //         handlers?.onCheckboxChange
+  //       ),
+  //   },
+  //   {
+  //     title: "Cutoff",
+  //     dataIndex: "cutoff",
+  //     key: "cutoff",
+  //     width: 120,
+  //     render: (checked: boolean, record: DataType) =>
+  //       renderEditableCheckbox(
+  //         checked,
+  //         record,
+  //         "cutoff",
+  //         handlers?.onCheckboxChange
+  //       ),
+  //   },
+  //   {
+  //     title: "Classification and Understandability",
+  //     dataIndex: "classificationSOX",
+  //     key: "classificationSOX",
+  //     width: 200,
+  //     render: (checked: boolean, record: DataType) =>
+  //       renderEditableCheckbox(
+  //         checked,
+  //         record,
+  //         "classificationSOX",
+  //         handlers?.onCheckboxChange
+  //       ),
+  //   },
+  //   {
+  //     title: "Existence",
+  //     dataIndex: "existence",
+  //     key: "existence",
+  //     width: 150,
+  //     render: (checked: boolean, record: DataType) =>
+  //       renderEditableCheckbox(
+  //         checked,
+  //         record,
+  //         "existence",
+  //         handlers?.onCheckboxChange
+  //       ),
+  //   },
+  //   {
+  //     title: "Rights and Obligations",
+  //     dataIndex: "rightsObligations",
+  //     key: "rightsObligations",
+  //     width: 180,
+  //     render: (checked: boolean, record: DataType) =>
+  //       renderEditableCheckbox(
+  //         checked,
+  //         record,
+  //         "rightsObligations",
+  //         handlers?.onCheckboxChange
+  //       ),
+  //   },
+  //   {
+  //     title: "Valuation and Allocation",
+  //     dataIndex: "valuationAllocation",
+  //     key: "valuationAllocation",
+  //     width: 200,
+  //     render: (checked: boolean, record: DataType) =>
+  //       renderEditableCheckbox(
+  //         checked,
+  //         record,
+  //         "valuationAllocation",
+  //         handlers?.onCheckboxChange
+  //       ),
+  //   },
+  //   {
+  //     title: "Presentation / Disclosure",
+  //     dataIndex: "presentationDisclosure",
+  //     key: "presentationDisclosure",
+  //     width: 200,
+  //     render: (checked: boolean, record: DataType) =>
+  //       renderEditableCheckbox(
+  //         checked,
+  //         record,
+  //         "presentationDisclosure",
+  //         handlers?.onCheckboxChange
+  //       ),
+  //   },
+  // ];
+
   const financialStatementAssertionsColumns: ColumnsType<DataType> = [
-    {
-      title: "Internal Control Over Financial Reporting?",
-      dataIndex: "internalControlFinancial",
-      key: "internalControlFinancial",
-      width: 280,
-      render: (value: any, record: DataType) => {
-        // Convert boolean to string for display, or use existing string value
-        const displayValue =
-          value === true
-            ? "Yes"
-            : value === false
-            ? "No"
-            : value === "Yes" || value === "No"
-            ? value
-            : "";
-        const menu = buildMenu(yesNoOptions, (key) =>
-          handlers?.onSelectGeneric?.(
-            key,
-            record.key,
-            "internalControlFinancial"
-          )
-        );
-        return (
-          <Dropdown overlay={menu} trigger={["click"]}>
-            <div className="flex items-center cursor-pointer">
-              {displayValue || "Select"}
-              <DownOutlined className="ml-1 text-gray-500 text-xs" />
-            </div>
-          </Dropdown>
-        );
-      },
-    },
+    // REMOVED: Internal Control Over Financial Reporting? from here
     {
       title: "Occurrence",
       dataIndex: "occurrence",
@@ -3586,6 +3720,41 @@ export function getColumns(
           "presentationDisclosure",
           handlers?.onCheckboxChange
         ),
+    },
+  ];
+
+  // NEW: Dedicated column for Internal Control Over Financial Reporting
+  const icfrColumn: ColumnsType<DataType> = [
+    {
+      title: "Internal Control Over Financial Reporting?",
+      dataIndex: "internalControlFinancial",
+      key: "internalControlFinancial",
+      width: 320,
+      render: (value: any, record: DataType) => {
+        const displayValue =
+          value === true
+            ? "Yes"
+            : value === false
+            ? "No"
+            : value === "Yes" || value === "No"
+            ? value
+            : "";
+        const menu = buildMenu(yesNoOptions, (key) =>
+          handlers?.onSelectGeneric?.(
+            key,
+            record.key,
+            "internalControlFinancial"
+          )
+        );
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {displayValue || "Select"}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
+      },
     },
   ];
   const internalAuditTestColumns: ColumnsType<DataType> = [
@@ -3843,11 +4012,20 @@ export function getColumns(
     case "8":
       dynamicColumns = riskAssessmentResidualColumns;
       break;
+    // case "9":
+    //   if (activeSubTab === "sox") dynamicColumns = soxSubTabColumns;
+    //   else if (activeSubTab === "financial")
+    //     dynamicColumns = financialStatementAssertionsColumns;
+    //   else dynamicColumns = soxSubTabColumns; // default to sox
+    //   break;
+
     case "9":
       if (activeSubTab === "sox") dynamicColumns = soxSubTabColumns;
       else if (activeSubTab === "financial")
         dynamicColumns = financialStatementAssertionsColumns;
-      else dynamicColumns = soxSubTabColumns; // default to sox
+      else if (activeSubTab === "icfr")
+        dynamicColumns = icfrColumn; // New subtab
+      else dynamicColumns = soxSubTabColumns;
       break;
     case "10":
       if (activeSubTab === "audit") dynamicColumns = internalAuditTestColumns;

@@ -1206,11 +1206,12 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
   const [activeSubTab, setActiveSubTab] = useState("coso");
 
   // Reset sub-tab when switching main tabs
+  // Reset sub-tab when switching main tabs
   useEffect(() => {
     if (activeTab === "3") {
       setActiveSubTab("coso");
     } else if (activeTab === "9") {
-      setActiveSubTab("sox");
+      setActiveSubTab("sox"); // default to SOX
     } else if (activeTab === "10") {
       setActiveSubTab("audit");
     }
@@ -1333,7 +1334,12 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     else return setMainData;
   };
 
-  const tabConfigs: { key: string; label: string; dataSource: string; subTabs?: string[] }[] = [
+  const tabConfigs: {
+    key: string;
+    label: string;
+    dataSource: string;
+    subTabs?: string[];
+  }[] = [
     { key: "1", label: "Processes", dataSource: "main" },
     { key: "2", label: "Ownership", dataSource: "main" },
     {
@@ -1351,7 +1357,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
       key: "9",
       label: "Compliance Management",
       dataSource: "financial",
-      subTabs: ["sox", "financial"],
+      subTabs: ["sox", "financial", "icfr"],
     },
     {
       key: "10",
@@ -1363,14 +1369,24 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
 
   const getSubLabel = (subTab: string) => {
     switch (subTab) {
-      case "coso": return "COSO";
-      case "intosai": return "INTOSAI";
-      case "other": return "Other";
-      case "sox": return "SOX";
-      case "financial": return "Financial Statement Assertions";
-      case "audit": return "Internal Audit Test";
-      case "grc": return "GRC Exception Logs";
-      default: return subTab;
+      case "coso":
+        return "COSO";
+      case "intosai":
+        return "INTOSAI";
+      case "other":
+        return "Other";
+      case "sox":
+        return "SOX";
+      case "financial":
+        return "Financial Statement Assertions";
+      case "icfr":
+        return "Internal Control Over Financial Reporting"; // New
+      case "audit":
+        return "Internal Audit Test";
+      case "grc":
+        return "GRC Exception Logs";
+      default:
+        return subTab;
     }
   };
 
@@ -1401,7 +1417,9 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
           // getColumns may return grouped columns; flatten to leaves
           const columnsRaw = getColumns(config.key, subTab, handlers, []);
           const flat = flattenColumns(
-            columnsRaw as Array<ColumnType<DataType> | ColumnGroupType<DataType>>
+            columnsRaw as Array<
+              ColumnType<DataType> | ColumnGroupType<DataType>
+            >
           );
           const fields = flat
             .map((col) => col.dataIndex as string)
@@ -1474,7 +1492,9 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
           if (!config) return;
 
           const ws = wb.Sheets[sheetName];
-          const importedData: DataType[] = XLSX.utils.sheet_to_json(ws, { defval: "" });
+          const importedData: DataType[] = XLSX.utils.sheet_to_json(ws, {
+            defval: "",
+          });
 
           const setter = getSetterForSource(config.dataSource);
           setter((prev: DataType[]) => {
@@ -1670,6 +1690,10 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   {
                     key: "financial",
                     label: "Financial Statement Assertions",
+                  },
+                  {
+                    key: "icfr",
+                    label: "Internal Control Over Financial Reporting",
                   },
                 ]}
               />
