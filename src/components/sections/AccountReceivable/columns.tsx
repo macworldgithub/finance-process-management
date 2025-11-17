@@ -3726,7 +3726,7 @@ export function getColumns(
   // NEW: Dedicated column for Internal Control Over Financial Reporting
   const icfrColumn: ColumnsType<DataType> = [
     {
-      title: "Internal Control Over Financial Reporting?",
+      title: "Internal Control Over Financial Reporting",
       dataIndex: "internalControlFinancial",
       key: "internalControlFinancial",
       width: 320,
@@ -3869,67 +3869,143 @@ export function getColumns(
   //   },
   // ];
   // Inside getColumns function, replace the grcExceptionLogColumns block:
-  const grcExceptionLogColumns: ColumnsType<DataType> = [
-    // {
-    //   title: "GRC Adequacy",
-    //   dataIndex: "grcAdequacy",
-    //   key: "grcAdequacy",
-    //   width: 200,
-    //   render: (value: any, record: DataType) => {
-    //     const display = value === "Yes" ? "Yes" : "No";
-    //     const menu = buildMenu(yesNoOptions, (key) =>
-    //       handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
-    //     );
-    //     return (
-    //       <Dropdown overlay={menu} trigger={["click"]}>
-    //         <div className="flex items-center cursor-pointer">
-    //           {display}
-    //           <DownOutlined className="ml-1 text-gray-500 text-xs" />
-    //         </div>
-    //       </Dropdown>
-    //     );
-    //   },
-    // },
-    // {
-    //   title: "GRC Effectiveness",
-    //   dataIndex: "grcEffectiveness",
-    //   key: "grcEffectiveness",
-    //   width: 200,
-    //   render: (value: any, record: DataType) => {
-    //     const display = value === "Yes" ? "Yes" : "No";
-    //     const menu = buildMenu(yesNoOptions, (key) =>
-    //       handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
-    //     );
-    //     return (
-    //       <Dropdown overlay={menu} trigger={["click"]}>
-    //         <div className="flex items-center cursor-pointer">
-    //           {display}
-    //           <DownOutlined className="ml-1 text-gray-500 text-xs" />
-    //         </div>
-    //       </Dropdown>
-    //     );
-    //   },
-    // },
+  // const grcExceptionLogColumns: ColumnsType<DataType> = [
+  //   // {
+  //   //   title: "GRC Adequacy",
+  //   //   dataIndex: "grcAdequacy",
+  //   //   key: "grcAdequacy",
+  //   //   width: 200,
+  //   //   render: (value: any, record: DataType) => {
+  //   //     const display = value === "Yes" ? "Yes" : "No";
+  //   //     const menu = buildMenu(yesNoOptions, (key) =>
+  //   //       handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
+  //   //     );
+  //   //     return (
+  //   //       <Dropdown overlay={menu} trigger={["click"]}>
+  //   //         <div className="flex items-center cursor-pointer">
+  //   //           {display}
+  //   //           <DownOutlined className="ml-1 text-gray-500 text-xs" />
+  //   //         </div>
+  //   //       </Dropdown>
+  //   //     );
+  //   //   },
+  //   // },
+  //   // {
+  //   //   title: "GRC Effectiveness",
+  //   //   dataIndex: "grcEffectiveness",
+  //   //   key: "grcEffectiveness",
+  //   //   width: 200,
+  //   //   render: (value: any, record: DataType) => {
+  //   //     const display = value === "Yes" ? "Yes" : "No";
+  //   //     const menu = buildMenu(yesNoOptions, (key) =>
+  //   //       handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
+  //   //     );
+  //   //     return (
+  //   //       <Dropdown overlay={menu} trigger={["click"]}>
+  //   //         <div className="flex items-center cursor-pointer">
+  //   //           {display}
+  //   //           <DownOutlined className="ml-1 text-gray-500 text-xs" />
+  //   //         </div>
+  //   //       </Dropdown>
+  //   //     );
+  //   //   },
+  //   // },
 
+  //   {
+  //     title: "GRC Adequacy",
+  //     dataIndex: "grcAdequacy",
+  //     key: "grcAdequacy",
+  //     width: 200,
+  //     render: (value: any, record: DataType) => {
+  //       const display = value === "Yes" ? "Yes" : value === "No" ? "No" : "";
+  //       return (
+  //         <Input
+  //           placeholder="Enter GRC Adequacy"
+  //           value={display}
+  //           onChange={(e) => {
+  //             const newValue = e.target.value;
+  //             handlers?.onSelectGeneric?.(newValue, record.key, "grcAdequacy");
+  //           }}
+  //           style={{ width: "100%" }}
+  //           allowClear
+  //         />
+  //       );
+  //     },
+  //   },
+  //   {
+  //     title: "GRC Effectiveness",
+  //     dataIndex: "grcEffectiveness",
+  //     key: "grcEffectiveness",
+  //     width: 200,
+  //     render: (value: any, record: DataType) => {
+  //       const display = value === "Yes" ? "Yes" : value === "No" ? "No" : "";
+  //       return (
+  //         <Input
+  //           placeholder="Enter GRC Effectiveness"
+  //           value={display}
+  //           onChange={(e) => {
+  //             const newValue = e.target.value;
+  //             handlers?.onSelectGeneric?.(
+  //               newValue,
+  //               record.key,
+  //               "grcEffectiveness"
+  //             );
+  //           }}
+  //           style={{ width: "100%" }}
+  //           allowClear
+  //         />
+  //       );
+  //     },
+  //   },
+  //   {
+  //     title: "Explanation",
+  //     dataIndex: "explanation",
+  //     key: "explanation",
+  //     width: 400,
+  //     render: (text: string, record: DataType) => {
+  //       if (editingKeys.includes(record.key)) {
+  //         return (
+  //           <TextArea
+  //             value={text}
+  //             onChange={(e) =>
+  //               handlers?.onTextChange?.(
+  //                 record.key,
+  //                 "explanation",
+  //                 e.target.value
+  //               )
+  //             }
+  //             autoSize={{ minRows: 2, maxRows: 6 }}
+  //             placeholder="Enter explanation..."
+  //           />
+  //         );
+  //       }
+  //       return <div style={{ whiteSpace: "pre-line" }}>{text || "-"}</div>;
+  //     },
+  //   },
+  // ];
+  const grcExceptionLogColumns: ColumnsType<DataType> = [
     {
       title: "GRC Adequacy",
       dataIndex: "grcAdequacy",
       key: "grcAdequacy",
       width: 200,
-      render: (value: any, record: DataType) => {
-        const display = value === "Yes" ? "Yes" : value === "No" ? "No" : "";
-        return (
-          <Input
-            placeholder="Enter GRC Adequacy"
-            value={display}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              handlers?.onSelectGeneric?.(newValue, record.key, "grcAdequacy");
-            }}
-            style={{ width: "100%" }}
-            allowClear
-          />
-        );
+      render: (text: string, record: DataType) => {
+        if (editingKeys.includes(record.key)) {
+          return (
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "grcAdequacy",
+                  e.target.value
+                )
+              }
+              placeholder="Enter GRC Adequacy"
+            />
+          );
+        }
+        return text || "-";
       },
     },
     {
@@ -3937,24 +4013,23 @@ export function getColumns(
       dataIndex: "grcEffectiveness",
       key: "grcEffectiveness",
       width: 200,
-      render: (value: any, record: DataType) => {
-        const display = value === "Yes" ? "Yes" : value === "No" ? "No" : "";
-        return (
-          <Input
-            placeholder="Enter GRC Effectiveness"
-            value={display}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              handlers?.onSelectGeneric?.(
-                newValue,
-                record.key,
-                "grcEffectiveness"
-              );
-            }}
-            style={{ width: "100%" }}
-            allowClear
-          />
-        );
+      render: (text: string, record: DataType) => {
+        if (editingKeys.includes(record.key)) {
+          return (
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "grcEffectiveness",
+                  e.target.value
+                )
+              }
+              placeholder="Enter GRC Effectiveness"
+            />
+          );
+        }
+        return text || "-";
       },
     },
    
