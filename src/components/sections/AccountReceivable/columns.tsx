@@ -1863,6 +1863,7 @@ import { ColumnsType } from "antd/es/table";
 import { Menu, Dropdown, Checkbox, Button, Input, Popconfirm } from "antd";
 import { DownOutlined, PlusOutlined } from "@ant-design/icons";
 import { DataType } from "./types";
+import { Select } from "antd";
 const { TextArea } = Input;
 export const stageOptions = [
   { label: "Processing", key: "Processing" },
@@ -1999,6 +2000,19 @@ const buildMenu = (
     />
   );
 };
+// const buildMenu = (
+//   items: { label: string; key: string }[],
+//   onClick?: (key: string) => void
+// ) => {
+//   return (
+//     <Menu
+//       onClick={(info) => {
+//         onClick?.(String(info.key));
+//       }}
+//       items={items as any}
+//     />
+//   );
+// };
 // Render editable checkbox
 const renderEditableCheckbox = (
   value: boolean,
@@ -3213,25 +3227,25 @@ export function getColumns(
         return text;
       },
     },
-    {
-      title: "Process Stage",
-      dataIndex: "processStage",
-      key: "processStage",
-      width: 150,
-      render: (text: any, record: DataType) => {
-        const menu = buildMenu(yesNoOptions, (key) =>
-          handlers?.onSelectGeneric?.(key, record.key, "processStage")
-        );
-        return (
-          <Dropdown overlay={menu} trigger={["click"]}>
-            <div className="flex items-center cursor-pointer">
-              {text || "Select"}
-              <DownOutlined className="ml-1 text-gray-500 text-xs" />
-            </div>
-          </Dropdown>
-        );
-      },
-    },
+    // {
+    //   title: "Process Stage",
+    //   dataIndex: "processStage",
+    //   key: "processStage",
+    //   width: 150,
+    //   render: (text: any, record: DataType) => {
+    //     const menu = buildMenu(yesNoOptions, (key) =>
+    //       handlers?.onSelectGeneric?.(key, record.key, "processStage")
+    //     );
+    //     return (
+    //       <Dropdown overlay={menu} trigger={["click"]}>
+    //         <div className="flex items-center cursor-pointer">
+    //           {text || "Select"}
+    //           <DownOutlined className="ml-1 text-gray-500 text-xs" />
+    //         </div>
+    //       </Dropdown>
+    //     );
+    //   },
+    // },
     {
       title: "Key Control",
       dataIndex: "keyControl",
@@ -3250,29 +3264,56 @@ export function getColumns(
     },
   ];
   const controlAssessmentColumns: ColumnsType<DataType> = [
+    // {
+    //   title: "Level of Responsibility",
+    //   dataIndex: "levelResponsibility",
+    //   key: "levelResponsibility",
+    //   width: 200,
+    //   render: (text: string, record: DataType) => {
+    //     if (editingKeys.includes(record.key)) {
+    //       return (
+    //         <Input
+    //           value={text}
+    //           onChange={(e) =>
+    //             handlers?.onTextChange?.(
+    //               record.key,
+    //               "levelResponsibility",
+    //               e.target.value
+    //             )
+    //           }
+    //         />
+    //       );
+    //     }
+    //     return text;
+    //   },
+    // },
     {
       title: "Level of Responsibility",
       dataIndex: "levelResponsibility",
       key: "levelResponsibility",
       width: 200,
-      render: (text: string, record: DataType) => {
-        if (editingKeys.includes(record.key)) {
-          return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "levelResponsibility",
-                  e.target.value
-                )
-              }
-            />
-          );
-        }
-        return text;
+      render: (text: any, record: DataType) => {
+        const levelOptions = [
+          { label: "Process Level", key: "Process Level" },
+          { label: "Functional Level", key: "Functional Level" },
+          { label: "Operating Unit Level", key: "Operating Unit Level" },
+          { label: "Division Level", key: "Division Level" },
+          { label: "Entity Level", key: "Entity Level" },
+        ];
+        const menu = buildMenu(levelOptions, (key) =>
+          handlers?.onSelectGeneric?.(key, record.key, "levelResponsibility")
+        );
+        return (
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <div className="flex items-center cursor-pointer">
+              {text || "Select"}
+              <DownOutlined className="ml-1 text-gray-500 text-xs" />
+            </div>
+          </Dropdown>
+        );
       },
     },
+
     {
       title: "COSO Principle",
       dataIndex: "cosoPrinciple",
