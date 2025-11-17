@@ -1,4 +1,3 @@
-
 // import { DataType } from "./types";
 // export const data: DataType[] = [
 //   {
@@ -920,7 +919,8 @@ export const data: DataType[] = [
     commitmentCompetence: true,
     managementPhilosophy: true,
     riskType: "Liquidity Risk",
-    riskDescription: "A misstatement in Account Receivable due to delay recording",
+    riskDescription:
+      "A misstatement in Account Receivable due to delay recording",
     severityImpact: "Major",
     probabilityLikelihood: "Likely",
     classification: "High",
@@ -932,8 +932,7 @@ export const data: DataType[] = [
       "c) Verify shipping or contract terms before invoice processing.",
     controlDefinition:
       "Establish the validity and legitimacy of Account Receivable transactions by reaching to customers.",
-    controlDescription:
-      "Ensure the accuracy in Account Receivable process.",
+    controlDescription: "Ensure the accuracy in Account Receivable process.",
     controlResponsibility: "Financial Controller",
   },
   {
@@ -1004,7 +1003,8 @@ export const data: DataType[] = [
     commitmentCompetence: true,
     managementPhilosophy: true,
     riskType: "Liquidity Risk",
-    riskDescription: "Customers will not pay on time and company will face short of liquidity",
+    riskDescription:
+      "Customers will not pay on time and company will face short of liquidity",
     severityImpact: "Major",
     probabilityLikelihood: "Likely",
     classification: "High",
@@ -1043,7 +1043,8 @@ export const data: DataType[] = [
     commitmentCompetence: false,
     managementPhilosophy: true,
     riskType: "Liquidity Risk",
-    riskDescription: "Performing of Incorrect Account Receivable Aging Analysis",
+    riskDescription:
+      "Performing of Incorrect Account Receivable Aging Analysis",
     severityImpact: "Major",
     probabilityLikelihood: "Likely",
     classification: "High",
@@ -1082,7 +1083,8 @@ export const data: DataType[] = [
     commitmentCompetence: true,
     managementPhilosophy: false,
     riskType: "Liquidity Risk",
-    riskDescription: "The organization will lose the money in case of customer default.",
+    riskDescription:
+      "The organization will lose the money in case of customer default.",
     severityImpact: "Major",
     probabilityLikelihood: "Likely",
     classification: "High",
@@ -1217,7 +1219,7 @@ export const data: DataType[] = [
     classification: "High",
     riskResponseType: "Mitigate",
     controlObjectives:
-      "The Account Receivable voucher sheet should be prepared and a package called the \"voucher package\" should be assembled with the following documents:\n" +
+      'The Account Receivable voucher sheet should be prepared and a package called the "voucher package" should be assembled with the following documents:\n' +
       "a) Vendor invoices.\n" +
       "b) Packing slip\n" +
       "c) Sales order.\n" +
@@ -1355,7 +1357,7 @@ export const data: DataType[] = [
       "c) Mail customer statements periodically, and investigate and resolve disputes or inquiries, by individuals independent of the invoicing function.\n" +
       "d) Monitor number of customer complaints regarding improper invoices or statements (performance indicator).",
     controlDefinition:
-      "Reconciliation of the general ledger to sub-ledgers is another type we will review. The general ledger (or simply \"ledger\" or \"G/L\") is a collection of all balance sheet and income statement accounts. The general ledger also includes all journal entries posted to accounts. In nowadays' computerized world, the ledger is maintained in an electronic form.",
+      'Reconciliation of the general ledger to sub-ledgers is another type we will review. The general ledger (or simply "ledger" or "G/L") is a collection of all balance sheet and income statement accounts. The general ledger also includes all journal entries posted to accounts. In nowadays\' computerized world, the ledger is maintained in an electronic form.',
     controlDescription:
       "A sub-ledger is a detailed record of transactions for an individual account. Usually, a sub-ledger contains detail of transactions for an account, which are summarized by day (or month) and the total is then posted to the general ledger. Therefore, sub-ledgers serve as support for amounts posted to the general ledger. Sub-ledgers are presented in an electronic form as well. For example, accounts receivable sub-ledger may contain detail for all issued invoices and cash receipts. At the end of a day, an accountant can summarize all invoices issued (sales) and cash receipts (cash collections) and post them to the general ledger in two separate journal entries. The general ledger would not contain detail for each individual transaction.",
     controlResponsibility: "Financial Controller",
@@ -1363,14 +1365,14 @@ export const data: DataType[] = [
 ];
 export const controlAssessmentData = [
   {
-     key: "1",
+    key: "1",
     no: "5.1",
     process: "Establishing Account Receivable",
     levelResponsibility: "Activity Level",
     cosoPrinciple: "10.  Selects and develops control activities",
     operationalApproach: "Manual",
     operationalFrequency: "Daily",
-    controlClassification: "Preventive"
+    controlClassification: "Preventive",
   },
   {
     key: "2",
@@ -1380,7 +1382,7 @@ export const controlAssessmentData = [
     cosoPrinciple: "10.  Selects and develops control activities",
     operationalApproach: "Manual",
     operationalFrequency: "Daily",
-    controlClassification: "Preventive Control"
+    controlClassification: "Preventive Control",
   },
   {
     key: "3",
@@ -1390,17 +1392,17 @@ export const controlAssessmentData = [
     cosoPrinciple: "10.  Selects and develops control activities",
     operationalApproach: "Automated",
     operationalFrequency: "Daily",
-    controlClassification: "Preventive Control"
+    controlClassification: "Preventive Control",
   },
   {
     key: "4",
-   no: "5.4",
+    no: "5.4",
     process: "Offer Discount and allowance on Accounts Receivable collection",
     levelResponsibility: "Activity Level",
     cosoPrinciple: "10.  Selects and develops control activities",
     operationalApproach: "Automated",
     operationalFrequency: "Daily",
-    controlClassification: "Preventive Control"
+    controlClassification: "Preventive Control",
   },
   {
     key: "5",
@@ -1410,7 +1412,7 @@ export const controlAssessmentData = [
     cosoPrinciple: "10.  Selects and develops control activities",
     operationalApproach: "Automated",
     operationalFrequency: "Daily",
-    controlClassification: "Preventive Control"
+    controlClassification: "Preventive Control",
   },
   {
     key: "6",
@@ -1420,7 +1422,7 @@ export const controlAssessmentData = [
     cosoPrinciple: "10.  Selects and develops control activities",
     operationalApproach: "Automated",
     operationalFrequency: "Daily",
-    controlClassification: "Preventive Control"
+    controlClassification: "Preventive Control",
   },
   {
     key: "7",
@@ -1430,17 +1432,17 @@ export const controlAssessmentData = [
     cosoPrinciple: "10.  Selects and develops control activities",
     operationalApproach: "Automated",
     operationalFrequency: "Daily",
-    controlClassification: "Preventive Control"
+    controlClassification: "Preventive Control",
   },
   {
     key: "8",
-   no: "5.8",
+    no: "5.8",
     process: "Cash Receipts from Customers",
     levelResponsibility: "",
     cosoPrinciple: "10.  Selects and develops control activities",
     operationalApproach: "Automated",
     operationalFrequency: "Daily",
-    controlClassification: "Preventive Control"
+    controlClassification: "Preventive Control",
   },
   {
     key: "9",
@@ -1450,39 +1452,39 @@ export const controlAssessmentData = [
     cosoPrinciple: "10.  Selects and develops control activities",
     operationalApproach: "Manual",
     operationalFrequency: "Daily",
-    controlClassification: "Preventive Control"
+    controlClassification: "Preventive Control",
   },
   {
     key: "10",
-   no: "5.10",
+    no: "5.10",
     process: "Procedures Performed on Account Receivable Voucher Package",
     levelResponsibility: "Activity Level",
     cosoPrinciple: "10.  Selects and develops control activities",
     operationalApproach: "Manual",
     operationalFrequency: "Daily",
-    controlClassification: "Preventive Control"
+    controlClassification: "Preventive Control",
   },
   {
     key: "11",
-   no: "5.11",
+    no: "5.11",
     process: "Review accounts receivable journal entries",
     levelResponsibility: "Activity Level",
     cosoPrinciple: "10.  Selects and develops control activities",
     operationalApproach: "Automated",
     operationalFrequency: "Daily",
-    controlClassification: "Preventive Control"
+    controlClassification: "Preventive Control",
   },
   {
     key: "12",
-   no: "5.12",
+    no: "5.12",
     process:
       "Reconciliation of Account Receivable Sub-ledger to Account Receivable General Ledger",
     levelResponsibility: "Activity Level",
     cosoPrinciple: "10.  Selects and develops control activities",
     operationalApproach: "Manual",
     operationalFrequency: "Monthly",
-    controlClassification: "Detective Control"
-  }
+    controlClassification: "Detective Control",
+  },
 ];
 export const financialAssertionsData = [
   {
@@ -1500,7 +1502,7 @@ export const financialAssertionsData = [
     existence: true,
     rightsObligations: true,
     valuationAllocation: true,
-    presentationDisclosure: true
+    presentationDisclosure: true,
   },
   {
     key: "2",
@@ -1517,7 +1519,7 @@ export const financialAssertionsData = [
     existence: true,
     rightsObligations: true,
     valuationAllocation: true,
-    presentationDisclosure: true
+    presentationDisclosure: true,
   },
   {
     key: "3",
@@ -1534,7 +1536,7 @@ export const financialAssertionsData = [
     existence: true,
     rightsObligations: true,
     valuationAllocation: true,
-    presentationDisclosure: true
+    presentationDisclosure: true,
   },
   {
     key: "4",
@@ -1551,7 +1553,7 @@ export const financialAssertionsData = [
     existence: true,
     rightsObligations: true,
     valuationAllocation: true,
-    presentationDisclosure: true
+    presentationDisclosure: true,
   },
   {
     key: "5",
@@ -1568,7 +1570,7 @@ export const financialAssertionsData = [
     existence: true,
     rightsObligations: true,
     valuationAllocation: true,
-    presentationDisclosure: true
+    presentationDisclosure: true,
   },
   {
     key: "6",
@@ -1585,7 +1587,7 @@ export const financialAssertionsData = [
     existence: true,
     rightsObligations: true,
     valuationAllocation: true,
-    presentationDisclosure: true
+    presentationDisclosure: true,
   },
   {
     key: "7",
@@ -1602,7 +1604,7 @@ export const financialAssertionsData = [
     existence: true,
     rightsObligations: true,
     valuationAllocation: true,
-    presentationDisclosure: true
+    presentationDisclosure: true,
   },
   {
     key: "8",
@@ -1619,7 +1621,7 @@ export const financialAssertionsData = [
     existence: true,
     rightsObligations: true,
     valuationAllocation: true,
-    presentationDisclosure: true
+    presentationDisclosure: true,
   },
   {
     key: "9",
@@ -1636,7 +1638,7 @@ export const financialAssertionsData = [
     existence: true,
     rightsObligations: true,
     valuationAllocation: true,
-    presentationDisclosure: true
+    presentationDisclosure: true,
   },
   {
     key: "10",
@@ -1653,7 +1655,7 @@ export const financialAssertionsData = [
     existence: true,
     rightsObligations: true,
     valuationAllocation: true,
-    presentationDisclosure: true
+    presentationDisclosure: true,
   },
   {
     key: "11",
@@ -1670,12 +1672,13 @@ export const financialAssertionsData = [
     existence: true,
     rightsObligations: true,
     valuationAllocation: true,
-    presentationDisclosure: true
+    presentationDisclosure: true,
   },
   {
     key: "12",
     no: "5.12",
-    process: "Reconciliation of Account Receivable Sub-ledger to Account Receivable General Ledger",
+    process:
+      "Reconciliation of Account Receivable Sub-ledger to Account Receivable General Ledger",
     soxControlActivity: "Financial Controller",
     internalControlFinancial: true,
     occurrence: true,
@@ -1687,21 +1690,154 @@ export const financialAssertionsData = [
     existence: true,
     rightsObligations: true,
     valuationAllocation: true,
-    presentationDisclosure: true
-  }
+    presentationDisclosure: true,
+  },
 ];
 // ...existing code...
 export const internalAuditData: DataType[] = [
-  { key: "1", no: "5.1", process: "Establishing Account Receivable", internalAuditTest: "To inquiry establishment of Account Receivable procedure is usually performed together with other procedures, such as inspecting the supporting documents or observing the client's staff performing the controls, in order to ensure that the explanation given by the client's staff or management is true.", check: false, sampleSize: "", grcAdequacy: "No", grcEffectiveness: "No", explanation: "" },
-  { key: "2", no: "5.2", process: "Establishment of Account Receivable Control Devices", internalAuditTest: "Reviewed", check: false, sampleSize: "", grcAdequacy: "No", grcEffectiveness: "No", explanation: "" },
-  { key: "3", no: "5.3", process: "Returns and allowances from customer", internalAuditTest: "Check the appropriate Returns Receiving Report to see if the invoice number is listed. If the entire invoice is being returned, there is no need to call on the invoice, as the customer will not be paying it. If only part of the invoice is returned, and call the customer to find out the payment status of the remaining balance.", check: false, sampleSize: "",grcAdequacy: "No", grcEffectiveness: "No", explanation: "" },
-  { key: "4", no: "5.4", process: "Offer Discount and allowance on Accounts Receivable collection", internalAuditTest: "Review the sales discount report and match with company credit terms and company discount policy and obtain on the customer list, who availed the discount sample basis and perform analytical procedure to find inconsistency if any in the customer individual accounts. ", check: false, sampleSize: "", grcAdequacy: "No", grcEffectiveness: "No", explanation: "" },
-  { key: "5", no: "5.5", process: "Estimate the Accounts Receivable Aging Analysis", internalAuditTest: "An auditor will use several techniques to determine whether the allowance for doubtful accounts appears reasonable. Most begin with the company's aging schedule. The older a receivable is, the harder it will be to collect.", check: false, sampleSize: "", grcAdequacy: "No", grcEffectiveness: "No", explanation: "" },
-  { key: "6", no: "5.6", process: "Assessing the Allowance for Doubtful Accounts", internalAuditTest: "Thoroughly review allowance computations to see if they are consistent with prior years; compare allowance percentages to industry averages; agree to supporting documentation (e.g., histories of uncollectible amounts); recompute the related numbers. ", check: false, sampleSize: "", grcAdequacy: "No", grcEffectiveness: "No", explanation: "" },
-  { key: "7", no: "5.7", process: "Sending statement of account to the customers", internalAuditTest: "Obtain the statement of accounts and match with customer individual ledger account on sample basis and ensure the accuracy. ", check: false, sampleSize: "", grcAdequacy: "No", grcEffectiveness: "No", explanation: "" },
-  { key: "8", no: "5.8", process: "Cash Receipts from Customers", internalAuditTest: "Periodically trace a selection of cash receipts to customer invoices to verify proper cash application.", check: false, sampleSize: "",grcAdequacy: "No", grcEffectiveness: "No", explanation: "" },
-  { key: "9", no: "5.9", process: "Preparation of the Account Receivable Voucher Package", internalAuditTest: "Obtain the sample of Account Receivable and vouch them to the supporting documents, such as customer orders and sales invoices.", check: false, sampleSize: "", grcAdequacy: "No", grcEffectiveness: "No", explanation: "" },
-  { key: "10", no: "5.10", process: "Procedures Performed on Account Receivable Voucher Package", internalAuditTest: "Check the authorized approval of Account Receivable voucher package and related general account distribution and Perform Account Receivable confirmation on a sample of customer", check: false, sampleSize: "", grcAdequacy: "No", grcEffectiveness: "No", explanation: "" },
-  { key: "11", no: "5.11", process: "Review accounts receivable journal entries", internalAuditTest: "Review on sample basis whether Sales invoice is approved and recorded in Voucher Register or Sales Journal by the authorized person.", check: false, sampleSize: "", grcAdequacy: "No", grcEffectiveness: "No", explanation: "" },
-  { key: "12", no: "5.12", process: "Reconciliation of Account Receivable Sub-ledger to Account Receivable General Ledger", internalAuditTest: "Assessment of accounts receivable reconciliation statement on a sample basis to verify agreement between accounts receivable subsidiary ledger and receivable general ledger account (control account). ", check: false, sampleSize: "", grcAdequacy: "No", grcEffectiveness: "No", explanation: "" }
+  {
+    key: "1",
+    no: "5.1",
+    process: "Establishing Account Receivable",
+    internalAuditTest:
+      "To inquiry establishment of Account Receivable procedure is usually performed together with other procedures, such as inspecting the supporting documents or observing the client's staff performing the controls, in order to ensure that the explanation given by the client's staff or management is true.",
+    check: false,
+    sampleSize: "",
+    grcAdequacy: "No",
+    grcEffectiveness: "No",
+    explanation: "",
+  },
+  {
+    key: "2",
+    no: "5.2",
+    process: "Establishment of Account Receivable Control Devices",
+    internalAuditTest: "Reviewed",
+    check: false,
+    sampleSize: "",
+    grcAdequacy: "No",
+    grcEffectiveness: "No",
+    explanation: "",
+  },
+  {
+    key: "3",
+    no: "5.3",
+    process: "Returns and allowances from customer",
+    internalAuditTest:
+      "Check the appropriate Returns Receiving Report to see if the invoice number is listed. If the entire invoice is being returned, there is no need to call on the invoice, as the customer will not be paying it. If only part of the invoice is returned, and call the customer to find out the payment status of the remaining balance.",
+    check: false,
+    sampleSize: "",
+    grcAdequacy: "No",
+    grcEffectiveness: "No",
+    explanation: "",
+  },
+  {
+    key: "4",
+    no: "5.4",
+    process: "Offer Discount and allowance on Accounts Receivable collection",
+    internalAuditTest:
+      "Review the sales discount report and match with company credit terms and company discount policy and obtain on the customer list, who availed the discount sample basis and perform analytical procedure to find inconsistency if any in the customer individual accounts. ",
+    check: false,
+    sampleSize: "",
+    grcAdequacy: "No",
+    grcEffectiveness: "No",
+    explanation: "",
+  },
+  {
+    key: "5",
+    no: "5.5",
+    process: "Estimate the Accounts Receivable Aging Analysis",
+    internalAuditTest:
+      "An auditor will use several techniques to determine whether the allowance for doubtful accounts appears reasonable. Most begin with the company's aging schedule. The older a receivable is, the harder it will be to collect.",
+    check: false,
+    sampleSize: "",
+    grcAdequacy: "No",
+    grcEffectiveness: "No",
+    explanation: "",
+  },
+  {
+    key: "6",
+    no: "5.6",
+    process: "Assessing the Allowance for Doubtful Accounts",
+    internalAuditTest:
+      "Thoroughly review allowance computations to see if they are consistent with prior years; compare allowance percentages to industry averages; agree to supporting documentation (e.g., histories of uncollectible amounts); recompute the related numbers. ",
+    check: false,
+    sampleSize: "",
+    grcAdequacy: "No",
+    grcEffectiveness: "No",
+    explanation: "",
+  },
+  {
+    key: "7",
+    no: "5.7",
+    process: "Sending statement of account to the customers",
+    internalAuditTest:
+      "Obtain the statement of accounts and match with customer individual ledger account on sample basis and ensure the accuracy. ",
+    check: false,
+    sampleSize: "",
+    grcAdequacy: "No",
+    grcEffectiveness: "No",
+    explanation: "",
+  },
+
+  {
+    key: "8",
+    no: "5.8",
+    process: "Cash Receipts from Customers",
+    internalAuditTest:
+      "Periodically trace a selection of cash receipts to customer invoices to verify proper cash application.",
+    check: false,
+    sampleSize: "",
+    grcAdequacy: "No",
+    grcEffectiveness: "No",
+    explanation: "",
+  },
+  {
+    key: "9",
+    no: "5.9",
+    process: "Preparation of the Account Receivable Voucher Package",
+    internalAuditTest:
+      "Obtain the sample of Account Receivable and vouch them to the supporting documents, such as customer orders and sales invoices.",
+    check: false,
+    sampleSize: "",
+    grcAdequacy: "No",
+    grcEffectiveness: "No",
+    explanation: "",
+  },
+  {
+    key: "10",
+    no: "5.10",
+    process: "Procedures Performed on Account Receivable Voucher Package",
+    internalAuditTest:
+      "Check the authorized approval of Account Receivable voucher package and related general account distribution and Perform Account Receivable confirmation on a sample of customer",
+    check: false,
+    sampleSize: "",
+    grcAdequacy: "No",
+    grcEffectiveness: "No",
+    explanation: "",
+  },
+  {
+    key: "11",
+    no: "5.11",
+    process: "Review accounts receivable journal entries",
+    internalAuditTest:
+      "Review on sample basis whether Sales invoice is approved and recorded in Voucher Register or Sales Journal by the authorized person.",
+    check: false,
+    sampleSize: "",
+    grcAdequacy: "No",
+    grcEffectiveness: "No",
+    explanation: "",
+  },
+  {
+    key: "12",
+    no: "5.12",
+    process:
+      "Reconciliation of Account Receivable Sub-ledger to Account Receivable General Ledger",
+    internalAuditTest:
+      "Assessment of accounts receivable reconciliation statement on a sample basis to verify agreement between accounts receivable subsidiary ledger and receivable general ledger account (control account). ",
+    check: false,
+    sampleSize: "",
+    grcAdequacy: "No",
+    grcEffectiveness: "No",
+    explanation: "",
+  },
 ];
