@@ -3701,23 +3701,65 @@ export function getColumns(
   // ];
   // Inside getColumns function, replace the grcExceptionLogColumns block:
   const grcExceptionLogColumns: ColumnsType<DataType> = [
+    // {
+    //   title: "GRC Adequacy",
+    //   dataIndex: "grcAdequacy",
+    //   key: "grcAdequacy",
+    //   width: 200,
+    //   render: (value: any, record: DataType) => {
+    //     const display = value === "Yes" ? "Yes" : "No";
+    //     const menu = buildMenu(yesNoOptions, (key) =>
+    //       handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
+    //     );
+    //     return (
+    //       <Dropdown overlay={menu} trigger={["click"]}>
+    //         <div className="flex items-center cursor-pointer">
+    //           {display}
+    //           <DownOutlined className="ml-1 text-gray-500 text-xs" />
+    //         </div>
+    //       </Dropdown>
+    //     );
+    //   },
+    // },
+    // {
+    //   title: "GRC Effectiveness",
+    //   dataIndex: "grcEffectiveness",
+    //   key: "grcEffectiveness",
+    //   width: 200,
+    //   render: (value: any, record: DataType) => {
+    //     const display = value === "Yes" ? "Yes" : "No";
+    //     const menu = buildMenu(yesNoOptions, (key) =>
+    //       handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
+    //     );
+    //     return (
+    //       <Dropdown overlay={menu} trigger={["click"]}>
+    //         <div className="flex items-center cursor-pointer">
+    //           {display}
+    //           <DownOutlined className="ml-1 text-gray-500 text-xs" />
+    //         </div>
+    //       </Dropdown>
+    //     );
+    //   },
+    // },
+
     {
       title: "GRC Adequacy",
       dataIndex: "grcAdequacy",
       key: "grcAdequacy",
       width: 200,
       render: (value: any, record: DataType) => {
-        const display = value === "Yes" ? "Yes" : "No";
-        const menu = buildMenu(yesNoOptions, (key) =>
-          handlers?.onSelectGeneric?.(key, record.key, "grcAdequacy")
-        );
+        const display = value === "Yes" ? "Yes" : value === "No" ? "No" : "";
         return (
-          <Dropdown overlay={menu} trigger={["click"]}>
-            <div className="flex items-center cursor-pointer">
-              {display}
-              <DownOutlined className="ml-1 text-gray-500 text-xs" />
-            </div>
-          </Dropdown>
+          <Input
+            placeholder="Enter GRC Adequacy"
+            value={display}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              handlers?.onSelectGeneric?.(newValue, record.key, "grcAdequacy");
+            }}
+            style={{ width: "100%" }}
+            allowClear
+          />
         );
       },
     },
@@ -3727,17 +3769,22 @@ export function getColumns(
       key: "grcEffectiveness",
       width: 200,
       render: (value: any, record: DataType) => {
-        const display = value === "Yes" ? "Yes" : "No";
-        const menu = buildMenu(yesNoOptions, (key) =>
-          handlers?.onSelectGeneric?.(key, record.key, "grcEffectiveness")
-        );
+        const display = value === "Yes" ? "Yes" : value === "No" ? "No" : "";
         return (
-          <Dropdown overlay={menu} trigger={["click"]}>
-            <div className="flex items-center cursor-pointer">
-              {display}
-              <DownOutlined className="ml-1 text-gray-500 text-xs" />
-            </div>
-          </Dropdown>
+          <Input
+            placeholder="Enter GRC Effectiveness"
+            value={display}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              handlers?.onSelectGeneric?.(
+                newValue,
+                record.key,
+                "grcEffectiveness"
+              );
+            }}
+            style={{ width: "100%" }}
+            allowClear
+          />
         );
       },
     },

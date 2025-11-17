@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Table, Tabs, Dropdown, Menu, Spin, Checkbox } from "antd";
+import { Table, Tabs, Dropdown, Menu, Spin, Checkbox, Input } from "antd";
 import { DownOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 
 interface DataType {
@@ -880,6 +880,8 @@ const AccountReceivable = () => {
         );
       },
     },
+
+   
     {
       title: "Explanation",
       dataIndex: "explanation",
