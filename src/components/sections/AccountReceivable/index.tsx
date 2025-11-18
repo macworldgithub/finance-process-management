@@ -1255,20 +1255,19 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     },
     onToggleStatus: (rowKey: string) => {
       const setter = getCurrentSetter();
-      setter((prev) => {
-        const updated = prev.map((item) => {
-          if (item.key === rowKey) {
-            const newActive = !(item.isActive === true);
-            // if deactivating, remove edit mode for that row
-            if (!newActive) {
-              setEditingKeys((prevEd) => prevEd.filter((k) => k !== rowKey));
-            }
-            return { ...item, isActive: newActive };
-          }
-          return item;
-        });
-        return updated;
-      });
+      setter((prev) =>
+        prev.map((item) =>
+          item.key === rowKey
+            ? {
+                ...item,
+                isActive: !(item.isActive !== false), // flips correctly even if undefined
+              }
+            : item
+        )
+      );
+
+      // Auto-exit edit mode when deactivating
+      setEditingKeys((prev) => prev.filter((k) => k !== rowKey));
     },
   };
 
