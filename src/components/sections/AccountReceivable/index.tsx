@@ -935,6 +935,25 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     else if (activeTab === "10") return setAuditData;
     else return setMainData;
   };
+  // ADD THIS useEffect — keeps top scrollbar in sync when tab changes
+  useEffect(() => {
+    const updateTopScrollbar = () => {
+      if (topScrollbarRef.current && tableWrapperRef.current) {
+        const tableContent =
+          tableWrapperRef.current.querySelector(".ant-table-content");
+        if (tableContent) {
+          const dummy = topScrollbarRef.current.querySelector("div");
+          if (dummy) {
+            dummy.style.width = `${tableContent.scrollWidth}px`;
+          }
+        }
+      }
+    };
+
+    updateTopScrollbar();
+    window.addEventListener("resize", updateTopScrollbar);
+    return () => window.removeEventListener("resize", updateTopScrollbar);
+  }, [activeTab, activeSubTab, tableData]);
 
   const tabConfigs: {
     key: string;
@@ -1376,12 +1395,12 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
           ) : (
             <div className="relative">
               {/* Top Horizontal Scrollbar (fake scrollbar) */}
+              {/* TOP SCROLLBAR — FINAL PERFECT VERSION */}
               <div
                 ref={topScrollbarRef}
                 className="sticky top-0 z-20 overflow-x-auto bg-white border-b border-gray-200 -mx-6 px-6 mb-3"
                 style={{
                   scrollbarWidth: "thin",
-
                   scrollbarColor: "#787878 #121212",
                 }}
                 onScroll={(e) => {
@@ -1389,13 +1408,24 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   const tableBody = tableWrapperRef.current?.querySelector(
                     ".ant-table-body"
                   ) as HTMLElement;
-                  if (tableBody) {
-                    tableBody.scrollLeft = target.scrollLeft;
-                  }
+                  if (tableBody) tableBody.scrollLeft = target.scrollLeft;
                 }}
               >
-                <div style={{ width: "2500px", height: "1px" }} />{" "}
-                {/* Adjust width if needed */}
+                <div
+                  style={{
+                    width: tableWrapperRef.current?.querySelector(
+                      ".ant-table-content"
+                    )?.scrollWidth
+                      ? `${
+                          tableWrapperRef.current.querySelector(
+                            ".ant-table-content"
+                          )!.scrollWidth
+                        }px`
+                      : "3000px",
+                    height: "1px",
+                    background: "transparent",
+                  }}
+                />
               </div>
               {/* Main Table */}
               <div
@@ -1432,10 +1462,13 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   pagination={false}
                   scroll={{ x: 1300, y: "calc(100vh - 340px)" }}
                   bordered
-                  rowKey="key"
+                  rowKey={(record) =>
+                    `${record.key}-${record.isActive?.toString()}`
+                  } // ← Fixes grey row instantly
                   rowClassName={(record) =>
                     record.isActive === false ? "row-deactivated" : ""
                   }
+                  // Sync header scroll → top scrollbar
                   onHeaderRow={() => ({
                     onScroll: (e: React.UIEvent<HTMLDivElement>) => {
                       const target = e.target as HTMLDivElement;
@@ -1444,6 +1477,12 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                       }
                     },
                   })}
+                  // Optional: slight performance boost + ensures row repaint
+                  components={{
+                    body: {
+                      row: ({ ...props }) => <tr {...props} />,
+                    },
+                  }}
                 />
               </div>
               scrollbarColor
