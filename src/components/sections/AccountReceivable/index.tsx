@@ -1169,12 +1169,34 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
         )
       );
     },
+
     // onAddRow: () => {
     //   const setter = getCurrentSetter();
     //   const newKey = String(Date.now());
+
+    //   // Get current data to calculate next number
+    //   const currentData = getDataForSource(
+    //     tabConfigs[activeTab as any]?.dataSource || "mainData"
+    //   );
+
+    //   // Calculate next number (e.g., if last number is 5.9, next is 5.10)
+    //   let lastNumber = 0;
+    //   if (currentData.length > 0) {
+    //     const lastRow = currentData[currentData.length - 1];
+    //     if (lastRow.no) {
+    //       const parts = String(lastRow.no).split(".");
+    //       if (parts.length === 2) {
+    //         lastNumber = parseInt(parts[1], 10);
+    //       }
+    //     }
+    //   }
+    //   const nextNumber = lastNumber + 1;
+    //   const baseNumber = activeTab; // or get the base number from somewhere appropriate
+    //   const newNo = `${baseNumber}.${nextNumber}`;
+
     //   const newRow: DataType = {
     //     key: newKey,
-    //     no: "",
+    //     no: newNo, // Set the calculated number
     //     process: "",
     //     isActive: true,
     //   };
@@ -1182,7 +1204,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     //   setter((prev) => [...prev, newRow]);
     //   setEditingKeys((prev) => [...prev, newKey]);
 
-    //   // Force UI update and scroll to new row
+    //   // Scroll to the new row after a short delay to ensure it's rendered
     //   setTimeout(() => {
     //     const tableBody = tableWrapperRef.current?.querySelector(
     //       ".ant-table-body"
@@ -1192,7 +1214,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     //     }
     //   }, 100);
     // },
-    // 1. First, update the onAddRow function:
+
     onAddRow: () => {
       const setter = getCurrentSetter();
       const newKey = String(Date.now());
@@ -1202,24 +1224,28 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
         tabConfigs[activeTab as any]?.dataSource || "mainData"
       );
 
-      // Calculate next number (e.g., if last number is 5.9, next is 5.10)
-      let lastNumber = 0;
-      if (currentData.length > 0) {
-        const lastRow = currentData[currentData.length - 1];
-        if (lastRow.no) {
-          const parts = String(lastRow.no).split(".");
-          if (parts.length === 2) {
-            lastNumber = parseInt(parts[1], 10);
+      // Find the highest number in the 5.x series
+      let maxNumber = 0;
+      currentData.forEach((row) => {
+        if (row.no && typeof row.no === "string") {
+          const match = row.no.match(/^5\.(\d+)$/);
+          if (match) {
+            const num = parseInt(match[1], 10);
+            if (num > maxNumber) {
+              maxNumber = num;
+            }
           }
         }
-      }
-      const nextNumber = lastNumber + 1;
-      const baseNumber = activeTab; // or get the base number from somewhere appropriate
-      const newNo = `${baseNumber}.${nextNumber}`;
+      });
 
+      // If no 5.x numbers found, start from 5.1, otherwise increment the highest found
+      const nextNumber = maxNumber > 0 ? maxNumber + 1 : 1;
+      const newNo = `5.${nextNumber.toString().padStart(2, "0")}`;
+
+      // Create and add the new row
       const newRow: DataType = {
         key: newKey,
-        no: newNo, // Set the calculated number
+        no: newNo, // This will be "5.16" if the last was "5.15"
         process: "",
         isActive: true,
       };
