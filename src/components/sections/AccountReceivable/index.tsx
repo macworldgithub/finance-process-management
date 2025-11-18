@@ -966,32 +966,32 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     dataSource: string;
     subTabs?: string[];
   }[] = [
-    { key: "1", label: "Processes", dataSource: "main" },
-    { key: "2", label: "Ownership", dataSource: "main" },
-    {
-      key: "3",
-      label: "Control Environment",
-      dataSource: "main",
-      subTabs: ["coso", "intosai", "other"],
-    },
-    { key: "4", label: "Risk Assessment (Inherent Risk)", dataSource: "main" },
-    { key: "5", label: "Risk Responses", dataSource: "main" },
-    { key: "6", label: "Control Activities", dataSource: "main" },
-    { key: "7", label: "Control Assessment", dataSource: "control" },
-    { key: "8", label: "Risk Assessment (Residual Risk)", dataSource: "main" },
-    {
-      key: "9",
-      label: "Compliance Management",
-      dataSource: "financial",
-      subTabs: ["sox", "financial", "icfr"],
-    },
-    {
-      key: "10",
-      label: "Internal Audit Management",
-      dataSource: "audit",
-      subTabs: ["audit", "grc"],
-    },
-  ];
+      { key: "1", label: "Processes", dataSource: "main" },
+      { key: "2", label: "Ownership", dataSource: "main" },
+      {
+        key: "3",
+        label: "Control Environment",
+        dataSource: "main",
+        subTabs: ["coso", "intosai", "other"],
+      },
+      { key: "4", label: "Risk Assessment (Inherent Risk)", dataSource: "main" },
+      { key: "5", label: "Risk Responses", dataSource: "main" },
+      { key: "6", label: "Control Activities", dataSource: "main" },
+      { key: "7", label: "Control Assessment", dataSource: "control" },
+      { key: "8", label: "Risk Assessment (Residual Risk)", dataSource: "main" },
+      {
+        key: "9",
+        label: "Compliance Management",
+        dataSource: "financial",
+        subTabs: ["sox", "financial", "icfr"],
+      },
+      {
+        key: "10",
+        label: "Internal Audit Management",
+        dataSource: "audit",
+        subTabs: ["audit", "grc"],
+      },
+    ];
 
   const getSubLabel = (subTab: string) => {
     switch (subTab) {
@@ -1029,7 +1029,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     if (dataSource === "control") return setControlData;
     if (dataSource === "financial") return setFinancialData;
     if (dataSource === "audit") return setAuditData;
-    return () => {};
+    return () => { };
   };
 
   const handleExport = () => {
@@ -1196,7 +1196,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     onAddRow: () => {
       const setter = getCurrentSetter();
       const newKey = String(Date.now());
-      const newRow: DataType = { key: newKey, no: "", process: "" };
+      const newRow: DataType = { key: newKey, no: "", process: "", isActive: true };
       setter((prev) => [...prev, newRow]);
       setEditingKeys((prev) => [...prev, newKey]);
     },
@@ -1214,6 +1214,23 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
           item.key === rowKey ? { ...item, stage: key } : item
         )
       );
+    },
+    onToggleStatus: (rowKey: string) => {
+      const setter = getCurrentSetter();
+      setter((prev) => {
+        const updated = prev.map((item) => {
+          if (item.key === rowKey) {
+            const newActive = !(item.isActive === true);
+            // if deactivating, remove edit mode for that row
+            if (!newActive) {
+              setEditingKeys((prevEd) => prevEd.filter((k) => k !== rowKey));
+            }
+            return { ...item, isActive: newActive };
+          }
+          return item;
+        });
+        return updated;
+      });
     },
   };
 
@@ -1241,11 +1258,10 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
               <button
                 onClick={goPrev}
                 disabled={!hasPrev}
-                className={`p-2 rounded-md transition font-bold ${
-                  hasPrev
-                    ? "text-black hover:bg-gray-50 cursor-pointer"
-                    : "text-gray-400 cursor-not-allowed"
-                }`}
+                className={`p-2 rounded-md transition font-bold ${hasPrev
+                  ? "text-black hover:bg-gray-50 cursor-pointer"
+                  : "text-gray-400 cursor-not-allowed"
+                  }`}
                 aria-label="Previous Tab"
               >
                 <LeftOutlined />
@@ -1254,11 +1270,10 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
               <button
                 onClick={goNext}
                 disabled={!hasNext}
-                className={`p-2 rounded-md transition font-bold ${
-                  hasNext
-                    ? "text-black hover:bg-gray-50 cursor-pointer"
-                    : "text-gray-400 cursor-not-allowed"
-                }`}
+                className={`p-2 rounded-md transition font-bold ${hasNext
+                  ? "text-black hover:bg-gray-50 cursor-pointer"
+                  : "text-gray-400 cursor-not-allowed"
+                  }`}
                 aria-label="Next Tab"
               >
                 <RightOutlined />
@@ -1372,6 +1387,12 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   .ant-table-body::-webkit-scrollbar {
                     display: none;
                   }
+                   
+  .row-deactivated {
+    background-color: #e5e7eb !important;  /* light gray */
+    color: #6b7280 !important;             /* gray-500 text */
+    opacity: 0.7;
+  }
                 `}</style>
                 <Table
                   columns={getColumns(
@@ -1393,6 +1414,8 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                       }
                     },
                   })}
+                  rowClassName={(record) => (record.isActive === false ? "row-deactivated" : "")}
+
                 />
               </div>
             </div>
