@@ -1170,51 +1170,6 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
       );
     },
 
-    // onAddRow: () => {
-    //   const setter = getCurrentSetter();
-    //   const newKey = String(Date.now());
-
-    //   // Get current data to calculate next number
-    //   const currentData = getDataForSource(
-    //     tabConfigs[activeTab as any]?.dataSource || "mainData"
-    //   );
-
-    //   // Calculate next number (e.g., if last number is 5.9, next is 5.10)
-    //   let lastNumber = 0;
-    //   if (currentData.length > 0) {
-    //     const lastRow = currentData[currentData.length - 1];
-    //     if (lastRow.no) {
-    //       const parts = String(lastRow.no).split(".");
-    //       if (parts.length === 2) {
-    //         lastNumber = parseInt(parts[1], 10);
-    //       }
-    //     }
-    //   }
-    //   const nextNumber = lastNumber + 1;
-    //   const baseNumber = activeTab; // or get the base number from somewhere appropriate
-    //   const newNo = `${baseNumber}.${nextNumber}`;
-
-    //   const newRow: DataType = {
-    //     key: newKey,
-    //     no: newNo, // Set the calculated number
-    //     process: "",
-    //     isActive: true,
-    //   };
-
-    //   setter((prev) => [...prev, newRow]);
-    //   setEditingKeys((prev) => [...prev, newKey]);
-
-    //   // Scroll to the new row after a short delay to ensure it's rendered
-    //   setTimeout(() => {
-    //     const tableBody = tableWrapperRef.current?.querySelector(
-    //       ".ant-table-body"
-    //     ) as HTMLElement;
-    //     if (tableBody) {
-    //       tableBody.scrollTop = tableBody.scrollHeight;
-    //     }
-    //   }, 100);
-    // },
-
     onAddRow: () => {
       const setter = getCurrentSetter();
       const newKey = String(Date.now());
@@ -1420,40 +1375,38 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
             </div>
           ) : (
             <div className="relative">
-              {/* Top scrollbar */}
-              {/* <div
+              {/* Top Horizontal Scrollbar (fake scrollbar) */}
+              <div
                 ref={topScrollbarRef}
-                className="sticky top-0 z-20 overflow-x-auto bg-white pb-2 mb-2"
+                className="sticky top-0 z-20 overflow-x-auto bg-white border-b border-gray-200 -mx-6 px-6 mb-3"
                 style={{
                   scrollbarWidth: "thin",
-                  scrollbarColor: "#4b5563 #aeb4bf",
+
+                  scrollbarColor: "#787878 #121212",
                 }}
                 onScroll={(e) => {
                   const target = e.target as HTMLDivElement;
                   const tableBody = tableWrapperRef.current?.querySelector(
                     ".ant-table-body"
                   ) as HTMLElement;
-                  if (tableBody) tableBody.scrollLeft = target.scrollLeft;
+                  if (tableBody) {
+                    tableBody.scrollLeft = target.scrollLeft;
+                  }
                 }}
               >
-                <div style={{ minWidth: "1300px", height: "1px" }}></div>
-              </div> */}
-
-              {/* Table */}
-              {/* <div
-                ref={tableWrapperRef}
-                className="bg-white shadow-md rounded-b-lg overflow-hidden"
-                style={{ maxHeight: "calc(100vh - 280px)" }} // ← was 380px
-              > */}
+                <div style={{ width: "2500px", height: "1px" }} />{" "}
+                {/* Adjust width if needed */}
+              </div>
+              {/* Main Table */}
               <div
                 ref={tableWrapperRef}
                 className="bg-white shadow-md rounded-b-lg overflow-hidden"
                 style={{
-                  maxHeight: "calc(100vh - 280px)", // keep this
-                  minHeight: "500px", // ← increase a bit (was 400px)
+                  maxHeight: "calc(100vh - 280px)",
+                  minHeight: "500px",
                 }}
               >
-                <style>{`
+                <style jsx>{`
                   .ant-table-body {
                     scrollbar-width: none;
                     -ms-overflow-style: none;
@@ -1461,13 +1414,13 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   .ant-table-body::-webkit-scrollbar {
                     display: none;
                   }
-                   
-  .row-deactivated {
-    background-color: #e5e7eb !important;  /* light gray */
-    color: #6b7280 !important;             /* gray-500 text */
-    opacity: 0.7;
-  }
+                  .row-deactivated {
+                    background-color: #e5e7eb !important;
+                    color: #6b7280 !important;
+                    opacity: 0.7;
+                  }
                 `}</style>
+
                 <Table
                   columns={getColumns(
                     activeTab,
@@ -1480,6 +1433,9 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   scroll={{ x: 1300, y: "calc(100vh - 340px)" }}
                   bordered
                   rowKey="key"
+                  rowClassName={(record) =>
+                    record.isActive === false ? "row-deactivated" : ""
+                  }
                   onHeaderRow={() => ({
                     onScroll: (e: React.UIEvent<HTMLDivElement>) => {
                       const target = e.target as HTMLDivElement;
@@ -1488,11 +1444,9 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                       }
                     },
                   })}
-                  rowClassName={(record) =>
-                    record.isActive === false ? "row-deactivated" : ""
-                  }
                 />
               </div>
+              scrollbarColor
             </div>
           )}
         </div>
