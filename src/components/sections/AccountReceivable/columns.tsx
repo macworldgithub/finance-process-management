@@ -1858,7 +1858,12 @@
 
 "use client";
 import React from "react";
-import { EditOutlined, DeleteOutlined, LockOutlined, UnlockOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  LockOutlined,
+  UnlockOutlined,
+} from "@ant-design/icons";
 import { ColumnsType } from "antd/es/table";
 import { Menu, Dropdown, Checkbox, Button, Input, Popconfirm } from "antd";
 import { DownOutlined, PlusOutlined } from "@ant-design/icons";
@@ -2137,6 +2142,23 @@ export function getColumns(
   editingKeys: string[] = []
 ): ColumnsType<DataType> {
   const baseColumns: ColumnsType<DataType> = [
+    // {
+    //   title: () => (
+    //     <div style={{ display: "flex", alignItems: "center" }}>
+    //       <span>No.</span>
+    //       <Button
+    //         style={{ marginLeft: 8 }}
+    //         size="small"
+    //         icon={<PlusOutlined />}
+    //         onClick={handlers?.onAddRow}
+    //       />
+    //     </div>
+    //   ),
+    //   dataIndex: "no",
+    //   key: "no",
+    //   width: 80,
+    //   fixed: "left",
+    // },
     {
       title: () => (
         <div style={{ display: "flex", alignItems: "center" }}>
@@ -2153,6 +2175,7 @@ export function getColumns(
       key: "no",
       width: 80,
       fixed: "left",
+      render: (text: string) => text || "-", // Add this line
     },
     {
       title: "Processes",
@@ -3398,7 +3421,6 @@ export function getColumns(
       },
     },
   ];
-  
 
   const financialStatementAssertionsColumns: ColumnsType<DataType> = [
     // REMOVED: Internal Control Over Financial Reporting? from here
@@ -3680,7 +3702,7 @@ export function getColumns(
         return text || "-";
       },
     },
-   
+
     {
       title: "Explanation",
       dataIndex: "explanation",
@@ -3735,7 +3757,6 @@ export function getColumns(
     case "8":
       dynamicColumns = riskAssessmentResidualColumns;
       break;
-  
 
     case "9":
       if (activeSubTab === "sox") dynamicColumns = soxSubTabColumns;

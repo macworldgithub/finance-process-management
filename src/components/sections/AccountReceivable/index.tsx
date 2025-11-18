@@ -792,6 +792,7 @@ import {
 import { DataType } from "./types";
 import * as XLSX from "xlsx";
 import type { ColumnType, ColumnGroupType } from "antd/es/table";
+import { useDebouncedCallback } from "use-debounce";
 
 const { TextArea } = Input;
 
@@ -885,6 +886,16 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
       setActiveTab(tabKeys[currentTabIndex + 1]);
     }
   }, [currentTabIndex, hasNext]);
+  // === ADD THIS HOOK (once) ===
+  const debouncedResize = useDebouncedCallback(() => {
+    window.dispatchEvent(new Event("resize"));
+  }, 50);
+
+  // === REPLACE ALL YOUR SCROLL-FIXING useEffects WITH THIS ONE ===
+  useEffect(() => {
+    // Simple, clean, and enough for 99% of AntD dynamic height issues
+    debouncedResize();
+  }, [tableData, activeTab, activeSubTab, debouncedResize]);
 
   // Persist to localStorage
   useEffect(() => {
@@ -918,41 +929,6 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     return () => clearTimeout(timer);
   }, [activeTab, mainData, controlData, financialData, auditData]);
 
-  // Sync scrollbars
-  useEffect(() => {
-    const syncScrollbars = () => {
-      const tableBody = tableWrapperRef.current?.querySelector(
-        ".ant-table-body"
-      ) as HTMLElement;
-      if (tableBody && topScrollbarRef.current) {
-        const handleTableScroll = () => {
-          if (topScrollbarRef.current) {
-            topScrollbarRef.current.scrollLeft = tableBody.scrollLeft;
-          }
-        };
-        tableBody.addEventListener("scroll", handleTableScroll);
-
-        const updateScrollbarWidth = () => {
-          if (topScrollbarRef.current) {
-            const scrollbarContent =
-              topScrollbarRef.current.querySelector("div");
-            if (scrollbarContent && tableBody.scrollWidth > 0) {
-              scrollbarContent.style.minWidth = `${tableBody.scrollWidth}px`;
-            }
-          }
-        };
-        updateScrollbarWidth();
-        const widthTimer = setTimeout(updateScrollbarWidth, 300);
-        return () => {
-          tableBody.removeEventListener("scroll", handleTableScroll);
-          clearTimeout(widthTimer);
-        };
-      }
-    };
-    const timer = setTimeout(syncScrollbars, 200);
-    return () => clearTimeout(timer);
-  }, [tableData, activeTab, activeSubTab]);
-
   const getCurrentSetter = () => {
     if (activeTab === "7") return setControlData;
     else if (activeTab === "9") return setFinancialData;
@@ -966,32 +942,32 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     dataSource: string;
     subTabs?: string[];
   }[] = [
-      { key: "1", label: "Processes", dataSource: "main" },
-      { key: "2", label: "Ownership", dataSource: "main" },
-      {
-        key: "3",
-        label: "Control Environment",
-        dataSource: "main",
-        subTabs: ["coso", "intosai", "other"],
-      },
-      { key: "4", label: "Risk Assessment (Inherent Risk)", dataSource: "main" },
-      { key: "5", label: "Risk Responses", dataSource: "main" },
-      { key: "6", label: "Control Activities", dataSource: "main" },
-      { key: "7", label: "Control Assessment", dataSource: "control" },
-      { key: "8", label: "Risk Assessment (Residual Risk)", dataSource: "main" },
-      {
-        key: "9",
-        label: "Compliance Management",
-        dataSource: "financial",
-        subTabs: ["sox", "financial", "icfr"],
-      },
-      {
-        key: "10",
-        label: "Internal Audit Management",
-        dataSource: "audit",
-        subTabs: ["audit", "grc"],
-      },
-    ];
+    { key: "1", label: "Processes", dataSource: "main" },
+    { key: "2", label: "Ownership", dataSource: "main" },
+    {
+      key: "3",
+      label: "Control Environment",
+      dataSource: "main",
+      subTabs: ["coso", "intosai", "other"],
+    },
+    { key: "4", label: "Risk Assessment (Inherent Risk)", dataSource: "main" },
+    { key: "5", label: "Risk Responses", dataSource: "main" },
+    { key: "6", label: "Control Activities", dataSource: "main" },
+    { key: "7", label: "Control Assessment", dataSource: "control" },
+    { key: "8", label: "Risk Assessment (Residual Risk)", dataSource: "main" },
+    {
+      key: "9",
+      label: "Compliance Management",
+      dataSource: "financial",
+      subTabs: ["sox", "financial", "icfr"],
+    },
+    {
+      key: "10",
+      label: "Internal Audit Management",
+      dataSource: "audit",
+      subTabs: ["audit", "grc"],
+    },
+  ];
 
   const getSubLabel = (subTab: string) => {
     switch (subTab) {
@@ -1029,7 +1005,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     if (dataSource === "control") return setControlData;
     if (dataSource === "financial") return setFinancialData;
     if (dataSource === "audit") return setAuditData;
-    return () => { };
+    return () => {};
   };
 
   const handleExport = () => {
@@ -1193,13 +1169,75 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
         )
       );
     },
+    // onAddRow: () => {
+    //   const setter = getCurrentSetter();
+    //   const newKey = String(Date.now());
+    //   const newRow: DataType = {
+    //     key: newKey,
+    //     no: "",
+    //     process: "",
+    //     isActive: true,
+    //   };
+
+    //   setter((prev) => [...prev, newRow]);
+    //   setEditingKeys((prev) => [...prev, newKey]);
+
+    //   // Force UI update and scroll to new row
+    //   setTimeout(() => {
+    //     const tableBody = tableWrapperRef.current?.querySelector(
+    //       ".ant-table-body"
+    //     ) as HTMLElement;
+    //     if (tableBody) {
+    //       tableBody.scrollTop = tableBody.scrollHeight;
+    //     }
+    //   }, 100);
+    // },
+    // 1. First, update the onAddRow function:
     onAddRow: () => {
       const setter = getCurrentSetter();
       const newKey = String(Date.now());
-      const newRow: DataType = { key: newKey, no: "", process: "", isActive: true };
+
+      // Get current data to calculate next number
+      const currentData = getDataForSource(
+        tabConfigs[activeTab as any]?.dataSource || "mainData"
+      );
+
+      // Calculate next number (e.g., if last number is 5.9, next is 5.10)
+      let lastNumber = 0;
+      if (currentData.length > 0) {
+        const lastRow = currentData[currentData.length - 1];
+        if (lastRow.no) {
+          const parts = String(lastRow.no).split(".");
+          if (parts.length === 2) {
+            lastNumber = parseInt(parts[1], 10);
+          }
+        }
+      }
+      const nextNumber = lastNumber + 1;
+      const baseNumber = activeTab; // or get the base number from somewhere appropriate
+      const newNo = `${baseNumber}.${nextNumber}`;
+
+      const newRow: DataType = {
+        key: newKey,
+        no: newNo, // Set the calculated number
+        process: "",
+        isActive: true,
+      };
+
       setter((prev) => [...prev, newRow]);
       setEditingKeys((prev) => [...prev, newKey]);
+
+      // Scroll to the new row after a short delay to ensure it's rendered
+      setTimeout(() => {
+        const tableBody = tableWrapperRef.current?.querySelector(
+          ".ant-table-body"
+        ) as HTMLElement;
+        if (tableBody) {
+          tableBody.scrollTop = tableBody.scrollHeight;
+        }
+      }, 100);
     },
+
     onEditRow: (key: string) => setEditingKeys((prev) => [...prev, key]),
     onSaveRow: (key: string) =>
       setEditingKeys((prev) => prev.filter((k) => k !== key)),
@@ -1258,10 +1296,11 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
               <button
                 onClick={goPrev}
                 disabled={!hasPrev}
-                className={`p-2 rounded-md transition font-bold ${hasPrev
-                  ? "text-black hover:bg-gray-50 cursor-pointer"
-                  : "text-gray-400 cursor-not-allowed"
-                  }`}
+                className={`p-2 rounded-md transition font-bold ${
+                  hasPrev
+                    ? "text-black hover:bg-gray-50 cursor-pointer"
+                    : "text-gray-400 cursor-not-allowed"
+                }`}
                 aria-label="Previous Tab"
               >
                 <LeftOutlined />
@@ -1270,10 +1309,11 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
               <button
                 onClick={goNext}
                 disabled={!hasNext}
-                className={`p-2 rounded-md transition font-bold ${hasNext
-                  ? "text-black hover:bg-gray-50 cursor-pointer"
-                  : "text-gray-400 cursor-not-allowed"
-                  }`}
+                className={`p-2 rounded-md transition font-bold ${
+                  hasNext
+                    ? "text-black hover:bg-gray-50 cursor-pointer"
+                    : "text-gray-400 cursor-not-allowed"
+                }`}
                 aria-label="Next Tab"
               >
                 <RightOutlined />
@@ -1355,7 +1395,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
           ) : (
             <div className="relative">
               {/* Top scrollbar */}
-              <div
+              {/* <div
                 ref={topScrollbarRef}
                 className="sticky top-0 z-20 overflow-x-auto bg-white pb-2 mb-2"
                 style={{
@@ -1371,13 +1411,21 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                 }}
               >
                 <div style={{ minWidth: "1300px", height: "1px" }}></div>
-              </div>
+              </div> */}
 
               {/* Table */}
-              <div
+              {/* <div
                 ref={tableWrapperRef}
                 className="bg-white shadow-md rounded-b-lg overflow-hidden"
                 style={{ maxHeight: "calc(100vh - 280px)" }} // ← was 380px
+              > */}
+              <div
+                ref={tableWrapperRef}
+                className="bg-white shadow-md rounded-b-lg overflow-hidden"
+                style={{
+                  maxHeight: "calc(100vh - 280px)", // keep this
+                  minHeight: "500px", // ← increase a bit (was 400px)
+                }}
               >
                 <style>{`
                   .ant-table-body {
@@ -1403,7 +1451,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   )}
                   dataSource={tableData}
                   pagination={false}
-                  scroll={{ x: 1300, y: "calc(100vh - 280px)" }}
+                  scroll={{ x: 1300, y: "calc(100vh - 340px)" }}
                   bordered
                   rowKey="key"
                   onHeaderRow={() => ({
@@ -1414,8 +1462,9 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                       }
                     },
                   })}
-                  rowClassName={(record) => (record.isActive === false ? "row-deactivated" : "")}
-
+                  rowClassName={(record) =>
+                    record.isActive === false ? "row-deactivated" : ""
+                  }
                 />
               </div>
             </div>
