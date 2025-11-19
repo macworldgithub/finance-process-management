@@ -793,6 +793,7 @@ import { DataType } from "./types";
 import * as XLSX from "xlsx";
 import type { ColumnType, ColumnGroupType } from "antd/es/table";
 import { useDebouncedCallback } from "use-debounce";
+import ExcelApiPanel from "./ExcelApiPanel";
 
 const { TextArea } = Input;
 
@@ -1387,6 +1388,9 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
       {/* Scrollable Content */}
       <div className="flex-1 overflow-auto">
         <div className="p-6 pt-4">
+          <div className="mb-4">
+            <ExcelApiPanel />
+          </div>
           {loading ? (
             <div className="flex justify-center items-center h-full">
               <Spin size="large" />
