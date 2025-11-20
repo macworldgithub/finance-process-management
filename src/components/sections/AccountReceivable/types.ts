@@ -17,3 +17,7 @@ export interface ProcessData {
 export interface ImportedData {
   Process: ProcessData[];
 }
+// Add to your types.ts
+export interface MultipleTablesData {
+  [key: string]: ProcessData[];
+}

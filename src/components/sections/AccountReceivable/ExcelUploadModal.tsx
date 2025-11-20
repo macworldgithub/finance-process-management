@@ -1,4 +1,3 @@
-// src/components/sections/AccountReceivable/ExcelUploadModal.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -13,13 +12,13 @@ import {
   Radio,
   Typography,
   Card,
-  Divider,
   Space,
 } from "antd";
 import { UploadOutlined, CloseOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 import { DataType } from "./types";
 import DataReviewModal from "./DataReviewModal";
+import MultipleTablesReviewModal from "./MultipleTablesReviewModal";
 
 const { Option } = Select;
 const { Title, Paragraph, Text } = Typography;
@@ -44,6 +43,8 @@ const ExcelUploadModal: React.FC<ExcelUploadModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
+  const [multipleTablesReviewVisible, setMultipleTablesReviewVisible] =
+    useState(false);
   const [importedData, setImportedData] = useState<any>(null);
 
   // Load sections automatically when modal opens or mode changes
@@ -110,8 +111,10 @@ const ExcelUploadModal: React.FC<ExcelUploadModalProps> = ({
           headers: { "Content-Type": "multipart/form-data" },
         });
 
-        // Store the imported data and show review modal
+        // Store the imported data
         setImportedData(data);
+        // Close current modal and open review modal
+        handleClose();
         setReviewModalVisible(true);
       } else {
         // Multiple table mode
@@ -122,8 +125,12 @@ const ExcelUploadModal: React.FC<ExcelUploadModalProps> = ({
             headers: { "Content-Type": "multipart/form-data" },
           }
         );
-        message.success("All sections uploaded successfully!");
-        console.log("Multiple table response:", data);
+
+        // Store the imported data
+        setImportedData(data);
+        // Close current modal and open multiple tables review modal
+        handleClose();
+        setMultipleTablesReviewVisible(true);
       }
     } catch (error: any) {
       message.error(error?.response?.data?.detail || "Upload failed");
@@ -158,7 +165,43 @@ const ExcelUploadModal: React.FC<ExcelUploadModalProps> = ({
 
     onDataLoaded(transformedData);
     setReviewModalVisible(false);
-    onClose();
+  };
+
+  const handleMultipleTablesConfirmed = (reviewedData: any) => {
+    // For multiple tables, you might want to handle data differently
+    // This could update multiple tables or show a success message
+    console.log("Multiple tables data confirmed:", reviewedData);
+    message.success("All sections data imported successfully!");
+    setMultipleTablesReviewVisible(false);
+
+    // If you want to load some data to the current table, you can do:
+    // For example, load the first section's data
+    const firstSectionKey = Object.keys(reviewedData)[0];
+    if (firstSectionKey && reviewedData[firstSectionKey].length > 0) {
+      const transformedData = reviewedData[firstSectionKey].map(
+        (item: any, index: number) => ({
+          key: String(index + 1),
+          no: item.No,
+          process: item["Main Process"],
+          processDescription: item["Process Description"],
+          processObjective: item["Process Objectives"],
+          processSeverityLevels: item["Process Severity Levels"],
+          activity: "",
+          process2: "",
+          stage: "",
+          functions: "Finance",
+          clientSegment: "Account Receivable",
+          operationalUnit: "A",
+          division: "C",
+          entity: "XYZ",
+          unitDepartment: "Account Receivable",
+          productClass: "Non",
+          productName: "Others",
+          isActive: true,
+        })
+      );
+      onDataLoaded(transformedData);
+    }
   };
 
   const uploadProps: UploadProps = {
@@ -303,10 +346,18 @@ const ExcelUploadModal: React.FC<ExcelUploadModalProps> = ({
           </div>
         </div>
       </Modal>
+
       <DataReviewModal
         visible={reviewModalVisible}
         onClose={() => setReviewModalVisible(false)}
         onConfirm={handleDataConfirmed}
+        importedData={importedData}
+      />
+
+      <MultipleTablesReviewModal
+        visible={multipleTablesReviewVisible}
+        onClose={() => setMultipleTablesReviewVisible(false)}
+        onConfirm={handleMultipleTablesConfirmed}
         importedData={importedData}
       />
     </>

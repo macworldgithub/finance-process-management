@@ -1891,7 +1891,7 @@ export function getColumns(
         dynamicColumns = icfrColumn; // New subtab
       else dynamicColumns = soxSubTabColumns;
       break;
-    case "10":
+    case "10": 
       if (activeSubTab === "audit") dynamicColumns = internalAuditTestColumns;
       else if (activeSubTab === "grc") dynamicColumns = grcExceptionLogColumns;
       else dynamicColumns = internalAuditTestColumns; // default to audit
