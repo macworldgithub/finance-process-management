@@ -2142,23 +2142,7 @@ export function getColumns(
   editingKeys: string[] = []
 ): ColumnsType<DataType> {
   const baseColumns: ColumnsType<DataType> = [
-    // {
-    //   title: () => (
-    //     <div style={{ display: "flex", alignItems: "center" }}>
-    //       <span>No.</span>
-    //       <Button
-    //         style={{ marginLeft: 8 }}
-    //         size="small"
-    //         icon={<PlusOutlined />}
-    //         onClick={handlers?.onAddRow}
-    //       />
-    //     </div>
-    //   ),
-    //   dataIndex: "no",
-    //   key: "no",
-    //   width: 80,
-    //   fixed: "left",
-    // },
+   
     {
       title: () => (
         <div style={{ display: "flex", alignItems: "center" }}>
