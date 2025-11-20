@@ -708,6 +708,7 @@ import React, {
   useImperativeHandle,
   useRef,
   useCallback,
+  useMemo,
 } from "react";
 import { Table, Tabs, Spin, Button, Popconfirm, Input } from "antd";
 import {
@@ -729,9 +730,21 @@ export interface AccountReceivableRef {
   triggerImport: (file: File) => void;
 }
 
+const defaultNewRow = (maxNo: number): DataType => {
+  const newKey = String(Date.now());
+  const newNo = (maxNo + 0.1).toFixed(1);
+  return {
+    key: newKey,
+    no: newNo,
+    process: "",
+    isActive: true,
+  };
+};
+
 const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
   const tableWrapperRef = useRef<HTMLDivElement>(null);
   const topScrollbarRef = useRef<HTMLDivElement>(null);
+  const scrollSyncRef = useRef<boolean>(true);
 
   const [activeTab, setActiveTab] = useState("1");
   const [activeSubTab, setActiveSubTab] = useState("coso");
@@ -751,24 +764,28 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
   const hasPrev = currentTabIndex > 0;
   const hasNext = currentTabIndex < tabKeys.length - 1;
 
-  const goPrev = useCallback(
-    () => hasPrev && setActiveTab(tabKeys[currentTabIndex - 1]),
-    [currentTabIndex, hasPrev]
-  );
-  const goNext = useCallback(
-    () => hasNext && setActiveTab(tabKeys[currentTabIndex + 1]),
-    [currentTabIndex, hasNext]
-  );
+  const goPrev = useCallback(() => {
+    if (hasPrev) {
+      setEditingKeys([]); // Clear editing state
+      setActiveTab(tabKeys[currentTabIndex - 1]);
+    }
+  }, [currentTabIndex, hasPrev]);
 
-  const debouncedResize = useDebouncedCallback(
-    () => window.dispatchEvent(new Event("resize")),
-    50
-  );
-  useEffect(
-    //@ts-ignore
-    () => debouncedResize(),
-    [tableData, activeTab, activeSubTab, debouncedResize]
-  );
+  const goNext = useCallback(() => {
+    if (hasNext) {
+      setEditingKeys([]); // Clear editing state
+      setActiveTab(tabKeys[currentTabIndex + 1]);
+    }
+  }, [currentTabIndex, hasNext]);
+
+  const debouncedResize = useDebouncedCallback(() => {
+    window.dispatchEvent(new Event("resize"));
+  }, 50);
+
+  // Fixed useEffect
+  useEffect(() => {
+    debouncedResize();
+  }, [tableData, activeTab, activeSubTab, debouncedResize]);
 
   // Keep top scrollbar width in sync
   useEffect(() => {
@@ -779,12 +796,20 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
       ) as HTMLElement;
       if (table) {
         const dummy = topScrollbarRef.current.querySelector("div");
-        if (dummy) dummy.style.width = `${table.scrollWidth}px`;
+        if (dummy) {
+          dummy.style.width = `${table.scrollWidth}px`;
+        }
       }
     };
-    updateWidth();
+
+    // Use timeout to ensure DOM is updated
+    const timeoutId = setTimeout(updateWidth, 100);
+
     window.addEventListener("resize", updateWidth);
-    return () => window.removeEventListener("resize", updateWidth);
+    return () => {
+      window.removeEventListener("resize", updateWidth);
+      clearTimeout(timeoutId);
+    };
   }, [activeTab, activeSubTab, tableData]);
 
   const tabConfigs = [
@@ -826,6 +851,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
 
       const exportData = tableData.map((row) => {
         const obj: any = {};
+        //@ts-ignore
         fields.forEach((f) => (obj[f] = row[f as keyof DataType] ?? ""));
         return obj;
       });
@@ -836,67 +862,163 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     XLSX.writeFile(wb, "AccountReceivable_Export.xlsx");
   };
 
-  // All mutations now happen on the single tableData
-  const handlers = {
-    onEdit: (key: string) => setEditingKeys((prev) => [...prev, key]),
-    onDelete: (key: string) =>
-      setTableData((prev) => prev.filter((r) => r.key !== key)),
-    onSave: (key: string) =>
-      setEditingKeys((prev) => prev.filter((k) => k !== key)),
-    onCancel: (key: string) =>
-      setEditingKeys((prev) => prev.filter((k) => k !== key)),
-    onCheckboxChange: (
-      rowKey: string,
-      field: keyof DataType,
-      checked: boolean
-    ) =>
+  // Handler functions
+  const handleEdit = useCallback((key: string) => {
+    setEditingKeys((prev) => [...prev, key]);
+  }, []);
+
+  const handleDelete = useCallback((key: string) => {
+    setTableData((prev) => prev.filter((r) => r.key !== key));
+  }, []);
+
+  const handleSave = useCallback((key: string) => {
+    setEditingKeys((prev) => prev.filter((k) => k !== key));
+  }, []);
+
+  const handleCancel = useCallback((key: string) => {
+    setEditingKeys((prev) => prev.filter((k) => k !== key));
+  }, []);
+
+  const handleCheckboxChange = useCallback(
+    (rowKey: string, field: keyof DataType, checked: boolean) => {
       setTableData((prev) =>
         prev.map((r) => (r.key === rowKey ? { ...r, [field]: checked } : r))
-      ),
-    onSelectGeneric: (value: string, rowKey: string, field?: string) => {
+      );
+    },
+    []
+  );
+
+  const handleSelectGeneric = useCallback(
+    (value: string, rowKey: string, field?: string) => {
       if (!field) return;
       setTableData((prev) =>
         prev.map((r) => (r.key === rowKey ? { ...r, [field]: value } : r))
       );
     },
-    onTextChange: (rowKey: string, field: keyof DataType, value: string) =>
+    []
+  );
+
+  const handleTextChange = useCallback(
+    (rowKey: string, field: keyof DataType, value: string) => {
       setTableData((prev) =>
         prev.map((r) => (r.key === rowKey ? { ...r, [field]: value } : r))
-      ),
-    onAddRow: () => {
-      const newKey = String(Date.now());
-      const maxNo = tableData.reduce((max, r) => {
-        const num = parseFloat(r.no as string) || 0;
-        return num > max ? num : max;
-      }, 0);
-      const newNo = (maxNo + 0.1).toFixed(1);
-
-      const newRow: DataType = {
-        key: newKey,
-        no: newNo,
-        process: "",
-        isActive: true,
-      };
-
-      setTableData((prev) => [...prev, newRow]);
-      setEditingKeys((prev) => [...prev, newKey]);
-    },
-    onEditRow: (key: string) => setEditingKeys((prev) => [...prev, key]),
-    onDeleteRow: (key: string) =>
-      setTableData((prev) => prev.filter((r) => r.key !== key)),
-    onStageChange: (value: string, rowKey: string) =>
-      setTableData((prev) =>
-        prev.map((r) => (r.key === rowKey ? { ...r, stage: value } : r))
-      ),
-    onToggleStatus: (rowKey: string) => {
-      setTableData((prev) =>
-        prev.map((r) =>
-          r.key === rowKey ? { ...r, isActive: !(r.isActive !== false) } : r
-        )
       );
-      setEditingKeys((prev) => prev.filter((k) => k !== rowKey));
     },
-  };
+    []
+  );
+
+  const handleAddRow = useCallback(() => {
+    const maxNo = tableData.reduce((max, r) => {
+      const num = parseFloat(r.no as string) || 0;
+      return num > max ? num : max;
+    }, 0);
+
+    const newRow = defaultNewRow(maxNo);
+    setTableData((prev) => [...prev, newRow]);
+    setEditingKeys((prev) => [...prev, newRow.key]);
+  }, [tableData]);
+
+  const handleEditRow = useCallback((key: string) => {
+    setEditingKeys((prev) => [...prev, key]);
+  }, []);
+
+  const handleDeleteRow = useCallback((key: string) => {
+    setTableData((prev) => prev.filter((r) => r.key !== key));
+  }, []);
+
+  const handleStageChange = useCallback((value: string, rowKey: string) => {
+    setTableData((prev) =>
+      prev.map((r) => (r.key === rowKey ? { ...r, stage: value } : r))
+    );
+  }, []);
+
+  const handleToggleStatus = useCallback((rowKey: string) => {
+    setTableData((prev) =>
+      prev.map((r) =>
+        r.key === rowKey ? { ...r, isActive: !(r.isActive !== false) } : r
+      )
+    );
+    setEditingKeys((prev) => prev.filter((k) => k !== rowKey));
+  }, []);
+
+  // Memoized handlers object
+  const handlers = useMemo(
+    () => ({
+      onEdit: handleEdit,
+      onDelete: handleDelete,
+      onSave: handleSave,
+      onCancel: handleCancel,
+      onCheckboxChange: handleCheckboxChange,
+      onSelectGeneric: handleSelectGeneric,
+      onTextChange: handleTextChange,
+      onAddRow: handleAddRow,
+      onEditRow: handleEditRow,
+      onDeleteRow: handleDeleteRow,
+      onStageChange: handleStageChange,
+      onToggleStatus: handleToggleStatus,
+    }),
+    [
+      handleEdit,
+      handleDelete,
+      handleSave,
+      handleCancel,
+      handleCheckboxChange,
+      handleSelectGeneric,
+      handleTextChange,
+      handleAddRow,
+      handleEditRow,
+      handleDeleteRow,
+      handleStageChange,
+      handleToggleStatus,
+    ]
+  );
+
+  // Improved columns memo with cleanup
+  const columns = useMemo(() => {
+    // Clear any pending edits when tab changes
+    return getColumns(activeTab, activeSubTab, handlers, editingKeys);
+  }, [activeTab, activeSubTab, editingKeys, handlers]);
+
+  // Handle tab changes with cleanup
+  const handleTabChange = useCallback((key: string) => {
+    setEditingKeys([]); // Clear editing state
+    setActiveTab(key);
+  }, []);
+
+  const handleSubTabChange = useCallback((key: string) => {
+    setEditingKeys([]); // Clear editing state
+    setActiveSubTab(key);
+  }, []);
+
+  // Scroll handler with cleanup
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    if (!scrollSyncRef.current) return;
+
+    const target = e.target as HTMLDivElement;
+    if (topScrollbarRef.current) {
+      scrollSyncRef.current = false;
+      topScrollbarRef.current.scrollLeft = target.scrollLeft;
+      setTimeout(() => {
+        scrollSyncRef.current = true;
+      }, 50);
+    }
+  }, []);
+
+  const handleTopScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    if (!scrollSyncRef.current) return;
+
+    const target = e.target as HTMLDivElement;
+    const body = tableWrapperRef.current?.querySelector(
+      ".ant-table-body"
+    ) as HTMLElement;
+    if (body) {
+      scrollSyncRef.current = false;
+      body.scrollLeft = target.scrollLeft;
+      setTimeout(() => {
+        scrollSyncRef.current = true;
+      }, 50);
+    }
+  }, []);
 
   return (
     <div className="flex flex-col h-screen bg-[#f8fafc]">
@@ -942,9 +1064,10 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
           <div className="bg-white/50 backdrop-blur-sm rounded-t-xl shadow-sm">
             <Tabs
               activeKey={activeTab}
-              onChange={setActiveTab}
+              onChange={handleTabChange}
               className="text-lg"
               items={tabConfigs.map((c) => ({ key: c.key, label: c.label }))}
+              destroyInactiveTabPane={true} // Add this to properly clean up
             />
           </div>
 
@@ -953,7 +1076,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
             <div className="bg-white/50 backdrop-blur-sm rounded-b-xl shadow-sm mb-4">
               <Tabs
                 activeKey={activeSubTab}
-                onChange={setActiveSubTab}
+                onChange={handleSubTabChange}
                 className="text-sm"
                 items={[
                   { key: "coso", label: "COSO" },
@@ -963,6 +1086,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   },
                   { key: "other", label: "Other" },
                 ]}
+                destroyInactiveTabPane={true}
               />
             </div>
           )}
@@ -971,7 +1095,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
             <div className="bg-white/50 backdrop-blur-sm rounded-b-xl shadow-sm mb-4">
               <Tabs
                 activeKey={activeSubTab}
-                onChange={setActiveSubTab}
+                onChange={handleSubTabChange}
                 className="text-sm"
                 items={[
                   { key: "sox", label: "SOX" },
@@ -981,6 +1105,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                     label: "Internal Control Over Financial Reporting",
                   },
                 ]}
+                destroyInactiveTabPane={true}
               />
             </div>
           )}
@@ -988,12 +1113,13 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
             <div className="bg-white/50 backdrop-blur-sm rounded-b-xl shadow-sm mb-4">
               <Tabs
                 activeKey={activeSubTab}
-                onChange={setActiveSubTab}
+                onChange={handleSubTabChange}
                 className="text-sm"
                 items={[
                   { key: "audit", label: "Internal Audit Test" },
                   { key: "grc", label: "GRC Exception Logs" },
                 ]}
+                destroyInactiveTabPane={true}
               />
             </div>
           )}
@@ -1030,13 +1156,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                       scrollbarWidth: "thin",
                       scrollbarColor: "#787878 #121212",
                     }}
-                    onScroll={(e) => {
-                      const target = e.target as HTMLDivElement;
-                      const body = tableWrapperRef.current?.querySelector(
-                        ".ant-table-body"
-                      ) as HTMLElement;
-                      if (body) body.scrollLeft = target.scrollLeft;
-                    }}
+                    onScroll={handleTopScroll}
                   >
                     <div
                       style={{ width: `${table.scrollWidth}px`, height: "1px" }}
@@ -1066,12 +1186,8 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                 `}</style>
 
                 <Table
-                  columns={getColumns(
-                    activeTab,
-                    activeSubTab,
-                    handlers,
-                    editingKeys
-                  )}
+                  key={`table-${activeTab}-${activeSubTab}`} // Force re-render on tab change
+                  columns={columns}
                   dataSource={tableData}
                   pagination={false}
                   scroll={{ x: 1300, y: "calc(100vh - 340px)" }}
@@ -1081,11 +1197,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                     r.isActive === false ? "row-deactivated" : ""
                   }
                   onHeaderRow={() => ({
-                    onScroll: (e: React.UIEvent<HTMLDivElement>) => {
-                      const target = e.target as HTMLDivElement;
-                      if (topScrollbarRef.current)
-                        topScrollbarRef.current.scrollLeft = target.scrollLeft;
-                    },
+                    onScroll: handleScroll,
                   })}
                 />
               </div>
