@@ -284,15 +284,14 @@ import { MdMessage } from "react-icons/md";
 import { FaPlay } from "react-icons/fa";
 
 interface NavbarProps {
-  onImport: (file: File) => void;
+  onExcelUploadClick: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onImport }) => {
+const Navbar: React.FC<NavbarProps> = ({ onExcelUploadClick }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
   const messageRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -313,15 +312,6 @@ const Navbar: React.FC<NavbarProps> = ({ onImport }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onImport(file);
-    }
-    // Reset input
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
 
   const notifications = [
     { id: 1, title: "New user registered", time: "2 min ago", unread: true },
@@ -398,21 +388,12 @@ const Navbar: React.FC<NavbarProps> = ({ onImport }) => {
 
         {/* Center: Excel Upload + Search */}
         <div className="flex items-center space-x-3 flex-1 max-w-xl mx-8">
-          <div className="relative">
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-md text-sm font-medium transition"
-            >
-              Excel Upload
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".xlsx"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-          </div>
+          <button
+            onClick={onExcelUploadClick}
+            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-md text-sm font-medium transition"
+          >
+            Excel Upload
+          </button>
 
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
