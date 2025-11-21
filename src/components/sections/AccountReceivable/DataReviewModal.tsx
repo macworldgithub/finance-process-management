@@ -1,7 +1,7 @@
 // src/components/sections/AccountReceivable/DataReviewModal.tsx
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Modal,
   Table,
@@ -18,14 +18,11 @@ import { getEditableColumns } from "@/utils/columnConfigs";
 
 const { Text } = Typography;
 
-interface ProcessData {
+// Update the interface to be more generic
+interface DataItem {
   [key: string]: any;
-  No: number;
-  "Main Process": string;
-  "Process Description": string;
-  "Process Objectives": string;
-  "Process Severity Levels": string;
   key?: string;
+  No?: number | string;
 }
 
 interface DataReviewModalProps {
@@ -43,112 +40,109 @@ const DataReviewModal: React.FC<DataReviewModalProps> = ({
   importedData,
   sectionName,
 }) => {
-  const [editingData, setEditingData] = useState<ProcessData[]>([]);
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<DataItem[]>([]);
 
-  // Initialize editing data when modal opens
-  React.useEffect(() => {
+  // Initialize data when modal opens or importedData changes
+  useEffect(() => {
     if (visible && importedData) {
-      const sectionData =
-        importedData[sectionName] || importedData.Process || [];
-      const dataWithKeys = sectionData.map((item: any, index: number) => ({
+      const sectionData = importedData[sectionName] || [];
+      const formattedData = sectionData.map((item: any, index: number) => ({
         ...item,
         key: `row-${index}`,
-        No: item.No || index + 1,
       }));
-      setEditingData(dataWithKeys);
+      setData(formattedData);
     }
   }, [visible, importedData, sectionName]);
 
-  const handleEdit = (key: string) => {
-    setEditingKey(key);
-  };
-
-  const handleSave = (key: string) => {
-    setEditingKey(null);
-    message.success("Changes saved");
-  };
-
-  const handleCancel = () => {
-    setEditingKey(null);
-    // Reset to original data
-    const sectionData = importedData[sectionName] || importedData.Process || [];
-    const dataWithKeys = sectionData.map((item: any, index: number) => ({
-      ...item,
-      key: `row-${index}`,
-      No: item.No || index + 1,
-    }));
-    setEditingData(dataWithKeys);
-  };
+  // Generate columns dynamically based on the first data item
+  const columns = useMemo(() => {
+    if (data.length === 0) return [];
+    
+    const firstItem = data[0];
+    return Object.keys(firstItem)
+      .filter((key) => key !== "key")
+      .map((key) => ({
+        title: key,
+        dataIndex: key,
+        key: key,
+        editable: true,
+        width: 200,
+        render: (text: any, record: DataItem) => {
+          if (editingKey === record.key) {
+            return (
+              <Input
+                value={text}
+                onChange={(e) =>
+                  //@ts-ignore
+                  handleFieldChange(record.key, key, e.target.value)
+                }
+              />
+            );
+          }
+          return text;
+        },
+      }));
+  }, [data, editingKey]);
 
   const handleFieldChange = (key: string, field: string, value: any) => {
-    setEditingData((prev) =>
-      prev.map((item) =>
-        item.key === key ? { ...item, [field]: value } : item
-      )
-    );
+    const newData = [...data];
+    const index = newData.findIndex((item) => key === item.key);
+    if (index > -1) {
+      newData[index][field] = value;
+      setData(newData);
+    }
   };
 
-  const handleConfirm = async () => {
+  const handleSave = async (key: string) => {
     try {
       setLoading(true);
-      // Transform data to match the expected format for the API
-      const dataToSubmit = editingData.map((item: any) => {
-        // Remove any auto-generated keys or internal fields
-        const { key, _id, ...rest } = item;
-        return rest;
-      });
-
-      // Submit the data
-      await submitSectionData(sectionName, dataToSubmit);
-
-      // Call the original onConfirm with the data
-      onConfirm(editingData);
-      message.success("Data imported successfully");
-      onClose();
+      const index = data.findIndex((item) => key === item.key);
+      if (index > -1) {
+        const record = data[index];
+        const response = await submitSectionData(sectionName, [record]);
+        if (response.success) {
+          message.success("Record updated successfully");
+          setEditingKey(null);
+        } else {
+          throw new Error(response.message);
+        }
+      }
     } catch (error) {
-      console.error("Error submitting data:", error);
-      message.error("Failed to import data. Please try again.");
+      message.error("Failed to update record");
+      console.error("Error updating record:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Get columns from the column config
-  //@ts-ignore
-  const { getColumns } = useMemo(
-    () =>
-      getEditableColumns({
-        editingKey,
-        handleFieldChange,
-        handleSave,
-        handleEdit,
-        handleCancel,
-      }),
-    [editingKey]
-  );
+  const handleEdit = (key: string) => {
+    setEditingKey(key);
+  };
 
-  const columns = getColumns(sectionName);
+  const handleCancel = () => {
+    setEditingKey(null);
+  };
+
+  const handleConfirm = () => {
+    onConfirm(data);
+    onClose();
+  };
 
   return (
     <Modal
-      title={
-        <div className="flex items-center justify-between">
-          <span style={{ fontSize: "1.25rem", fontWeight: 500 }}>
-            Review Imported Data
-          </span>
-          <Button type="text" icon={<CloseOutlined />} onClick={onClose} />
-        </div>
-      }
+      title={`Review ${sectionName} Data`}
       open={visible}
       onCancel={onClose}
+      width="90%"
+      style={{ top: 20 }}
       footer={[
-        <Button key="cancel" onClick={onClose} disabled={loading}>
+        <Button key="cancel" onClick={onClose}>
           Cancel
         </Button>,
         <Button
-          key="confirm"
+          key="submit"
           type="primary"
           onClick={handleConfirm}
           loading={loading}
@@ -156,33 +150,14 @@ const DataReviewModal: React.FC<DataReviewModalProps> = ({
           Confirm Import
         </Button>,
       ]}
-      width={1200}
-      centered
-      destroyOnClose
     >
-      <div className="space-y-4">
-        <Text>
-          Review and edit the imported data before confirming. Click the edit
-          icon to modify any field.
-        </Text>
-
-        <Table
-          columns={columns}
-          dataSource={editingData}
-          pagination={false}
-          scroll={{ x: 1200, y: 400 }}
-          bordered
-          size="small"
-          rowKey="key"
-        />
-
-        <div className="bg-blue-50 p-3 rounded">
-          <Text type="secondary">
-            <strong>Note:</strong> Changes made here will be reflected in the
-            main table after confirmation.
-          </Text>
-        </div>
-      </div>
+      <Table
+        columns={columns}
+        dataSource={data}
+        pagination={false}
+        scroll={{ x: true }}
+        rowKey="key"
+      />
     </Modal>
   );
 };

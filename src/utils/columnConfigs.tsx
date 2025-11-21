@@ -1,4 +1,4 @@
-// src/utils/columnConfigs.ts
+// src/utils/columnConfigs.tsx
 import React from "react";
 import { ColumnType } from "antd/es/table";
 import { Input, Select, Typography, Button } from "antd";
@@ -23,6 +23,8 @@ interface ColumnBuilderProps {
   handleEdit: (key: string) => void;
   handleCancel: () => void;
   severityLevels?: string[];
+  sectionName?: string;
+  data?: any[];
 }
 
 export const getEditableColumns = ({
@@ -32,6 +34,8 @@ export const getEditableColumns = ({
   handleEdit,
   handleCancel,
   severityLevels = ["Critical", "High", "Medium", "Low"],
+  sectionName = "",
+  data = [],
 }: ColumnBuilderProps) => {
   const baseColumns: ColumnConfig[] = [
     {
@@ -149,6 +153,7 @@ export const getEditableColumns = ({
                     : text === "Medium"
                     ? "#faad14"
                     : "#52c41a",
+                fontWeight: "500",
               }}
             >
               {text}
@@ -156,46 +161,74 @@ export const getEditableColumns = ({
           ),
       },
     ],
+    // Add more section-specific column configurations here as needed
   };
-  //@ts-ignore
+
+  // Add action column
   const actionColumn: ColumnConfig = {
     title: "Actions",
+    dataIndex: "actions",
     key: "actions",
     width: 120,
     render: (_: any, record: any) => {
       const editable = editingKey === record.key;
-
       return editable ? (
-        <div style={{ whiteSpace: "nowrap" }}>
+        <span>
           <Button
             type="link"
-            icon={<SaveOutlined />}
             onClick={() => handleSave(record.key)}
-            size="small"
-          />
-          <Button
-            type="text"
-            danger
-            icon={<CloseOutlined />}
-            onClick={handleCancel}
-            size="small"
-          />
-        </div>
+            style={{ marginRight: 8 }}
+          >
+            <SaveOutlined />
+          </Button>
+          <Button type="text" danger onClick={handleCancel}>
+            <CloseOutlined />
+          </Button>
+        </span>
       ) : (
         <Button
-          type="text"
-          icon={<EditOutlined />}
+          type="link"
           onClick={() => handleEdit(record.key)}
-          size="small"
-        />
+          disabled={editingKey !== null}
+        >
+          <EditOutlined />
+        </Button>
       );
     },
   };
 
-  return {
-    getColumns: (section: string) => {
-      const columns = [...baseColumns, ...(sectionColumns[section] || [])];
-      return [...columns, actionColumn];
-    },
-  };
+  // Return predefined columns if they exist for the section
+  if (sectionColumns[sectionName]) {
+    return [...baseColumns, ...sectionColumns[sectionName], actionColumn];
+  }
+
+  // Dynamic column generation for sections without predefined columns
+  if (data.length > 0) {
+    const firstItem = data[0];
+    const dynamicColumns = Object.keys(firstItem)
+      .filter((key) => !["key", "No", "Process"].includes(key))
+      .map((key) => ({
+        title: key,
+        dataIndex: key,
+        key: key,
+        render: (text: any, record: any) => {
+          if (editingKey === record.key) {
+            return (
+              <Input
+                value={text}
+                onChange={(e) =>
+                  handleFieldChange(record.key, key, e.target.value)
+                }
+              />
+            );
+          }
+          return text;
+        },
+      }));
+
+    return [...baseColumns, ...dynamicColumns, actionColumn];
+  }
+
+  // Default return if no data
+  return [...baseColumns, actionColumn];
 };

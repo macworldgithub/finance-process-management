@@ -1,13 +1,59 @@
-// src/utils/sectionDataService.ts
-import { apiClientDotNet } from "@/config/apiClientDotNet";
-import { getEndpointForSection } from "@/utils/sectionMappings";
+// // src/utils/sectionDataService.ts
+// import { apiClientDotNet } from "@/config/apiClientDotNet";
+// import { getEndpointForSection } from "@/utils/sectionMappings";
 
-export interface ApiResponse {
+// export interface ApiResponse {
+//   success: boolean;
+//   message?: string;
+//   data?: any;
+// }
+
+// export const submitSectionData = async (
+//   section: string,
+//   data: any
+// ): Promise<ApiResponse> => {
+//   const endpoint = getEndpointForSection(section);
+
+//   if (!endpoint) {
+//     return {
+//       success: false,
+//       message: `No API endpoint found for section: ${section}`,
+//     };
+//   }
+
+//   try {
+//     const response = await apiClientDotNet.post(`/${endpoint}`, data);
+//     return {
+//       success: true,
+//       data: response.data,
+//       message: "Data submitted successfully",
+//     };
+//   } catch (error: any) {
+//     console.error(`Error submitting data for ${section}:`, error);
+//     return {
+//       success: false,
+//       message:
+//         error.response?.data?.message || `Failed to submit data for ${section}`,
+//     };
+//   }
+// };
+
+// // Add this function to handle single record submission if needed
+// export const submitSingleRecord = async (
+//   section: string,
+//   record: any
+// ): Promise<ApiResponse> => {
+//   return submitSectionData(section, [record]);
+// };
+// In sectionDataService.ts
+interface ApiResponse {
   success: boolean;
-  message?: string;
+  message: string;
   data?: any;
 }
 
+import { apiClientDotNet } from "@/config/apiClientDotNet";
+import { getEndpointForSection } from "./sectionMappings";
 export const submitSectionData = async (
   section: string,
   data: any
@@ -22,7 +68,21 @@ export const submitSectionData = async (
   }
 
   try {
-    const response = await apiClientDotNet.post(`/${endpoint}`, data);
+    // Transform data to match the expected API format
+    const requestData = data.map((item: any) => {
+      const transformed: any = {};
+
+      // Copy all properties except the key
+      Object.keys(item).forEach((key) => {
+        if (key !== "key") {
+          transformed[key] = item[key];
+        }
+      });
+
+      return transformed;
+    });
+
+    const response = await apiClientDotNet.post(`/${endpoint}`, requestData);
     return {
       success: true,
       data: response.data,
@@ -36,12 +96,4 @@ export const submitSectionData = async (
         error.response?.data?.message || `Failed to submit data for ${section}`,
     };
   }
-};
-
-// Add this function to handle single record submission if needed
-export const submitSingleRecord = async (
-  section: string,
-  record: any
-): Promise<ApiResponse> => {
-  return submitSectionData(section, [record]);
 };
