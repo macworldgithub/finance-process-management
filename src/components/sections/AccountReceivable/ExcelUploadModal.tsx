@@ -141,30 +141,74 @@ const ExcelUploadModal: React.FC<ExcelUploadModalProps> = ({
 
   const handleDataConfirmed = (reviewedData: any[]) => {
     // Transform reviewed data to match DataType structure
-    const transformedData = reviewedData.map((item, index) => ({
-      key: String(index + 1),
-      no: item.No,
-      process: item["Main Process"],
-      processDescription: item["Process Description"],
-      processObjective: item["Process Objectives"],
-      processSeverityLevels: item["Process Severity Levels"],
-      // Default values for other required fields
-      activity: "",
-      process2: "",
-      stage: "",
-      functions: "Finance",
-      clientSegment: "Account Receivable",
-      operationalUnit: "A",
-      division: "C",
-      entity: "XYZ",
-      unitDepartment: "Account Receivable",
-      productClass: "Non",
-      productName: "Others",
-      isActive: true,
-    }));
+    const transformedData = reviewedData.map((item, index) => {
+      // Create a base object with common fields
+      const baseItem: any = {
+        key: String(index + 1),
+        no: item.No || index + 1,
+        process: item.Process || item["Main Process"] || "",
+        isActive: true,
+      };
+
+      // Add section-specific fields
+      switch (selectedSection) {
+        case "Process":
+          Object.assign(baseItem, {
+            processDescription: item["Process Description"] || "",
+            processObjective: item["Process Objectives"] || "",
+            processSeverityLevels: item["Process Severity Levels"] || "",
+          });
+          break;
+
+        case "Ownership":
+          Object.assign(baseItem, {
+            activity: item.Activity || "",
+            process2: item.Process || "",
+            stage: item["Process Stage"] || "",
+            functions: item.Functions || "Finance",
+            clientSegment:
+              item["Client Segment and/or Functional Segment"] ||
+              "Account Receivable",
+            operationalUnit: item["Operational Unit"] || "A",
+            division: item.Division || "C",
+            entity: item.Entity || "XYZ",
+            unitDepartment: item["Unit / Department"] || "Account Receivable",
+            productClass: item["Product Class"] || "Non",
+            productName: item["Product Name"] || "Others",
+          });
+          break;
+
+        // Add cases for other sections as needed
+        // Example for Control Activities:
+        case "Control Activities":
+          Object.assign(baseItem, {
+            controlObjectives: item["Control Objectives"] || "",
+            controlRef: item["Control Ref"] || "",
+            controlDefinition: item["Control Definition"] || "",
+            controlDescription: item["Control Description"] || "",
+            controlResponsibility: item["Control Responsibility"] || "",
+            keyControl: item["Key Control"] || "",
+            zeroTolerance: item["Zero Tolerance"] || "",
+          });
+          break;
+
+        // Add more cases for other sections following the same pattern
+
+        default:
+          // For any section without specific mapping, include all fields
+          Object.keys(item).forEach((key) => {
+            if (key !== "key" && key !== "No" && key !== "Process") {
+              baseItem[key] = item[key];
+            }
+          });
+      }
+
+      return baseItem;
+    });
 
     onDataLoaded(transformedData);
     setReviewModalVisible(false);
+    message.success("Data imported successfully");
   };
 
   const handleMultipleTablesConfirmed = (reviewedData: any) => {
@@ -352,6 +396,7 @@ const ExcelUploadModal: React.FC<ExcelUploadModalProps> = ({
         onClose={() => setReviewModalVisible(false)}
         onConfirm={handleDataConfirmed}
         importedData={importedData}
+        sectionName={selectedSection || ""}
       />
 
       <MultipleTablesReviewModal
