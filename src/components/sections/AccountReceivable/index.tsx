@@ -169,12 +169,21 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     else return setMainData;
   }, [activeTab]);
 
+  // ADD THIS: Debounced text change handler
+  const debouncedTextChange = useDebouncedCallback((rowKey: string, field: keyof DataType, value: string) => {
+    const setter = getCurrentSetter();
+    setter((prev) =>
+      prev.map((item) =>
+        item.key === rowKey ? { ...item, [field]: value } : item
+      )
+    );
+  }, 300); // 300ms delay
+
   // ADD THIS useEffect — keeps top scrollbar in sync when tab changes
   useEffect(() => {
     const updateTopScrollbar = () => {
       if (topScrollbarRef.current && tableWrapperRef.current) {
-        const tableContent =
-          tableWrapperRef.current.querySelector(".ant-table-content");
+        const tableContent = tableWrapperRef.current.querySelector(".ant-table-content");
         if (tableContent) {
           const dummy = topScrollbarRef.current.querySelector("div");
           if (dummy) {
@@ -414,13 +423,9 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
         )
       );
     },
+    // UPDATED: Use debounced text change
     onTextChange: (rowKey: string, field: keyof DataType, value: string) => {
-      const setter = getCurrentSetter();
-      setter((prev) =>
-        prev.map((item) =>
-          item.key === rowKey ? { ...item, [field]: value } : item
-        )
-      );
+      debouncedTextChange(rowKey, field, value);
     },
 
     onAddRow: () => {
@@ -503,7 +508,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
       // Auto-exit edit mode when deactivating
       setEditingKeys((prev) => prev.filter((k) => k !== rowKey));
     },
-  }), [getCurrentSetter, activeTab]);
+  }), [getCurrentSetter, activeTab, debouncedTextChange]);
 
   // FIX: Memoize columns to prevent regeneration on every render
   const tableColumns = useMemo(() => 
@@ -519,7 +524,6 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
           {/* Heading + Export Button + Navigation */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              {/* Reduced heading size */}
               <h1 className="text-xl font-bold text-black">
                 RCM – Account Receivable
               </h1>
@@ -633,7 +637,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
             </div>
           ) : (
             <div className="relative">
-              {/* Top Horizontal Scrollbar (fake scrollbar) */}
+              {/* Top Horizontal Scrollbar */}
               <div
                 ref={topScrollbarRef}
                 className="sticky top-0 z-20 overflow-x-auto bg-white border-b border-gray-200 -mx-6 px-6 mb-3"
@@ -665,6 +669,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   }}
                 />
               </div>
+              
               {/* Main Table */}
               <div
                 ref={tableWrapperRef}
@@ -674,32 +679,16 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   minHeight: "500px",
                 }}
               >
-                <style jsx>{`
-                  .ant-table-body {
-                    scrollbar-width: none;
-                    -ms-overflow-style: none;
-                  }
-                  .ant-table-body::-webkit-scrollbar {
-                    display: none;
-                  }
-                  .row-deactivated {
-                    background-color: #e5e7eb !important;
-                    color: #6b7280 !important;
-                    opacity: 0.7;
-                  }
-                `}</style>
-
                 <Table
                   columns={tableColumns}
                   dataSource={tableData}
                   pagination={false}
-                  scroll={{ x: 1300, y: "calc(100vh - 340px)" }}
+                  scroll={{ x: "max-content", y: "calc(100vh - 340px)" }}
                   bordered
                   rowKey="key"
                   rowClassName={(record) =>
                     record.isActive === false ? "row-deactivated" : ""
                   }
-                  // Sync header scroll → top scrollbar
                   onHeaderRow={() => ({
                     onScroll: (e: React.UIEvent<HTMLDivElement>) => {
                       const target = e.target as HTMLDivElement;
