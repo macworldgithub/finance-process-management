@@ -168,6 +168,19 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     else return setMainData;
   }, [activeTab]);
 
+  // ADD THIS: Debounced text change handler
+  const debouncedTextChange = useDebouncedCallback(
+    (rowKey: string, field: keyof DataType, value: string) => {
+      const setter = getCurrentSetter();
+      setter((prev) =>
+        prev.map((item) =>
+          item.key === rowKey ? { ...item, [field]: value } : item
+        )
+      );
+    },
+    50
+  ); // 300ms delay
+
   // ADD THIS useEffect — keeps top scrollbar in sync when tab changes
   useEffect(() => {
     const updateTopScrollbar = () => {
@@ -381,133 +394,133 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [goPrev, goNext, hasPrev, hasNext]);
 
-  // FIXED: Memoized handlers to prevent unnecessary re-renders
-  const handlers = useMemo(() => ({
-    onEdit: (key: string) => setEditingKeys((prev) => [...prev, key]),
-    onDelete: (key: string) => {
-      const setter = getCurrentSetter();
-      setter((prev) => prev.filter((item) => item.key !== key));
-    },
-    onSave: (key: string) =>
-      setEditingKeys((prev) => prev.filter((k) => k !== key)),
-    onCancel: (key: string) =>
-      setEditingKeys((prev) => prev.filter((k) => k !== key)),
-    onCheckboxChange: (
-      rowKey: string,
-      field: keyof DataType,
-      checked: boolean
-    ) => {
-      const setter = getCurrentSetter();
-      setter((prev) =>
-        prev.map((item) =>
-          item.key === rowKey ? { ...item, [field]: checked } : item
-        )
-      );
-    },
-    onSelectGeneric: (key: string, rowKey: string, field?: string) => {
-      if (!field) return;
-      const setter = getCurrentSetter();
-      setter((prev) =>
-        prev.map((item) =>
-          item.key === rowKey ? { ...item, [field]: key } : item
-        )
-      );
-    },
-    onTextChange: (rowKey: string, field: keyof DataType, value: string) => {
-      const setter = getCurrentSetter();
-      setter((prev) =>
-        prev.map((item) =>
-          item.key === rowKey ? { ...item, [field]: value } : item
-        )
-      );
-    },
+  // FIX: Memoize handlers to prevent unnecessary re-renders
+  const handlers = useMemo(
+    () => ({
+      onEdit: (key: string) => setEditingKeys((prev) => [...prev, key]),
+      onDelete: (key: string) => {
+        const setter = getCurrentSetter();
+        setter((prev) => prev.filter((item) => item.key !== key));
+      },
+      onSave: (key: string) =>
+        setEditingKeys((prev) => prev.filter((k) => k !== key)),
+      onCancel: (key: string) =>
+        setEditingKeys((prev) => prev.filter((k) => k !== key)),
+      onCheckboxChange: (
+        rowKey: string,
+        field: keyof DataType,
+        checked: boolean
+      ) => {
+        const setter = getCurrentSetter();
+        setter((prev) =>
+          prev.map((item) =>
+            item.key === rowKey ? { ...item, [field]: checked } : item
+          )
+        );
+      },
+      onSelectGeneric: (key: string, rowKey: string, field?: string) => {
+        if (!field) return;
+        const setter = getCurrentSetter();
+        setter((prev) =>
+          prev.map((item) =>
+            item.key === rowKey ? { ...item, [field]: key } : item
+          )
+        );
+      },
+      // UPDATED: Use debounced text change
+      onTextChange: (rowKey: string, field: keyof DataType, value: string) => {
+        debouncedTextChange(rowKey, field, value);
+      },
 
-    onAddRow: () => {
-      const setter = getCurrentSetter();
-      const newKey = String(Date.now());
+      onAddRow: () => {
+        const setter = getCurrentSetter();
+        const newKey = String(Date.now());
 
-      // Get current data to calculate next number
-      const currentData = getDataForSource(
-        tabConfigs.find(tab => tab.key === activeTab)?.dataSource || "main"
-      );
+        // Get current data to calculate next number
+        const currentData = getDataForSource(
+          tabConfigs.find((tab) => tab.key === activeTab)?.dataSource || "main"
+        );
 
-      // Find the highest number in the 5.x series
-      let maxNumber = 0;
-      currentData.forEach((row) => {
-        if (row.no && typeof row.no === "string") {
-          const match = row.no.match(/^5\.(\d+)$/);
-          if (match) {
-            const num = parseInt(match[1], 10);
-            if (num > maxNumber) {
-              maxNumber = num;
+        // Find the highest number in the 5.x series
+        let maxNumber = 0;
+        currentData.forEach((row) => {
+          if (row.no && typeof row.no === "string") {
+            const match = row.no.match(/^5\.(\d+)$/);
+            if (match) {
+              const num = parseInt(match[1], 10);
+              if (num > maxNumber) {
+                maxNumber = num;
+              }
             }
           }
-        }
-      });
+        });
 
-      // If no 5.x numbers found, start from 5.1, otherwise increment the highest found
-      const nextNumber = maxNumber > 0 ? maxNumber + 1 : 1;
-      const newNo = `5.${nextNumber.toString().padStart(2, "0")}`;
+        // If no 5.x numbers found, start from 5.1, otherwise increment the highest found
+        const nextNumber = maxNumber > 0 ? maxNumber + 1 : 1;
+        const newNo = `5.${nextNumber.toString().padStart(2, "0")}`;
 
-      // Create and add the new row
-      const newRow: DataType = {
-        key: newKey,
-        no: newNo, // This will be "5.16" if the last was "5.15"
-        process: "",
-        isActive: true,
-      };
+        // Create and add the new row
+        const newRow: DataType = {
+          key: newKey,
+          no: newNo,
+          process: "",
+          isActive: true,
+        };
 
-      setter((prev) => [...prev, newRow]);
-      setEditingKeys((prev) => [...prev, newKey]);
+        setter((prev) => [...prev, newRow]);
+        setEditingKeys((prev) => [...prev, newKey]);
 
-      // Scroll to the new row after a short delay to ensure it's rendered
-      setTimeout(() => {
-        const tableBody = tableWrapperRef.current?.querySelector(
-          ".ant-table-body"
-        ) as HTMLElement;
-        if (tableBody) {
-          tableBody.scrollTop = tableBody.scrollHeight;
-        }
-      }, 100);
-    },
+        // Scroll to the new row after a short delay to ensure it's rendered
+        setTimeout(() => {
+          const tableBody = tableWrapperRef.current?.querySelector(
+            ".ant-table-body"
+          ) as HTMLElement;
+          if (tableBody) {
+            tableBody.scrollTop = tableBody.scrollHeight;
+          }
+        }, 100);
+      },
 
-    onEditRow: (key: string) => setEditingKeys((prev) => [...prev, key]),
-    onSaveRow: (key: string) =>
-      setEditingKeys((prev) => prev.filter((k) => k !== key)),
-    onDeleteRow: (key: string) => {
-      const setter = getCurrentSetter();
-      setter((prev) => prev.filter((item) => item.key !== key));
-    },
-    onStageChange: (key: string, rowKey: string) => {
-      const setter = getCurrentSetter();
-      setter((prev) =>
-        prev.map((item) =>
-          item.key === rowKey ? { ...item, stage: key } : item
-        )
-      );
-    },
-    onToggleStatus: (rowKey: string) => {
-      const setter = getCurrentSetter();
-      setter((prev) =>
-        prev.map((item) =>
-          item.key === rowKey
-            ? {
-                ...item,
-                isActive: !(item.isActive !== false), // flips correctly even if undefined
-              }
-            : item
-        )
-      );
+      onEditRow: (key: string) => setEditingKeys((prev) => [...prev, key]),
+      onSaveRow: (key: string) =>
+        setEditingKeys((prev) => prev.filter((k) => k !== key)),
+      onDeleteRow: (key: string) => {
+        const setter = getCurrentSetter();
+        setter((prev) => prev.filter((item) => item.key !== key));
+      },
+      onStageChange: (key: string, rowKey: string) => {
+        const setter = getCurrentSetter();
+        setter((prev) =>
+          prev.map((item) =>
+            item.key === rowKey ? { ...item, stage: key } : item
+          )
+        );
+      },
+      onToggleStatus: (rowKey: string) => {
+        const setter = getCurrentSetter();
+        setter((prev) =>
+          prev.map((item) =>
+            item.key === rowKey
+              ? {
+                  ...item,
+                  isActive: !(item.isActive !== false),
+                }
+              : item
+          )
+        );
 
-      // Auto-exit edit mode when deactivating
-      setEditingKeys((prev) => prev.filter((k) => k !== rowKey));
-    },
-  }), [getCurrentSetter, getDataForSource, activeTab]);
+        // Auto-exit edit mode when deactivating
+        setEditingKeys((prev) => prev.filter((k) => k !== rowKey));
+      },
+    }),
+    [getCurrentSetter, activeTab, debouncedTextChange]
+  );
 
-  // FIXED: Memoized columns to prevent re-renders on every character type
-  const tableColumns = useMemo(() => {
-    return getColumns(activeTab, activeSubTab, handlers, editingKeys);
-  }, [activeTab, activeSubTab, handlers, editingKeys]);
+  // FIX: Memoize columns to prevent regeneration on every render
+  const tableColumns = useMemo(
+    () => getColumns(activeTab, activeSubTab, handlers as any, editingKeys),
+    [activeTab, activeSubTab, handlers, editingKeys]
+  );
 
   return (
     <div className="flex flex-col h-screen bg-[#f8fafc]">
@@ -664,6 +677,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   }}
                 />
               </div>
+
               {/* Main Table */}
               <div
                 ref={tableWrapperRef}
