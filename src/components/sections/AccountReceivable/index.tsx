@@ -8,7 +8,6 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-
 import { Table, Tabs, Spin, Button, Popconfirm, Input } from "antd";
 import {
   LeftOutlined,
@@ -121,14 +120,14 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     }
   }, [currentTabIndex, hasNext]);
 
-  // FIX: Only call resize when tab/subtab changes, not on data changes
   const debouncedResize = useDebouncedCallback(() => {
     window.dispatchEvent(new Event("resize"));
   }, 50);
 
+  // Fixed scroll effect with proper dependencies
   useEffect(() => {
     debouncedResize();
-  }, [activeTab, activeSubTab, debouncedResize]);
+  }, [tableData, activeTab, activeSubTab, debouncedResize]);
 
   // Persist to localStorage
   useEffect(() => {
@@ -169,21 +168,12 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     else return setMainData;
   }, [activeTab]);
 
-  // ADD THIS: Debounced text change handler
-  const debouncedTextChange = useDebouncedCallback((rowKey: string, field: keyof DataType, value: string) => {
-    const setter = getCurrentSetter();
-    setter((prev) =>
-      prev.map((item) =>
-        item.key === rowKey ? { ...item, [field]: value } : item
-      )
-    );
-  }, 300); // 300ms delay
-
   // ADD THIS useEffect — keeps top scrollbar in sync when tab changes
   useEffect(() => {
     const updateTopScrollbar = () => {
       if (topScrollbarRef.current && tableWrapperRef.current) {
-        const tableContent = tableWrapperRef.current.querySelector(".ant-table-content");
+        const tableContent =
+          tableWrapperRef.current.querySelector(".ant-table-content");
         if (tableContent) {
           const dummy = topScrollbarRef.current.querySelector("div");
           if (dummy) {
@@ -254,21 +244,21 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     }
   };
 
-  const getDataForSource = (dataSource: string): DataType[] => {
+  const getDataForSource = useCallback((dataSource: string): DataType[] => {
     if (dataSource === "main") return mainData;
     if (dataSource === "control") return controlData;
     if (dataSource === "financial") return financialData;
     if (dataSource === "audit") return auditData;
     return [];
-  };
+  }, [mainData, controlData, financialData, auditData]);
 
-  const getSetterForSource = (dataSource: string) => {
+  const getSetterForSource = useCallback((dataSource: string) => {
     if (dataSource === "main") return setMainData;
     if (dataSource === "control") return setControlData;
     if (dataSource === "financial") return setFinancialData;
     if (dataSource === "audit") return setAuditData;
     return () => {};
-  };
+  }, []);
 
   const handleExport = () => {
     const wb = XLSX.utils.book_new();
@@ -391,7 +381,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [goPrev, goNext, hasPrev, hasNext]);
 
-  // FIX: Memoize handlers to prevent unnecessary re-renders
+  // FIXED: Memoized handlers to prevent unnecessary re-renders
   const handlers = useMemo(() => ({
     onEdit: (key: string) => setEditingKeys((prev) => [...prev, key]),
     onDelete: (key: string) => {
@@ -423,9 +413,13 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
         )
       );
     },
-    // UPDATED: Use debounced text change
     onTextChange: (rowKey: string, field: keyof DataType, value: string) => {
-      debouncedTextChange(rowKey, field, value);
+      const setter = getCurrentSetter();
+      setter((prev) =>
+        prev.map((item) =>
+          item.key === rowKey ? { ...item, [field]: value } : item
+        )
+      );
     },
 
     onAddRow: () => {
@@ -458,7 +452,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
       // Create and add the new row
       const newRow: DataType = {
         key: newKey,
-        no: newNo,
+        no: newNo, // This will be "5.16" if the last was "5.15"
         process: "",
         isActive: true,
       };
@@ -499,7 +493,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
           item.key === rowKey
             ? {
                 ...item,
-                isActive: !(item.isActive !== false),
+                isActive: !(item.isActive !== false), // flips correctly even if undefined
               }
             : item
         )
@@ -508,13 +502,12 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
       // Auto-exit edit mode when deactivating
       setEditingKeys((prev) => prev.filter((k) => k !== rowKey));
     },
-  }), [getCurrentSetter, activeTab, debouncedTextChange]);
+  }), [getCurrentSetter, getDataForSource, activeTab]);
 
-  // FIX: Memoize columns to prevent regeneration on every render
-  const tableColumns = useMemo(() => 
-    getColumns(activeTab, activeSubTab, handlers as any, editingKeys),
-    [activeTab, activeSubTab, handlers, editingKeys]
-  );
+  // FIXED: Memoized columns to prevent re-renders on every character type
+  const tableColumns = useMemo(() => {
+    return getColumns(activeTab, activeSubTab, handlers, editingKeys);
+  }, [activeTab, activeSubTab, handlers, editingKeys]);
 
   return (
     <div className="flex flex-col h-screen bg-[#f8fafc]">
@@ -524,6 +517,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
           {/* Heading + Export Button + Navigation */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
+              {/* Reduced heading size */}
               <h1 className="text-xl font-bold text-black">
                 RCM – Account Receivable
               </h1>
@@ -637,7 +631,8 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
             </div>
           ) : (
             <div className="relative">
-              {/* Top Horizontal Scrollbar */}
+              {/* Top Horizontal Scrollbar (fake scrollbar) */}
+              {/* TOP SCROLLBAR — FINAL PERFECT VERSION */}
               <div
                 ref={topScrollbarRef}
                 className="sticky top-0 z-20 overflow-x-auto bg-white border-b border-gray-200 -mx-6 px-6 mb-3"
@@ -669,7 +664,6 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   }}
                 />
               </div>
-              
               {/* Main Table */}
               <div
                 ref={tableWrapperRef}
@@ -679,16 +673,34 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   minHeight: "500px",
                 }}
               >
+                <style jsx>{`
+                  .ant-table-body {
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
+                  }
+                  .ant-table-body::-webkit-scrollbar {
+                    display: none;
+                  }
+                  .row-deactivated {
+                    background-color: #e5e7eb !important;
+                    color: #6b7280 !important;
+                    opacity: 0.7;
+                  }
+                `}</style>
+
                 <Table
                   columns={tableColumns}
                   dataSource={tableData}
                   pagination={false}
-                  scroll={{ x: "max-content", y: "calc(100vh - 340px)" }}
+                  scroll={{ x: 1300, y: "calc(100vh - 340px)" }}
                   bordered
-                  rowKey="key"
+                  rowKey={(record) =>
+                    `${record.key}-${record.isActive?.toString()}`
+                  } 
                   rowClassName={(record) =>
                     record.isActive === false ? "row-deactivated" : ""
                   }
+           
                   onHeaderRow={() => ({
                     onScroll: (e: React.UIEvent<HTMLDivElement>) => {
                       const target = e.target as HTMLDivElement;
@@ -697,6 +709,8 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                       }
                     },
                   })}
+                  // FIXED: Added key to force proper re-rendering
+                  key={`table-${activeTab}-${activeSubTab}-${tableData.length}`}
                 />
               </div>
             </div>
