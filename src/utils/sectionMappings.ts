@@ -1,23 +1,21 @@
 // src/utils/sectionMappings.ts
-
-export const SECTION_TO_ENDPOINT: Record<string, string> = {
-  Process: "Processes/bulk",
-  Ownership: "Ownerships/bulk",
-  "COSO-Control Environment": "CosoControlEnvironments/bulk",
+export const SECTION_TO_BASE_ENDPOINT: Record<string, string> = {
+  Process: "Processes",
+  Ownership: "Ownerships",
+  "COSO-Control Environment": "CosoControlEnvironments",
   "INTOSAI, IFAC, and Government Audit Standards - Control Environment":
-    "IntosaiIfacControlEnvironments/bulk",
-  "Other- - Control Environment": "OtherControlEnvironments/bulk",
-  "Risk Assessment  (Inherent Risk)": "RiskAssessmentInherentRisks/bulk",
-  "Risk Responses": "RiskResponses/bulk",
-  "Control Activities": "ControlActivities/bulk",
-  "Control Assessment": "ControlAssessments/bulk",
-  "Risk Assessment (Residual Risk)": "RiskAssessmentResidualRisks/bulk",
-  SOX: "Sox/bulk",
-  "Financial Statement Assertions": "FinancialStatementAssertions/bulk",
-  "Internal Audit Test": "InternalAuditTests/bulk",
-  "GRC Exception Log": "GrcExceptionLogs/bulk",
+    "IntosaiIfacControlEnvironments",
+  "Other- - Control Environment": "OtherControlEnvironments",
+  "Risk Assessment (Inherent Risk)": "RiskAssessmentInherentRisks",
+  "Risk Responses": "RiskResponses",
+  "Control Activities": "ControlActivities",
+  "Control Assessment": "ControlAssessments",
+  "Risk Assessment (Residual Risk)": "RiskAssessmentResidualRisks",
+  SOX: "Sox",
+  "Financial Statement Assertions": "FinancialStatementAssertions",
+  "Internal Audit Test": "InternalAuditTests",
+  "GRC Exception Log": "GrcExceptionLogs",
 };
-
 export const getEndpointForSection = (section: string): string | undefined => {
-  return SECTION_TO_ENDPOINT[section];
+  return SECTION_TO_BASE_ENDPOINT[section];
 };

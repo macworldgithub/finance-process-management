@@ -19,11 +19,12 @@ import { getColumns } from "./columns";
 import { DataType } from "./types";
 import * as XLSX from "xlsx";
 import type { ColumnType } from "antd/es/table";
-import { useDebouncedCallback } from "use-debounce";
+import { useDebouncedCallback, useDebounce } from "use-debounce";
 import ExcelUploadModal from "./ExcelUploadModal";
-
+import { apiClientDotNet } from "@/config/apiClientDotNet"; // Assuming this is your API client
+import { importSectionData } from "@/utils/importSectionDataService";
+import { SECTION_TO_BASE_ENDPOINT } from "@/utils/sectionMappings";
 const { TextArea } = Input;
-
 export interface AccountReceivableRef {
   triggerImport: (file: File) => void;
 }
@@ -49,50 +50,114 @@ const AccountReceivable = forwardRef<
   const tableWrapperRef = useRef<HTMLDivElement>(null);
   const topScrollbarRef = useRef<HTMLDivElement>(null);
   const scrollSyncRef = useRef<boolean>(true);
-
   const [activeTab, setActiveTab] = useState("1");
   const [activeSubTab, setActiveSubTab] = useState("coso");
-  const [tableData, setTableData] = useState<DataType[]>([]);
+  const [dataBySection, setDataBySection] = useState<
+    Record<string, DataType[]>
+  >({});
   const [editingKeys, setEditingKeys] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const debouncedSearchText = useDebounce(searchText, 500)[0];
   // Add this state to your component
   const [excelModalVisible, setExcelModalVisible] = useState(false);
-
   // Reset sub-tab when switching main tabs
   useEffect(() => {
     if (activeTab === "3") setActiveSubTab("coso");
     else if (activeTab === "9") setActiveSubTab("sox");
     else if (activeTab === "10") setActiveSubTab("audit");
   }, [activeTab]);
-
+  const getCurrentSection = useCallback((): string => {
+    switch (activeTab) {
+      case "1":
+        return "Process";
+      case "2":
+        return "Ownership";
+      case "3":
+        if (activeSubTab === "coso") return "COSO-Control Environment";
+        if (activeSubTab === "intosai")
+          return "INTOSAI, IFAC, and Government Audit Standards - Control Environment";
+        if (activeSubTab === "other") return "Other- - Control Environment";
+        return "COSO-Control Environment"; // default
+      case "4":
+        return "Risk Assessment (Inherent Risk)";
+      case "5":
+        return "Risk Responses";
+      case "6":
+        return "Control Activities";
+      case "7":
+        return "Control Assessment";
+      case "8":
+        return "Risk Assessment (Residual Risk)";
+      case "9":
+        if (activeSubTab === "sox") return "SOX";
+        if (activeSubTab === "financial" || activeSubTab === "icfr")
+          return "Financial Statement Assertions";
+        return "SOX"; // default
+      case "10":
+        if (activeSubTab === "audit") return "Internal Audit Test";
+        if (activeSubTab === "grc") return "GRC Exception Log";
+        return "Internal Audit Test"; // default
+      default:
+        return "Process";
+    }
+  }, [activeTab, activeSubTab]);
+  const currentSection = getCurrentSection();
+  const tableData = dataBySection[currentSection] || [];
+  const setTableData = (newData: DataType[]) => {
+    setDataBySection((prev) => ({ ...prev, [currentSection]: newData }));
+  };
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    const section = getCurrentSection();
+    const endpoint = SECTION_TO_BASE_ENDPOINT[section]; // From sectionMappings.ts
+    try {
+      const response = await apiClientDotNet.get(`/${endpoint}`, {
+        params: { page: 1, pageSize: 10000, search: debouncedSearchText },
+      });
+      const items = response.data.Items || [];
+      setDataBySection((prev) => ({
+        ...prev,
+        [section]: items.map((item: any) => ({
+          ...item,
+          key: item.Id,
+          no: item.No,
+          process: item.Process,
+          // Map other fields based on section, but assume DataType handles all
+        })),
+      }));
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [debouncedSearchText, getCurrentSection]);
+  useEffect(() => {
+    fetchData();
+  }, [debouncedSearchText, activeTab, activeSubTab, fetchData]);
   const tabKeys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
   const currentTabIndex = tabKeys.indexOf(activeTab);
   const hasPrev = currentTabIndex > 0;
   const hasNext = currentTabIndex < tabKeys.length - 1;
-
   const goPrev = useCallback(() => {
     if (hasPrev) {
       setEditingKeys([]); // Clear editing state
       setActiveTab(tabKeys[currentTabIndex - 1]);
     }
   }, [currentTabIndex, hasPrev]);
-
   const goNext = useCallback(() => {
     if (hasNext) {
       setEditingKeys([]); // Clear editing state
       setActiveTab(tabKeys[currentTabIndex + 1]);
     }
   }, [currentTabIndex, hasNext]);
-
   const debouncedResize = useDebouncedCallback(() => {
     window.dispatchEvent(new Event("resize"));
   }, 50);
-
   // Fixed useEffect
   useEffect(() => {
     debouncedResize();
   }, [tableData, activeTab, activeSubTab, debouncedResize]);
-
   // Keep top scrollbar width in sync
   useEffect(() => {
     const updateWidth = () => {
@@ -107,17 +172,14 @@ const AccountReceivable = forwardRef<
         }
       }
     };
-
     // Use timeout to ensure DOM is updated
     const timeoutId = setTimeout(updateWidth, 100);
-
     window.addEventListener("resize", updateWidth);
     return () => {
       window.removeEventListener("resize", updateWidth);
       clearTimeout(timeoutId);
     };
   }, [activeTab, activeSubTab, tableData]);
-
   const tabConfigs = [
     { key: "1", label: "Processes" },
     { key: "2", label: "Ownership" },
@@ -142,7 +204,32 @@ const AccountReceivable = forwardRef<
       subTabs: ["audit", "grc"],
     },
   ];
-
+  const getSectionFromTabKey = (tabKey: string): string => {
+    switch (tabKey) {
+      case "1":
+        return "Process";
+      case "2":
+        return "Ownership";
+      case "3":
+        return "COSO-Control Environment"; // Simplified, since subtab handles
+      case "4":
+        return "Risk Assessment (Inherent Risk)";
+      case "5":
+        return "Risk Responses";
+      case "6":
+        return "Control Activities";
+      case "7":
+        return "Control Assessment";
+      case "8":
+        return "Risk Assessment (Residual Risk)";
+      case "9":
+        return "SOX"; // Simplified
+      case "10":
+        return "Internal Audit Test"; // Simplified
+      default:
+        return "Process";
+    }
+  };
   const handleExport = () => {
     const wb = XLSX.utils.book_new();
     tabConfigs.forEach((config) => {
@@ -154,99 +241,140 @@ const AccountReceivable = forwardRef<
             "dataIndex" in c && c.dataIndex !== "actions"
         )
         .map((c) => c.dataIndex!);
-
-      const exportData = tableData.map((row) => {
+      const section = getSectionFromTabKey(config.key);
+      const exportDataSource = dataBySection[section] || [];
+      const exportData = exportDataSource.map((row) => {
         const obj: any = {};
         //@ts-ignore
         fields.forEach((f) => (obj[f] = row[f as keyof DataType] ?? ""));
         return obj;
       });
-
       const ws = XLSX.utils.json_to_sheet(exportData);
       XLSX.utils.book_append_sheet(wb, ws, sheetName);
     });
     XLSX.writeFile(wb, "AccountReceivable_Export.xlsx");
   };
-
   // Handler functions
   const handleEdit = useCallback((key: string) => {
     setEditingKeys((prev) => [...prev, key]);
   }, []);
-
-  const handleDelete = useCallback((key: string) => {
-    setTableData((prev) => prev.filter((r) => r.key !== key));
-  }, []);
-
-  const handleSave = useCallback((key: string) => {
-    setEditingKeys((prev) => prev.filter((k) => k !== key));
-  }, []);
-
+  const handleDelete = useCallback(
+    async (key: string) => {
+      const item = tableData.find((r) => r.key === key);
+      if (!item) return;
+      const section = getCurrentSection();
+      const endpoint = SECTION_TO_BASE_ENDPOINT[section];
+      try {
+        if (item.id) {
+          // Assuming id from backend
+          await apiClientDotNet.delete(`/${endpoint}/${item.id}`);
+        }
+        setDataBySection((prev) => ({
+          ...prev,
+          [section]: (prev[section] || []).filter((r) => r.key !== key),
+        }));
+      } catch (error) {
+        console.error("Error deleting item:", error);
+      }
+    },
+    [tableData, getCurrentSection]
+  );
+  const handleSave = useCallback(
+    async (key: string) => {
+      const itemIndex = tableData.findIndex((r) => r.key === key);
+      if (itemIndex === -1) return;
+      const item = tableData[itemIndex];
+      const section = getCurrentSection();
+      const endpoint = SECTION_TO_BASE_ENDPOINT[section];
+      try {
+        let updatedItem;
+        if (item.id) {
+          await apiClientDotNet.put(`/${endpoint}/${item.id}`, item);
+          updatedItem = { ...item };
+        } else {
+          const response = await apiClientDotNet.post(`/${endpoint}`, item);
+          updatedItem = { ...response.data, key: response.data.Id };
+        }
+        const newData = [...tableData];
+        newData[itemIndex] = updatedItem;
+        setDataBySection((prev) => ({ ...prev, [section]: newData }));
+      } catch (error) {
+        console.error("Error saving item:", error);
+      } finally {
+        setEditingKeys((prev) => prev.filter((k) => k !== key));
+      }
+    },
+    [tableData, getCurrentSection]
+  );
   const handleCancel = useCallback((key: string) => {
     setEditingKeys((prev) => prev.filter((k) => k !== key));
   }, []);
-
   const handleCheckboxChange = useCallback(
     (rowKey: string, field: keyof DataType, checked: boolean) => {
-      setTableData((prev) =>
-        prev.map((r) => (r.key === rowKey ? { ...r, [field]: checked } : r))
+      const newData = tableData.map((r) =>
+        r.key === rowKey ? { ...r, [field]: checked } : r
       );
+      setTableData(newData);
     },
-    []
+    [tableData, setTableData]
   );
-
   const handleSelectGeneric = useCallback(
     (value: string, rowKey: string, field?: string) => {
       if (!field) return;
-      setTableData((prev) =>
-        prev.map((r) => (r.key === rowKey ? { ...r, [field]: value } : r))
+      const newData = tableData.map((r) =>
+        r.key === rowKey ? { ...r, [field]: value } : r
       );
+      setTableData(newData);
     },
-    []
+    [tableData, setTableData]
   );
-
   const handleTextChange = useCallback(
     (rowKey: string, field: keyof DataType, value: string) => {
-      setTableData((prev) =>
-        prev.map((r) => (r.key === rowKey ? { ...r, [field]: value } : r))
+      const newData = tableData.map((r) =>
+        r.key === rowKey ? { ...r, [field]: value } : r
       );
+      setTableData(newData);
     },
-    []
+    [tableData, setTableData]
   );
-
   const handleAddRow = useCallback(() => {
     const maxNo = tableData.reduce((max, r) => {
       const num = parseFloat(r.no as string) || 0;
       return num > max ? num : max;
     }, 0);
-
     const newRow = defaultNewRow(maxNo);
-    setTableData((prev) => [...prev, newRow]);
+    const newData = [...tableData, newRow];
+    setTableData(newData);
     setEditingKeys((prev) => [...prev, newRow.key]);
-  }, [tableData]);
-
+  }, [tableData, setTableData]);
   const handleEditRow = useCallback((key: string) => {
     setEditingKeys((prev) => [...prev, key]);
   }, []);
-
-  const handleDeleteRow = useCallback((key: string) => {
-    setTableData((prev) => prev.filter((r) => r.key !== key));
-  }, []);
-
-  const handleStageChange = useCallback((value: string, rowKey: string) => {
-    setTableData((prev) =>
-      prev.map((r) => (r.key === rowKey ? { ...r, stage: value } : r))
-    );
-  }, []);
-
-  const handleToggleStatus = useCallback((rowKey: string) => {
-    setTableData((prev) =>
-      prev.map((r) =>
+  const handleDeleteRow = useCallback(
+    (key: string) => {
+      handleDelete(key);
+    },
+    [handleDelete]
+  );
+  const handleStageChange = useCallback(
+    (value: string, rowKey: string) => {
+      const newData = tableData.map((r) =>
+        r.key === rowKey ? { ...r, stage: value } : r
+      );
+      setTableData(newData);
+    },
+    [tableData, setTableData]
+  );
+  const handleToggleStatus = useCallback(
+    (rowKey: string) => {
+      const newData = tableData.map((r) =>
         r.key === rowKey ? { ...r, isActive: !(r.isActive !== false) } : r
-      )
-    );
-    setEditingKeys((prev) => prev.filter((k) => k !== rowKey));
-  }, []);
-
+      );
+      setTableData(newData);
+      setEditingKeys((prev) => prev.filter((k) => k !== rowKey));
+    },
+    [tableData, setTableData]
+  );
   // Memoized handlers object
   const handlers = useMemo(
     () => ({
@@ -278,28 +406,23 @@ const AccountReceivable = forwardRef<
       handleToggleStatus,
     ]
   );
-
   // Improved columns memo with cleanup
   const columns = useMemo(() => {
     // Clear any pending edits when tab changes
     return getColumns(activeTab, activeSubTab, handlers, editingKeys);
   }, [activeTab, activeSubTab, editingKeys, handlers]);
-
   // Handle tab changes with cleanup
   const handleTabChange = useCallback((key: string) => {
     setEditingKeys([]); // Clear editing state
     setActiveTab(key);
   }, []);
-
   const handleSubTabChange = useCallback((key: string) => {
     setEditingKeys([]); // Clear editing state
     setActiveSubTab(key);
   }, []);
-
   // Scroll handler with cleanup
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     if (!scrollSyncRef.current) return;
-
     const target = e.target as HTMLDivElement;
     if (topScrollbarRef.current) {
       scrollSyncRef.current = false;
@@ -309,10 +432,8 @@ const AccountReceivable = forwardRef<
       }, 50);
     }
   }, []);
-
   const handleTopScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     if (!scrollSyncRef.current) return;
-
     const target = e.target as HTMLDivElement;
     const body = tableWrapperRef.current?.querySelector(
       ".ant-table-body"
@@ -325,7 +446,12 @@ const AccountReceivable = forwardRef<
       }, 50);
     }
   }, []);
-
+  const handleDataLoaded = async (data: DataType[]) => {
+    // Existing bulk post functionality remains unchanged
+    // But refresh data after import
+    await importSectionData(currentSection, data); // Assuming this posts bulk
+    fetchData();
+  };
   return (
     <div className="flex flex-col h-screen bg-[#f8fafc]">
       {/* Header */}
@@ -366,7 +492,6 @@ const AccountReceivable = forwardRef<
               </button>
             </div>
           </div>
-
           <div className="bg-white/50 backdrop-blur-sm rounded-t-xl shadow-sm">
             <Tabs
               activeKey={activeTab}
@@ -376,7 +501,6 @@ const AccountReceivable = forwardRef<
               destroyInactiveTabPane={true} // Add this to properly clean up
             />
           </div>
-
           {/* Sub-tabs */}
           {activeTab === "3" && (
             <div className="bg-white/50 backdrop-blur-sm rounded-b-xl shadow-sm mb-4">
@@ -396,7 +520,6 @@ const AccountReceivable = forwardRef<
               />
             </div>
           )}
-
           {activeTab === "9" && (
             <div className="bg-white/50 backdrop-blur-sm rounded-b-xl shadow-sm mb-4">
               <Tabs
@@ -431,14 +554,17 @@ const AccountReceivable = forwardRef<
           )}
         </div>
       </div>
-
       {/* Content */}
       <div className="flex-1 overflow-auto">
         <div className="p-6 pt-4">
-          {/* <div className="mb-4">
-            <ExcelApiPanel onDataLoaded={(data) => setTableData(data)} />
-          </div> */}
-
+          <div className="mb-4">
+            <Input.Search
+              placeholder="Search..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              style={{ width: 300 }}
+            />
+          </div>
           {loading ? (
             <div className="flex justify-center items-center h-full">
               <Spin size="large" />
@@ -453,7 +579,6 @@ const AccountReceivable = forwardRef<
                 ) as HTMLElement;
                 if (!table || table.scrollWidth <= table.clientWidth + 10)
                   return null;
-
                 return (
                   <div
                     ref={topScrollbarRef}
@@ -470,7 +595,6 @@ const AccountReceivable = forwardRef<
                   </div>
                 );
               })()}
-
               <div
                 ref={tableWrapperRef}
                 className="bg-white shadow-md rounded-b-lg overflow-hidden"
@@ -490,7 +614,6 @@ const AccountReceivable = forwardRef<
                     opacity: 0.7;
                   }
                 `}</style>
-
                 <Table
                   key={`table-${activeTab}-${activeSubTab}`} // Force re-render on tab change
                   columns={columns}
@@ -512,13 +635,12 @@ const AccountReceivable = forwardRef<
           <ExcelUploadModal
             visible={excelModalVisible}
             onClose={() => setExcelModalVisible(false)}
-            onDataLoaded={(data) => setTableData(data)}
+            onDataLoaded={handleDataLoaded}
           />
         </div>
       </div>
     </div>
   );
 });
-
 AccountReceivable.displayName = "AccountReceivable";
 export default AccountReceivable;

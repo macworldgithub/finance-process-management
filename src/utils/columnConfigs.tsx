@@ -3,10 +3,8 @@ import React from "react";
 import { ColumnType } from "antd/es/table";
 import { Input, Select, Typography, Button } from "antd";
 import { SaveOutlined, CloseOutlined, EditOutlined } from "@ant-design/icons";
-
 const { TextArea } = Input;
 const { Option } = Select;
-
 export interface ColumnConfig extends ColumnType<any> {
   title: string;
   dataIndex: string;
@@ -15,7 +13,6 @@ export interface ColumnConfig extends ColumnType<any> {
   width?: number;
   render?: (text: any, record: any, index?: number) => React.ReactNode;
 }
-
 interface ColumnBuilderProps {
   editingKey: string | null;
   handleFieldChange: (key: string, field: string, value: any) => void;
@@ -26,7 +23,6 @@ interface ColumnBuilderProps {
   sectionName?: string;
   data?: any[];
 }
-
 // In columnConfigs.tsx, update the getEditableColumns function
 export const getEditableColumns = ({
   editingKey,
@@ -49,7 +45,6 @@ export const getEditableColumns = ({
     dataLength: data.length,
     firstItem: data[0],
   });
-
   // Get all unique keys from data
   const allKeys = new Set<string>();
   data.forEach((item) => {
@@ -60,14 +55,12 @@ export const getEditableColumns = ({
     });
   });
   console.log("[getEditableColumns] Extracted keys:", Array.from(allKeys));
-
   // Create base columns
   const dynamicColumns: ColumnConfig[] = Array.from(allKeys).map((key) => {
     const isDescription =
       key.toLowerCase().includes("description") ||
       key.toLowerCase().includes("objectives");
     const isSeverity = key.toLowerCase().includes("severity");
-
     // Special handling for severity levels
     if (isSeverity) {
       return {
@@ -111,7 +104,6 @@ export const getEditableColumns = ({
         },
       };
     }
-
     // For description/objective fields
     if (isDescription) {
       return {
@@ -136,7 +128,6 @@ export const getEditableColumns = ({
         },
       };
     }
-
     // Default column
     return {
       title: key,
@@ -159,7 +150,6 @@ export const getEditableColumns = ({
       },
     };
   });
-
   // Add action column
   const actionColumn: ColumnConfig = {
     title: "Actions",
@@ -194,7 +184,6 @@ export const getEditableColumns = ({
       );
     },
   };
-
   console.log("[getEditableColumns] Generated columns:", dynamicColumns.length);
   return [...dynamicColumns, actionColumn];
 };

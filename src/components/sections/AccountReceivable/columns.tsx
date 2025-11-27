@@ -104,7 +104,6 @@ export const operationalFrequencyOptions = [
   { label: "Every 3 Years", key: "Every 3 Years" },
   { label: "As and When", key: "As and When" },
 ];
-
 export const soxControlActivityOptions = [
   {
     label: "Financial Controller Activity",
@@ -112,7 +111,6 @@ export const soxControlActivityOptions = [
   },
   { label: "Other", key: "Other" },
 ];
-
 const buildMenu = (
   items: { label: string; key: string }[],
   onClick?: (key: string) => void
@@ -133,7 +131,6 @@ const buildMenu = (
     />
   );
 };
-
 const renderEditableCheckbox = (
   value: boolean,
   record: DataType,
@@ -215,7 +212,6 @@ const getColorForSeverity = (
     case "Lowest":
       return {
         bgColor: "#00AF50",
-
         textColor: "#000000",
         borderColor: "#00AA44",
       };
@@ -258,7 +254,6 @@ const getColorForSeverity = (
       };
   }
 };
-
 export function getColumns(
   activeTab: string,
   activeSubTab: string,
@@ -1350,23 +1345,23 @@ export function getColumns(
       },
     },
     // {
-    //   title: "Process Stage",
-    //   dataIndex: "processStage",
-    //   key: "processStage",
-    //   width: 150,
-    //   render: (text: any, record: DataType) => {
-    //     const menu = buildMenu(yesNoOptions, (key) =>
-    //       handlers?.onSelectGeneric?.(key, record.key, "processStage")
-    //     );
-    //     return (
-    //       <Dropdown overlay={menu} trigger={["click"]}>
-    //         <div className="flex items-center cursor-pointer">
-    //           {text || "Select"}
-    //           <DownOutlined className="ml-1 text-gray-500 text-xs" />
-    //         </div>
-    //       </Dropdown>
-    //     );
-    //   },
+    // title: "Process Stage",
+    // dataIndex: "processStage",
+    // key: "processStage",
+    // width: 150,
+    // render: (text: any, record: DataType) => {
+    // const menu = buildMenu(yesNoOptions, (key) =>
+    // handlers?.onSelectGeneric?.(key, record.key, "processStage")
+    // );
+    // return (
+    // <Dropdown overlay={menu} trigger={["click"]}>
+    // <div className="flex items-center cursor-pointer">
+    // {text || "Select"}
+    // <DownOutlined className="ml-1 text-gray-500 text-xs" />
+    // </div>
+    // </Dropdown>
+    // );
+    // },
     // },
     {
       title: "Key Control",
@@ -1387,27 +1382,27 @@ export function getColumns(
   ];
   const controlAssessmentColumns: ColumnsType<DataType> = [
     // {
-    //   title: "Level of Responsibility",
-    //   dataIndex: "levelResponsibility",
-    //   key: "levelResponsibility",
-    //   width: 200,
-    //   render: (text: string, record: DataType) => {
-    //     if (editingKeys.includes(record.key)) {
-    //       return (
-    //         <Input
-    //           value={text}
-    //           onChange={(e) =>
-    //             handlers?.onTextChange?.(
-    //               record.key,
-    //               "levelResponsibility",
-    //               e.target.value
-    //             )
-    //           }
-    //         />
-    //       );
-    //     }
-    //     return text;
-    //   },
+    // title: "Level of Responsibility",
+    // dataIndex: "levelResponsibility",
+    // key: "levelResponsibility",
+    // width: 200,
+    // render: (text: string, record: DataType) => {
+    // if (editingKeys.includes(record.key)) {
+    // return (
+    // <Input
+    // value={text}
+    // onChange={(e) =>
+    // handlers?.onTextChange?.(
+    // record.key,
+    // "levelResponsibility",
+    // e.target.value
+    // )
+    // }
+    // />
+    // );
+    // }
+    // return text;
+    // },
     // },
     {
       title: "Level of Responsibility",
@@ -1435,7 +1430,6 @@ export function getColumns(
         );
       },
     },
-
     {
       title: "COSO Principle",
       dataIndex: "cosoPrinciple",
@@ -1546,7 +1540,6 @@ export function getColumns(
       },
     },
   ];
-
   const financialStatementAssertionsColumns: ColumnsType<DataType> = [
     // REMOVED: Internal Control Over Financial Reporting? from here
     {
@@ -1680,7 +1673,6 @@ export function getColumns(
         ),
     },
   ];
-
   // NEW: Dedicated column for Internal Control Over Financial Reporting
   const icfrColumn: ColumnsType<DataType> = [
     {
@@ -1777,7 +1769,6 @@ export function getColumns(
       },
     },
   ];
-
   const grcExceptionLogColumns: ColumnsType<DataType> = [
     {
       title: "GRC Adequacy",
@@ -1827,7 +1818,6 @@ export function getColumns(
         return text || "-";
       },
     },
-
     {
       title: "Explanation",
       dataIndex: "explanation",
@@ -1882,7 +1872,6 @@ export function getColumns(
     case "8":
       dynamicColumns = riskAssessmentResidualColumns;
       break;
-
     case "9":
       if (activeSubTab === "sox") dynamicColumns = soxSubTabColumns;
       else if (activeSubTab === "financial")
@@ -1891,7 +1880,7 @@ export function getColumns(
         dynamicColumns = icfrColumn; // New subtab
       else dynamicColumns = soxSubTabColumns;
       break;
-    case "10": 
+    case "10":
       if (activeSubTab === "audit") dynamicColumns = internalAuditTestColumns;
       else if (activeSubTab === "grc") dynamicColumns = grcExceptionLogColumns;
       else dynamicColumns = internalAuditTestColumns; // default to audit
@@ -1906,12 +1895,9 @@ export function getColumns(
     render: (_, record: DataType) => {
       // use isActive boolean (default true when undefined)
       const isActive = record.isActive !== false;
-
       if (editingKeys.includes(record.key)) {
         return (
-          <Button onClick={() => handlers?.onSaveRow?.(record.key)}>
-            Save
-          </Button>
+          <Button onClick={() => handlers?.onSave?.(record.key)}>Save</Button>
         );
       } else {
         return (

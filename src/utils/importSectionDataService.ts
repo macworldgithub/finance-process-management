@@ -1,13 +1,11 @@
 // src/utils/importSectionDataService.ts
 import { apiClientDotNet } from "@/config/apiClientDotNet";
 import { getEndpointForSection } from "./sectionMappings";
-
 interface ApiResponse {
   success: boolean;
   message: string;
   data?: any;
 }
-
 // Define field mappings for each section to transform response to API request format
 // NOTE: Excludes Id and Date as per API requirements
 const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
@@ -77,7 +75,7 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
     "Methodologies",
     "Rules and Regulations",
   ],
-  "Risk Assessment  (Inherent Risk)": [
+  "Risk Assessment (Inherent Risk)": [
     "No",
     "Process",
     // Add fields based on actual data
@@ -147,17 +145,14 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
     "Explanation",
   ],
 };
-
 /**
  * Transform imported data to match the API request format for a specific section
  * Excludes Id and Date fields as per API requirements
  */
 const transformDataForSection = (sectionName: string, data: any[]): any[] => {
   const fieldMapping = SECTION_FIELD_MAPPINGS[sectionName] || [];
-
   return data.map((item) => {
     const transformed: any = {};
-
     // Include all fields from mapping
     fieldMapping.forEach((field) => {
       // Handle special mappings
@@ -172,11 +167,9 @@ const transformDataForSection = (sectionName: string, data: any[]): any[] => {
         transformed[field] = item[field] || "";
       }
     });
-
     return transformed;
   });
 };
-
 /**
  * Import section data to the backend
  * Reusable function that handles all section types
@@ -189,12 +182,9 @@ export const importSectionData = async (
     sectionName,
     dataLength: data.length,
   });
-
-  const endpoint = getEndpointForSection(sectionName);
-
-  console.log("[importSectionData] Endpoint resolved:", endpoint);
-
-  if (!endpoint) {
+  const baseEndpoint = getEndpointForSection(sectionName);
+  console.log("[importSectionData] Endpoint resolved:", baseEndpoint);
+  if (!baseEndpoint) {
     const errorMsg = `No API endpoint found for section: ${sectionName}`;
     console.error("[importSectionData]", errorMsg);
     return {
@@ -202,26 +192,20 @@ export const importSectionData = async (
       message: errorMsg,
     };
   }
-
   try {
     // Transform data to match API format
     const transformedData = transformDataForSection(sectionName, data);
-
     console.log("[importSectionData] Transformed data:", {
       sectionName,
       dataCount: transformedData.length,
       firstRecord: transformedData[0],
       allRecords: transformedData,
     });
-
     // Send POST request to the appropriate endpoint
-    const url = `/${endpoint}`;
+    const url = `/${baseEndpoint}/bulk`;
     console.log("[importSectionData] Sending POST request to:", url);
-
     const response = await apiClientDotNet.post(url, transformedData);
-
     console.log("[importSectionData] Success response:", response.data);
-
     return {
       success: true,
       data: response.data,
