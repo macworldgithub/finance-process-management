@@ -75,7 +75,7 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
     "Methodologies",
     "Rules and Regulations",
   ],
-  "Risk Assessment (Inherent Risk)": [
+  "Risk Assessment  (Inherent Risk)": [
     "No",
     "Process",
     // Add fields based on actual data
