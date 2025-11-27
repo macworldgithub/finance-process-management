@@ -391,6 +391,14 @@ const severityImpactOptions = [
   "Major",
   "Catastrophic",
 ];
+
+// Process Stage options
+const processStageOptions = [
+  "Processing",
+  "Posting",
+  "Initiation",
+  "Confirmation",
+];
 const probabilityLikelihoodOptions = [
   "Rare",
   "Unlikely",
@@ -430,6 +438,7 @@ export const getEditableColumns = ({
     const isProbability = key.toLowerCase().includes("probability");
     const isLikelihood = key.toLowerCase().includes("likelihood");
     const isClassification = key.toLowerCase().includes("classification");
+    const isProcessStage = key.toLowerCase() === "process stage";
 
     const isControlEnvSection = [
       "COSO-Control Environment",
@@ -450,8 +459,6 @@ export const getEditableColumns = ({
       isControlActivitiesSection &&
       typeof data[0][key] === "string" &&
       (data[0][key] === "Yes" || data[0][key] === "No");
-
-
 
     const isRiskAssessmentSection =
       sectionName === "Risk Assessment  (Inherent Risk)" ||
@@ -561,6 +568,31 @@ export const getEditableColumns = ({
       };
     }
 
+    // Process Stage Dropdown
+    if (isProcessStage) {
+      return {
+        title: key,
+        dataIndex: key,
+        key,
+        width: 150,
+        render: (text: string, record: any) =>
+          editingKey === record.key ? (
+            <Select
+              value={text}
+              onChange={(v) => handleFieldChange(record.key, key, v)}
+              options={processStageOptions.map((o) => ({
+                label: o,
+                value: o,
+              }))}
+              style={{ width: "100%" }}
+              placeholder="Select Process Stage"
+            />
+          ) : (
+            <span>{text}</span>
+          ),
+      };
+    }
+
     // ===== END FIXED SECTION =====
 
     // Tick/Cross Fields
@@ -576,8 +608,8 @@ export const getEditableColumns = ({
               value={text}
               onChange={(v) => handleFieldChange(record.key, key, v)}
               options={[
-                { label: "✔️ Tick", value: "P" },
-                { label: "❌ Cross", value: "O" },
+                { label: "✔️ ", value: "P" },
+                { label: "❌ ", value: "O" },
               ]}
               style={{ width: "100%" }}
             />
