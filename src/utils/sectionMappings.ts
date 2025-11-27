@@ -1,16 +1,16 @@
 // src/utils/sectionMappings.ts
 
 export const SECTION_TO_ENDPOINT: Record<string, string> = {
-  Process: "Processes",
-  Ownership: "Ownerships",
-  "COSO-Control Environment": "CosoControlEnvironments",
+  Process: "Processes/bulk",
+  Ownership: "Ownerships/bulk",
+  "COSO-Control Environment": "CosoControlEnvironments/bulk",
   "INTOSAI, IFAC, and Government Audit Standards - Control Environment":
-    "IntosaiIfacControlEnvironments",
-  "Other- - Control Environment": "OtherControlEnvironments",
-  "Risk Assessment  (Inherent Risk)": "RiskAssessmentInherentRisks",
-  "Risk Responses": "RiskResponses",
-  "Control Activities": "ControlActivities",
-  "Control Assessment": "ControlAssessments",
+    "IntosaiIfacControlEnvironments/bulk",
+  "Other- - Control Environment": "OtherControlEnvironments/bulk",
+  "Risk Assessment  (Inherent Risk)": "RiskAssessmentInherentRisks/bulk",
+  "Risk Responses": "RiskResponses/bulk",
+  "Control Activities": "ControlActivities/bulk",
+  "Control Assessment": "ControlAssessments/bulk",
   "Risk Assessment (Residual Risk)": "RiskAssessmentResidualRisks",
   SOX: "Sox",
   "Financial Statement Assertions": "FinancialStatementAssertions",

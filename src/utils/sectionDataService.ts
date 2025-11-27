@@ -1,4 +1,3 @@
-
 // In sectionDataService.ts
 interface ApiResponse {
   success: boolean;
