@@ -1897,7 +1897,9 @@ export function getColumns(
       const isActive = record.isActive !== false;
       if (editingKeys.includes(record.key)) {
         return (
-          <Button onClick={() => handlers?.onSave?.(record.key)}>Save</Button>
+          <Button onClick={() => handlers?.onSaveRow?.(record.key)}>
+            Save
+          </Button>
         );
       } else {
         return (
