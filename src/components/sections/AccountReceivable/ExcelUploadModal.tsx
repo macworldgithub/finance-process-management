@@ -112,6 +112,12 @@ const ExcelUploadModal: React.FC<ExcelUploadModalProps> = ({
         });
 
         // Store the imported data
+        console.log("[ExcelUploadModal] API Response received:", {
+          dataType: typeof data,
+          isArray: Array.isArray(data),
+          keys: !Array.isArray(data) ? Object.keys(data) : "N/A",
+          data,
+        });
         setImportedData(data);
         // Close current modal and open review modal
         handleClose();
@@ -127,6 +133,11 @@ const ExcelUploadModal: React.FC<ExcelUploadModalProps> = ({
         );
 
         // Store the imported data
+        console.log("[ExcelUploadModal] Multiple tables API Response:", {
+          dataType: typeof data,
+          keys: Object.keys(data),
+          data,
+        });
         setImportedData(data);
         // Close current modal and open multiple tables review modal
         handleClose();

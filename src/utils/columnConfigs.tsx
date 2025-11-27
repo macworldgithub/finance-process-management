@@ -27,6 +27,7 @@ interface ColumnBuilderProps {
   data?: any[];
 }
 
+// In columnConfigs.tsx, update the getEditableColumns function
 export const getEditableColumns = ({
   editingKey,
   handleFieldChange,
@@ -37,112 +38,60 @@ export const getEditableColumns = ({
   sectionName = "",
   data = [],
 }: ColumnBuilderProps) => {
-  const baseColumns: ColumnConfig[] = [
-    {
-      title: "No",
-      dataIndex: "No",
-      key: "No",
-      width: 80,
-      render: (text: any, record: any) =>
-        editingKey === record.key ? (
-          <Input
-            value={text}
-            onChange={(e) =>
-              handleFieldChange(
-                record.key,
-                "No",
-                parseFloat(e.target.value) || 0
-              )
-            }
-            type="number"
-            step="0.1"
-          />
-        ) : (
-          text
-        ),
-    },
-    {
-      title: "Process",
-      dataIndex: "Process",
-      key: "Process",
-      render: (text: string, record: any) =>
-        editingKey === record.key ? (
-          <Input
-            value={text}
-            onChange={(e) =>
-              handleFieldChange(record.key, "Process", e.target.value)
-            }
-          />
-        ) : (
-          text
-        ),
-    },
-  ];
+  // If no data, return empty columns
+  if (data.length === 0) {
+    console.warn(
+      "[getEditableColumns] No data provided, returning empty columns"
+    );
+    return [];
+  }
+  console.log("[getEditableColumns] Generating columns for data:", {
+    dataLength: data.length,
+    firstItem: data[0],
+  });
 
-  const sectionColumns: Record<string, ColumnConfig[]> = {
-    Process: [
-      {
-        title: "Process Description",
-        dataIndex: "Process Description",
-        key: "Process Description",
-        render: (text: string, record: any) =>
-          editingKey === record.key ? (
-            <TextArea
-              value={text}
-              onChange={(e) =>
-                handleFieldChange(
-                  record.key,
-                  "Process Description",
-                  e.target.value
-                )
-              }
-              rows={3}
-            />
-          ) : (
-            <div style={{ maxWidth: 300 }}>{text}</div>
-          ),
-      },
-      {
-        title: "Process Objectives",
-        dataIndex: "Process Objectives",
-        key: "Process Objectives",
-        render: (text: string, record: any) =>
-          editingKey === record.key ? (
-            <TextArea
-              value={text}
-              onChange={(e) =>
-                handleFieldChange(
-                  record.key,
-                  "Process Objectives",
-                  e.target.value
-                )
-              }
-              rows={3}
-            />
-          ) : (
-            <div style={{ maxWidth: 300 }}>{text}</div>
-          ),
-      },
-      {
-        title: "Severity Levels",
-        dataIndex: "Process Severity Levels",
-        key: "Process Severity Levels",
-        render: (text: string, record: any) =>
-          editingKey === record.key ? (
-            <Select
-              value={text}
-              onChange={(value) =>
-                handleFieldChange(record.key, "Process Severity Levels", value)
-              }
-              style={{ width: 120 }}
-            >
-              {severityLevels.map((level) => (
-                <Option key={level} value={level}>
-                  {level}
-                </Option>
-              ))}
-            </Select>
-          ) : (
+  // Get all unique keys from data
+  const allKeys = new Set<string>();
+  data.forEach((item) => {
+    Object.keys(item).forEach((key) => {
+      if (key !== "key") {
+        allKeys.add(key);
+      }
+    });
+  });
+  console.log("[getEditableColumns] Extracted keys:", Array.from(allKeys));
+
+  // Create base columns
+  const dynamicColumns: ColumnConfig[] = Array.from(allKeys).map((key) => {
+    const isDescription =
+      key.toLowerCase().includes("description") ||
+      key.toLowerCase().includes("objectives");
+    const isSeverity = key.toLowerCase().includes("severity");
+
+    // Special handling for severity levels
+    if (isSeverity) {
+      return {
+        title: key,
+        dataIndex: key,
+        key: key,
+        width: 150,
+        render: (text: string, record: any) => {
+          if (editingKey === record.key) {
+            return (
+              <Select
+                value={text}
+                onChange={(value) => handleFieldChange(record.key, key, value)}
+                style={{ width: "100%" }}
+              >
+                {severityLevels.map((level) => (
+                  <Option key={level} value={level}>
+                    {level}
+                  </Option>
+                ))}
+              </Select>
+            );
+          }
+          return (
             <span
               style={{
                 color:
@@ -158,11 +107,58 @@ export const getEditableColumns = ({
             >
               {text}
             </span>
-          ),
+          );
+        },
+      };
+    }
+
+    // For description/objective fields
+    if (isDescription) {
+      return {
+        title: key,
+        dataIndex: key,
+        key: key,
+        width: 300,
+        render: (text: string, record: any) => {
+          if (editingKey === record.key) {
+            return (
+              <TextArea
+                value={text}
+                onChange={(e) =>
+                  handleFieldChange(record.key, key, e.target.value)
+                }
+                rows={3}
+                style={{ width: "100%" }}
+              />
+            );
+          }
+          return <div style={{ whiteSpace: "pre-wrap" }}>{text}</div>;
+        },
+      };
+    }
+
+    // Default column
+    return {
+      title: key,
+      dataIndex: key,
+      key: key,
+      width: 200,
+      render: (text: string, record: any) => {
+        if (editingKey === record.key) {
+          return (
+            <Input
+              value={text}
+              onChange={(e) =>
+                handleFieldChange(record.key, key, e.target.value)
+              }
+              style={{ width: "100%" }}
+            />
+          );
+        }
+        return text;
       },
-    ],
-    // Add more section-specific column configurations here as needed
-  };
+    };
+  });
 
   // Add action column
   const actionColumn: ColumnConfig = {
@@ -170,6 +166,7 @@ export const getEditableColumns = ({
     dataIndex: "actions",
     key: "actions",
     width: 120,
+    fixed: "right",
     render: (_: any, record: any) => {
       const editable = editingKey === record.key;
       return editable ? (
@@ -178,57 +175,26 @@ export const getEditableColumns = ({
             type="link"
             onClick={() => handleSave(record.key)}
             style={{ marginRight: 8 }}
-          >
-            <SaveOutlined />
-          </Button>
-          <Button type="text" danger onClick={handleCancel}>
-            <CloseOutlined />
-          </Button>
+            icon={<SaveOutlined />}
+          />
+          <Button
+            type="text"
+            danger
+            onClick={handleCancel}
+            icon={<CloseOutlined />}
+          />
         </span>
       ) : (
         <Button
           type="link"
           onClick={() => handleEdit(record.key)}
           disabled={editingKey !== null}
-        >
-          <EditOutlined />
-        </Button>
+          icon={<EditOutlined />}
+        />
       );
     },
   };
 
-  // Return predefined columns if they exist for the section
-  if (sectionColumns[sectionName]) {
-    return [...baseColumns, ...sectionColumns[sectionName], actionColumn];
-  }
-
-  // Dynamic column generation for sections without predefined columns
-  if (data.length > 0) {
-    const firstItem = data[0];
-    const dynamicColumns = Object.keys(firstItem)
-      .filter((key) => !["key", "No", "Process"].includes(key))
-      .map((key) => ({
-        title: key,
-        dataIndex: key,
-        key: key,
-        render: (text: any, record: any) => {
-          if (editingKey === record.key) {
-            return (
-              <Input
-                value={text}
-                onChange={(e) =>
-                  handleFieldChange(record.key, key, e.target.value)
-                }
-              />
-            );
-          }
-          return text;
-        },
-      }));
-
-    return [...baseColumns, ...dynamicColumns, actionColumn];
-  }
-
-  // Default return if no data
-  return [...baseColumns, actionColumn];
+  console.log("[getEditableColumns] Generated columns:", dynamicColumns.length);
+  return [...dynamicColumns, actionColumn];
 };
