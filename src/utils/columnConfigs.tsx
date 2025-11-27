@@ -52,8 +52,14 @@ export const getEditableColumns = ({
   handleSave,
   handleEdit,
   handleCancel,
-  severityLevels = [],
-  sectionName,
+  severityLevels = [
+    "Catastrophic",
+    "Major",
+    "Moderate",
+    "Minor",
+    "Insignificant",
+  ],
+  sectionName = "",
   data = [],
 }: ColumnBuilderProps) => {
   if (!data || data.length === 0) return [];
@@ -71,6 +77,33 @@ export const getEditableColumns = ({
       key.toLowerCase().includes("objectives");
 
     const isSeverity = key.toLowerCase().includes("severity");
+
+    // Early classification handling for Risk Assessment (Inherent Risk)
+    if (
+      sectionName === "Risk Assessment  (Inherent Risk)" &&
+      key.toLowerCase().includes("classification")
+    ) {
+      return {
+        title: key,
+        dataIndex: key,
+        key,
+        width: 150,
+        render: (text: string, record: any) =>
+          editingKey === record.key ? (
+            <Select
+              value={text}
+              onChange={(value) => handleFieldChange(record.key, key, value)}
+              options={classificationOptions.map((o) => ({
+                label: o,
+                value: o,
+              }))}
+              style={{ width: "100%" }}
+            />
+          ) : (
+            <span style={{ fontWeight: 500 }}>{text}</span>
+          ),
+      };
+    }
 
     const isControlEnvSection = [
       "COSO-Control Environment",
@@ -133,14 +166,12 @@ export const getEditableColumns = ({
             <Select
               value={text}
               onChange={(value) => handleFieldChange(record.key, key, value)}
+              options={severityLevels.map((level) => ({
+                label: level,
+                value: level,
+              }))}
               style={{ width: "100%" }}
-            >
-              {severityLevels.map((level) => (
-                <Option key={level} value={level}>
-                  {level}
-                </Option>
-              ))}
-            </Select>
+            />
           ) : (
             <span style={{ fontWeight: 500 }}>{text}</span>
           ),
@@ -163,14 +194,12 @@ export const getEditableColumns = ({
               <Select
                 value={text}
                 onChange={(v) => handleFieldChange(record.key, key, v)}
+                options={severityImpactOptions.map((o) => ({
+                  label: o,
+                  value: o,
+                }))}
                 style={{ width: "100%" }}
-              >
-                {severityImpactOptions.map((option) => (
-                  <Option key={option} value={option}>
-                    {option}
-                  </Option>
-                ))}
-              </Select>
+              />
             ) : (
               text
             ),
@@ -191,14 +220,12 @@ export const getEditableColumns = ({
               <Select
                 value={text}
                 onChange={(v) => handleFieldChange(record.key, key, v)}
+                options={probabilityLikelihoodOptions.map((o) => ({
+                  label: o,
+                  value: o,
+                }))}
                 style={{ width: "100%" }}
-              >
-                {probabilityLikelihoodOptions.map((option) => (
-                  <Option key={option} value={option}>
-                    {option}
-                  </Option>
-                ))}
-              </Select>
+              />
             ) : (
               text
             ),
