@@ -202,6 +202,12 @@ const DataReviewModal: React.FC<DataReviewModalProps> = ({
     }
   };
   const columns = useMemo(() => {
+    const severityLevels =
+      sectionName === "Risk Assessment  (Inherent Risk)" ||
+      sectionName === "Risk Assessment (Residual Risk)"
+        ? undefined
+        : ["Critical", "High", "Medium", "Low"];
+
     return getEditableColumns({
       editingKey,
       handleFieldChange,
@@ -210,6 +216,7 @@ const DataReviewModal: React.FC<DataReviewModalProps> = ({
       handleCancel,
       sectionName,
       data,
+      severityLevels,
     });
   }, [
     editingKey,
