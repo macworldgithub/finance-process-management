@@ -9,10 +9,9 @@ interface ApiResponse {
 }
 
 // Define field mappings for each section to transform response to API request format
+// NOTE: Excludes Id and Date as per API requirements
 const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
   Process: [
-    "Id",
-    "Date",
     "No",
     "Process",
     "Process Description",
@@ -20,12 +19,9 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
     "Process Severity Levels",
   ],
   Ownership: [
-    "Id",
-    "Date",
     "No",
-    "Main Process",
-    "Activity",
     "Process",
+    "Activity",
     "Process Stage",
     "Functions",
     "Client Segment and/or Functional Segment",
@@ -37,8 +33,6 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
     "Product Name",
   ],
   "COSO-Control Environment": [
-    "Id",
-    "Date",
     "No",
     "Process",
     "Integrity & Ethical Values",
@@ -48,8 +42,6 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
     "Management Philosophy",
   ],
   "INTOSAI, IFAC, and Government Audit Standards - Control Environment": [
-    "Id",
-    "Date",
     "No",
     "Process",
     "Integrity and Ethical Values",
@@ -68,8 +60,6 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
     "Commitment to Transparency and Openness",
   ],
   "Other- - Control Environment": [
-    "Id",
-    "Date",
     "No",
     "Process",
     "Responsibility Delegation Matrix",
@@ -88,22 +78,16 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
     "Rules and Regulations",
   ],
   "Risk Assessment  (Inherent Risk)": [
-    "Id",
-    "Date",
     "No",
     "Process",
     // Add fields based on actual data
   ],
   "Risk Responses": [
-    "Id",
-    "Date",
     "No",
     "Process",
     // Add fields based on actual data
   ],
   "Control Activities": [
-    "Id",
-    "Date",
     "No",
     "Process",
     "Control Objectives",
@@ -115,8 +99,6 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
     "Zero Tolerance",
   ],
   "Control Assessment": [
-    "Id",
-    "Date",
     "No",
     "Process",
     "Level of Responsibility-Operating Level (Entity / Activity)",
@@ -126,22 +108,16 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
     "Control Classification (Preventive / Detective / Corrective)",
   ],
   "Risk Assessment (Residual Risk)": [
-    "Id",
-    "Date",
     "No",
     "Process",
     // Add fields based on actual data
   ],
   SOX: [
-    "Id",
-    "Date",
     "No",
     "Process",
     // Add fields based on actual data
   ],
   "Financial Statement Assertions": [
-    "Id",
-    "Date",
     "No",
     "Process",
     "Internal Control Over Financial Reporting?",
@@ -157,8 +133,6 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
     "Presentation / Disclosure",
   ],
   "Internal Audit Test": [
-    "Id",
-    "Date",
     "No",
     "Process",
     "Check",
@@ -166,8 +140,6 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
     "Sample Size",
   ],
   "GRC Exception Log": [
-    "Id",
-    "Date",
     "No",
     "Process",
     "GRC Adequacy",
@@ -178,6 +150,7 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
 
 /**
  * Transform imported data to match the API request format for a specific section
+ * Excludes Id and Date fields as per API requirements
  */
 const transformDataForSection = (sectionName: string, data: any[]): any[] => {
   const fieldMapping = SECTION_FIELD_MAPPINGS[sectionName] || [];
@@ -187,21 +160,15 @@ const transformDataForSection = (sectionName: string, data: any[]): any[] => {
 
     // Include all fields from mapping
     fieldMapping.forEach((field) => {
-      // Handle special mappings (e.g., "Main Process" -> "Process")
-      if (field === "Process" && sectionName === "Ownership") {
-        // For Ownership, "Main Process" becomes "Process"
+      // Handle special mappings
+      if (field === "Process") {
+        // For Process field, use "Main Process" if available, otherwise "Process"
         transformed[field] = item["Main Process"] || item["Process"] || "";
-      } else if (field === "Id") {
-        // Generate or use existing ID
-        transformed[field] = item.Id || "";
-      } else if (field === "Date") {
-        // Use current date if not provided
-        transformed[field] = item.Date || new Date().toISOString();
       } else if (field === "No") {
         // Ensure No is a number
         transformed[field] = item.No || item.no || 0;
       } else {
-        // Copy value or empty string
+        // Copy value or empty string for all other fields
         transformed[field] = item[field] || "";
       }
     });
