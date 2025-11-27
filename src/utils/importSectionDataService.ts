@@ -78,13 +78,13 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
   "Risk Assessment  (Inherent Risk)": [
     "No",
     "Process",
-    // Add fields based on actual data
+    "Risk Type",
+    "Risk Description",
+    "Severity/ Impact",
+    "Probability/ Likelihood",
+    "Classification",
   ],
-  "Risk Responses": [
-    "No",
-    "Process",
-    // Add fields based on actual data
-  ],
+  "Risk Responses": ["No", "Process", "Type of Risk Response"],
   "Control Activities": [
     "No",
     "Process",
@@ -108,13 +108,13 @@ const SECTION_FIELD_MAPPINGS: Record<string, string[]> = {
   "Risk Assessment (Residual Risk)": [
     "No",
     "Process",
-    // Add fields based on actual data
+    "Risk Type",
+    "Risk Description",
+    "Severity/ Impact",
+    "Probability/ Likelihood",
+    "Classification",
   ],
-  SOX: [
-    "No",
-    "Process",
-    // Add fields based on actual data
-  ],
+  SOX: ["No", "Process", "SOX Control Activity"],
   "Financial Statement Assertions": [
     "No",
     "Process",

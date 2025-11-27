@@ -451,9 +451,8 @@ export const getEditableColumns = ({
       typeof data[0][key] === "string" &&
       (data[0][key] === "Yes" || data[0][key] === "No");
 
-    // ===== FIXED SECTION: Risk Assessment Sections =====
 
-    // Check for both Risk Assessment sections
+
     const isRiskAssessmentSection =
       sectionName === "Risk Assessment  (Inherent Risk)" ||
       sectionName === "Risk Assessment (Residual Risk)";
