@@ -257,13 +257,16 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
     }
   };
 
-  const getDataForSource = useCallback((dataSource: string): DataType[] => {
-    if (dataSource === "main") return mainData;
-    if (dataSource === "control") return controlData;
-    if (dataSource === "financial") return financialData;
-    if (dataSource === "audit") return auditData;
-    return [];
-  }, [mainData, controlData, financialData, auditData]);
+  const getDataForSource = useCallback(
+    (dataSource: string): DataType[] => {
+      if (dataSource === "main") return mainData;
+      if (dataSource === "control") return controlData;
+      if (dataSource === "financial") return financialData;
+      if (dataSource === "audit") return auditData;
+      return [];
+    },
+    [mainData, controlData, financialData, auditData]
+  );
 
   const getSetterForSource = useCallback((dataSource: string) => {
     if (dataSource === "main") return setMainData;
@@ -710,11 +713,10 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   bordered
                   rowKey={(record) =>
                     `${record.key}-${record.isActive?.toString()}`
-                  } 
+                  }
                   rowClassName={(record) =>
                     record.isActive === false ? "row-deactivated" : ""
                   }
-           
                   onHeaderRow={() => ({
                     onScroll: (e: React.UIEvent<HTMLDivElement>) => {
                       const target = e.target as HTMLDivElement;

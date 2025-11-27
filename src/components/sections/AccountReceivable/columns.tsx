@@ -1,4 +1,1963 @@
+// "use client";
+// import React from "react";
+// import {
+//   EditOutlined,
+//   DeleteOutlined,
+//   LockOutlined,
+//   UnlockOutlined,
+// } from "@ant-design/icons";
+// import { ColumnsType } from "antd/es/table";
+// import { Menu, Dropdown, Checkbox, Button, Input, Popconfirm } from "antd";
+// import { DownOutlined, PlusOutlined } from "@ant-design/icons";
+// import { DataType } from "./types";
+// import { Select } from "antd";
+// const { TextArea } = Input;
+// export const stageOptions = [
+//   { label: "Processing", key: "Processing" },
+//   { label: "Posting", key: "Posting" },
+//   { label: "Initiation", key: "Initiation" },
+//   { label: "Confirmation", key: "Confirmation" },
+// ];
+// export const severityOptions = [
+//   { label: "Catastrophic", key: "Catastrophic" },
+//   { label: "Major", key: "Major" },
+//   { label: "Moderate", key: "Moderate" },
+//   { label: "Minor", key: "Minor" },
+//   { label: "Insignificant", key: "Insignificant" },
+// ];
+// export const processSeverityLevelsOptions = [
+//   { label: "Critical", key: "Critical" },
+//   { label: "High", key: "High" },
+//   { label: "Medium", key: "Medium" },
+//   { label: "Low", key: "Low" },
+// ];
+// export const cosoPrincipleOptions = [
+//   {
+//     label: "1. Demonstrates commitment to integrity and ethical values",
+//     key: "1. Demonstrates commitment to integrity and ethical values",
+//   },
+//   {
+//     label: "2. Exercises oversight responsibility",
+//     key: "2. Exercises oversight responsibility",
+//   },
+//   {
+//     label: "3. Establishes structure, authority, and responsibility",
+//     key: "3. Establishes structure, authority, and responsibility",
+//   },
+//   {
+//     label: "4. Demonstrates commitment to competence",
+//     key: "4. Demonstrates commitment to competence",
+//   },
+//   { label: "5. Enforces accountability", key: "5. Enforces accountability" },
+//   {
+//     label: "6. Specifies suitable objectives",
+//     key: "6. Specifies suitable objectives",
+//   },
+//   {
+//     label: "7. Identifies and analyzes risk",
+//     key: "7. Identifies and analyzes risk",
+//   },
+//   { label: "8. Assesses fraud risk", key: "8. Assesses fraud risk" },
+//   {
+//     label: "9. Identifies and analyzes significant change",
+//     key: "9. Identifies and analyzes significant change",
+//   },
+//   {
+//     label: "10. Selects and develops control activities",
+//     key: "10. Selects and develops control activities",
+//   },
+//   {
+//     label: "11. Selects and develops general controls over technology",
+//     key: "11. Selects and develops general controls over technology",
+//   },
+//   {
+//     label: "12. Deploys through policies and procedures",
+//     key: "12. Deploys through policies and procedures",
+//   },
+//   {
+//     label: "13. Uses relevant information",
+//     key: "13. Uses relevant information",
+//   },
+//   { label: "14. Communicates internally", key: "14. Communicates internally" },
+//   { label: "15. Communicates externally", key: "15. Communicates externally" },
+//   {
+//     label: "16. Conducts ongoing and/or separate evaluations",
+//     key: "16. Conducts ongoing and/or separate evaluations",
+//   },
+//   {
+//     label: "17. Evaluates and communicates deficiencies",
+//     key: "17. Evaluates and communicates deficiencies",
+//   },
+// ];
+// export const yesNoOptions = [
+//   { label: "Yes", key: "Yes" },
+//   { label: "No", key: "No" },
+// ];
+// export const operationalFrequencyOptions = [
+//   { label: "Daily", key: "Daily" },
+//   { label: "Weekly", key: "Weekly" },
+//   { label: "Monthly", key: "Monthly" },
+//   { label: "Quarterly", key: "Quarterly" },
+//   { label: "Semiannually", key: "Semiannually" },
+//   { label: "Annually", key: "Annually" },
+//   { label: "Every 2 Years", key: "Every 2 Years" },
+//   { label: "Every 3 Years", key: "Every 3 Years" },
+//   { label: "As and When", key: "As and When" },
+// ];
 
+// export const soxControlActivityOptions = [
+//   {
+//     label: "Financial Controller Activity",
+//     key: "Financial Controller Activity",
+//   },
+//   { label: "Other", key: "Other" },
+// ];
+
+// const buildMenu = (
+//   items: { label: string; key: string }[],
+//   onClick?: (key: string) => void
+// ) => {
+//   return (
+//     <Menu
+//       onClick={(info) => {
+//         onClick?.(String(info.key));
+//       }}
+//       items={items as any}
+//       style={{
+//         maxHeight: "300px",
+//         overflowY: "auto",
+//         scrollbarWidth: "thin",
+//         msOverflowStyle: "none",
+//       }}
+//       className="custom-scrollbar"
+//     />
+//   );
+// };
+
+// const renderEditableCheckbox = (
+//   value: boolean,
+//   record: DataType,
+//   field: keyof DataType,
+//   onCheckboxChange?: (
+//     rowKey: string,
+//     field: keyof DataType,
+//     checked: boolean
+//   ) => void
+// ) => {
+//   return (
+//     <Checkbox
+//       checked={value}
+//       onChange={(e) => onCheckboxChange?.(record.key, field, e.target.checked)}
+//       className="flex justify-center"
+//     />
+//   );
+// };
+// //abc
+// // Helper function to get color based on severity/impact level
+// const getColorForSeverity = (
+//   value: string
+// ): { bgColor: string; textColor: string; borderColor: string } => {
+//   switch (value) {
+//     case "Catastrophic":
+//       return {
+//         bgColor: "#FE0000",
+//         textColor: "#FFFFFF",
+//         borderColor: "#CC0000",
+//       };
+//     case "Major":
+//       return {
+//         bgColor: "#FFC000",
+//         textColor: "#000000",
+//         borderColor: "#CCAA00",
+//       };
+//     case "Moderate":
+//       return {
+//         bgColor: "#FFFD04",
+//         textColor: "#000000",
+//         borderColor: "#99CC00",
+//       };
+//     case "Minor":
+//       return {
+//         bgColor: "#8FD154",
+//         textColor: "#000000",
+//         borderColor: "#00AA00",
+//       };
+//     case "Insignificant":
+//       return {
+//         bgColor: "#00AF50",
+//         textColor: "#000000",
+//         borderColor: "#00AA44",
+//       };
+//     case "Critical":
+//       return {
+//         bgColor: "#FE0000",
+//         textColor: "#FFFFFF",
+//         borderColor: "#CC0000",
+//       };
+//     case "High":
+//       return {
+//         bgColor: "#FFC000",
+//         textColor: "#000000",
+//         borderColor: "#CCAA00",
+//       };
+//     case "Moderate":
+//       return {
+//         bgColor: "#FFFD04",
+//         textColor: "#000000",
+//         borderColor: "#99CC00",
+//       };
+//     case "Low":
+//       return {
+//         bgColor: "#8FD154",
+//         textColor: "#000000",
+//         borderColor: "#00AA00",
+//       };
+//     case "Lowest":
+//       return {
+//         bgColor: "#00AF50",
+
+//         textColor: "#000000",
+//         borderColor: "#00AA44",
+//       };
+//     // Probability/Likelihood colors
+//     case "Certain":
+//       return {
+//         bgColor: "#FE0000",
+//         textColor: "#FFFFFF",
+//         borderColor: "#CC0000",
+//       };
+//     case "Likely":
+//       return {
+//         bgColor: "#FFC000",
+//         textColor: "#000000",
+//         borderColor: "#CCAA00",
+//       };
+//     case "Possible":
+//       return {
+//         bgColor: "#FFFD04",
+//         textColor: "#000000",
+//         borderColor: "#99CC00",
+//       };
+//     case "Unlikely":
+//       return {
+//         bgColor: "#8FD154",
+//         textColor: "#000000",
+//         borderColor: "#00AA00",
+//       };
+//     case "Rare":
+//       return {
+//         bgColor: "#00AF50",
+//         textColor: "#000000",
+//         borderColor: "#00AA44",
+//       };
+//     default:
+//       return {
+//         bgColor: "#F5F5F5",
+//         textColor: "#000000",
+//         borderColor: "#D9D9D9",
+//       };
+//   }
+// };
+
+// export function getColumns(
+//   activeTab: string,
+//   activeSubTab: string,
+//   handlers?: {
+//     onStageChange?: (key: string, rowKey: string) => void;
+//     onSelectGeneric?: (key: string, rowKey: string, field?: string) => void;
+//     onCheckboxChange?: (
+//       rowKey: string,
+//       field: keyof DataType,
+//       checked: boolean
+//     ) => void;
+//     onTextChange?: (
+//       rowKey: string,
+//       field: keyof DataType,
+//       value: string
+//     ) => void;
+//     onAddRow?: () => void;
+//     onSaveRow?: (rowKey: string) => void;
+//     onEditRow?: (rowKey: string) => void;
+//     onDeleteRow?: (rowKey: string) => void;
+//     onToggleStatus?: (rowKey: string) => void;
+//   },
+//   editingKeys: string[] = []
+// ): ColumnsType<DataType> {
+//   const baseColumns: ColumnsType<DataType> = [
+//     // {
+//     //   title: () => (
+//     //     <div style={{ display: "flex", alignItems: "center" }}>
+//     //       <span>No.</span>
+//     //       <Button
+//     //         style={{ marginLeft: 8 }}
+//     //         size="small"
+//     //         icon={<PlusOutlined />}
+//     //         onClick={handlers?.onAddRow}
+//     //       />
+//     //     </div>
+//     //   ),
+//     //   dataIndex: "no",
+//     //   key: "no",
+//     //   width: 80,
+//     //   fixed: "left",
+//     // },
+//     {
+//       title: () => (
+//         <div style={{ display: "flex", alignItems: "center" }}>
+//           <span>No.</span>
+//           <Button
+//             style={{ marginLeft: 8 }}
+//             size="small"
+//             icon={<PlusOutlined />}
+//             onClick={handlers?.onAddRow}
+//           />
+//         </div>
+//       ),
+//       dataIndex: "no",
+//       key: "no",
+//       width: 80,
+//       fixed: "left",
+//       render: (text: string) => text || "-", // Add this line
+//     },
+//     {
+//       title: "Processes",
+//       dataIndex: "process",
+//       key: "process",
+//       width: 300,
+//       fixed: "left",
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(record.key, "process", e.target.value)
+//               }
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//   ];
+//   const processColumns: ColumnsType<DataType> = [
+//     {
+//       title: "Process Description",
+//       dataIndex: "processDescription",
+//       key: "processDescription",
+//       width: 300,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <TextArea
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "processDescription",
+//                   e.target.value
+//                 )
+//               }
+//               autoSize={{ minRows: 2 }}
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     {
+//       title: "Process Objective",
+//       dataIndex: "processObjective",
+//       key: "processObjective",
+//       width: 300,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <TextArea
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "processObjective",
+//                   e.target.value
+//                 )
+//               }
+//               autoSize={{ minRows: 2 }}
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     {
+//       title: "Process Severity Levels",
+//       dataIndex: "processSeverityLevels",
+//       key: "processSeverityLevels",
+//       width: 200,
+//       render: (text: any, record: DataType) => {
+//         const menu = buildMenu(processSeverityLevelsOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "processSeverityLevels")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {text || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
+//     },
+//   ];
+//   const ownershipColumns: ColumnsType<DataType> = [
+//     {
+//       title: "Activity",
+//       dataIndex: "activity",
+//       key: "activity",
+//       width: 250,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(record.key, "activity", e.target.value)
+//               }
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     {
+//       title: "Process",
+//       dataIndex: "process2",
+//       key: "process2",
+//       width: 250,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(record.key, "process2", e.target.value)
+//               }
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     {
+//       title: "Process Stage",
+//       dataIndex: "stage",
+//       key: "stage",
+//       width: 180,
+//       render: (text: any, record: DataType) => {
+//         const menu = buildMenu(stageOptions, (key) =>
+//           handlers?.onStageChange?.(key, record.key)
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {text}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
+//     },
+//     {
+//       title: "Functions",
+//       dataIndex: "functions",
+//       key: "functions",
+//       width: 150,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "functions",
+//                   e.target.value
+//                 )
+//               }
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     {
+//       title: "Client Segment / Functional Segment",
+//       dataIndex: "clientSegment",
+//       key: "clientSegment",
+//       width: 180,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "clientSegment",
+//                   e.target.value
+//                 )
+//               }
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     {
+//       title: "Operational Unit",
+//       dataIndex: "operationalUnit",
+//       key: "operationalUnit",
+//       width: 180,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "operationalUnit",
+//                   e.target.value
+//                 )
+//               }
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     {
+//       title: "Division",
+//       dataIndex: "division",
+//       key: "division",
+//       width: 150,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(record.key, "division", e.target.value)
+//               }
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     {
+//       title: "Entity",
+//       dataIndex: "entity",
+//       key: "entity",
+//       width: 150,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(record.key, "entity", e.target.value)
+//               }
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     {
+//       title: "Unit / Department",
+//       dataIndex: "unitDepartment",
+//       key: "unitDepartment",
+//       width: 180,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "unitDepartment",
+//                   e.target.value
+//                 )
+//               }
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     {
+//       title: "Product Class",
+//       dataIndex: "productClass",
+//       key: "productClass",
+//       width: 150,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "productClass",
+//                   e.target.value
+//                 )
+//               }
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     {
+//       title: "Product Name",
+//       dataIndex: "productName",
+//       key: "productName",
+//       width: 180,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "productName",
+//                   e.target.value
+//                 )
+//               }
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//   ];
+//   const cosoColumns: ColumnsType<DataType> = [
+//     {
+//       title: "Integrity & Ethical Values",
+//       dataIndex: "integrityEthical",
+//       key: "integrityEthical",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "integrityEthical",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Board Oversight",
+//       dataIndex: "boardOversight",
+//       key: "boardOversight",
+//       width: 180,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "boardOversight",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Organizational Structure",
+//       dataIndex: "orgStructure",
+//       key: "orgStructure",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "orgStructure",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Commitment to Competence",
+//       dataIndex: "commitmentCompetence",
+//       key: "commitmentCompetence",
+//       width: 220,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "commitmentCompetence",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Management Philosophy",
+//       dataIndex: "managementPhilosophy",
+//       key: "managementPhilosophy",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "managementPhilosophy",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//   ];
+//   const intosaiColumns: ColumnsType<DataType> = [
+//     {
+//       title: "Integrity and Ethical Values",
+//       dataIndex: "integrityEthical",
+//       key: "integrityEthical",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "integrityEthical",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Commitment to Competence",
+//       dataIndex: "commitmentCompetence",
+//       key: "commitmentCompetence",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "commitmentCompetence",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Management's Philosophy and Operating Style",
+//       dataIndex: "managementPhilosophy",
+//       key: "managementPhilosophy",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "managementPhilosophy",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Organizational Structure",
+//       dataIndex: "orgStructure",
+//       key: "orgStructure",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "orgStructure",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Assignment of Authority",
+//       dataIndex: "assignmentAuthority",
+//       key: "assignmentAuthority",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "assignmentAuthority",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "HR Policies and Practices",
+//       dataIndex: "hrPolicies",
+//       key: "hrPolicies",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "hrPolicies",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Board/Audit Committee",
+//       dataIndex: "boardAudit",
+//       key: "boardAudit",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "boardAudit",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Management Control Methods",
+//       dataIndex: "managementControl",
+//       key: "managementControl",
+//       width: 220,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "managementControl",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "External Influences",
+//       dataIndex: "externalInfluences",
+//       key: "externalInfluences",
+//       width: 180,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "externalInfluences",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Commitment to Internal Control",
+//       dataIndex: "commitmentInternal",
+//       key: "commitmentInternal",
+//       width: 220,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "commitmentInternal",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Enforcement of Integrity",
+//       dataIndex: "enforcementIntegrity",
+//       key: "enforcementIntegrity",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "enforcementIntegrity",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Employee Awareness",
+//       dataIndex: "employeeAwareness",
+//       key: "employeeAwareness",
+//       width: 180,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "employeeAwareness",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Accountability & Performance",
+//       dataIndex: "accountability",
+//       key: "accountability",
+//       width: 220,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "accountability",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Commitment to Transparency",
+//       dataIndex: "commitmentTransparency",
+//       key: "commitmentTransparency",
+//       width: 220,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "commitmentTransparency",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//   ];
+//   const otherEnvColumns: ColumnsType<DataType> = [
+//     {
+//       title: "Responsibility Delegation Matrix",
+//       dataIndex: "responsibilityMatrix",
+//       key: "responsibilityMatrix",
+//       width: 220,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "responsibilityMatrix",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Segregation of Duties",
+//       dataIndex: "segregationDuties",
+//       key: "segregationDuties",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "segregationDuties",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Reporting Lines",
+//       dataIndex: "reportingLines",
+//       key: "reportingLines",
+//       width: 150,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "reportingLines",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Mission",
+//       dataIndex: "mission",
+//       key: "mission",
+//       width: 120,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "mission",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Vision and Values",
+//       dataIndex: "visionValues",
+//       key: "visionValues",
+//       width: 180,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "visionValues",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Goals and Objectives",
+//       dataIndex: "goalsObjectives",
+//       key: "goalsObjectives",
+//       width: 180,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "goalsObjectives",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Structures & Systems",
+//       dataIndex: "structuresSystems",
+//       key: "structuresSystems",
+//       width: 180,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "structuresSystems",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Policies and Procedures",
+//       dataIndex: "policiesProcedures",
+//       key: "policiesProcedures",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "policiesProcedures",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Processes",
+//       dataIndex: "processes",
+//       key: "processes",
+//       width: 150,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "processes",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Integrity and Ethical Values",
+//       dataIndex: "integrityEthical",
+//       key: "integrityEthical",
+//       width: 220,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "integrityEthical",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Oversight Structure",
+//       dataIndex: "oversightStructure",
+//       key: "oversightStructure",
+//       width: 180,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "oversightStructure",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Standards",
+//       dataIndex: "standards",
+//       key: "standards",
+//       width: 150,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "standards",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Methodologies",
+//       dataIndex: "methodologies",
+//       key: "methodologies",
+//       width: 150,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "methodologies",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Rules and Regulations",
+//       dataIndex: "rulesRegulations",
+//       key: "rulesRegulations",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "rulesRegulations",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//   ];
+//   const riskAssessmentInherentColumns: ColumnsType<DataType> = [
+//     {
+//       title: "Risk Type",
+//       dataIndex: "riskType",
+//       key: "riskType",
+//       width: 200,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(record.key, "riskType", e.target.value)
+//               }
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     {
+//       title: "Risk Description",
+//       dataIndex: "riskDescription",
+//       key: "riskDescription",
+//       width: 300,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <TextArea
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "riskDescription",
+//                   e.target.value
+//                 )
+//               }
+//               autoSize={{ minRows: 2 }}
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     {
+//       title: "Severity / Impact",
+//       dataIndex: "severityImpact",
+//       key: "severityImpact",
+//       width: 180,
+//       render: (text: any, record: DataType) => {
+//         const menu = buildMenu(severityOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "severityImpact")
+//         );
+//         const { bgColor, textColor, borderColor } = getColorForSeverity(text);
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div
+//               className="flex items-center cursor-pointer p-2 rounded"
+//               style={{
+//                 backgroundColor: bgColor,
+//                 color: textColor,
+//                 border: `1px solid ${borderColor}`,
+//                 fontWeight: "600",
+//               }}
+//             >
+//               {text || "Select"}
+//               <DownOutlined className="ml-2" style={{ color: textColor }} />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
+//     },
+//     {
+//       title: "Probability / Likelihood",
+//       dataIndex: "probabilityLikelihood",
+//       key: "probabilityLikelihood",
+//       width: 200,
+//       render: (text: any, record: DataType) => {
+//         const probabilityOptions = [
+//           { label: "Certain", key: "Certain" },
+//           { label: "Likely", key: "Likely" },
+//           { label: "Possible", key: "Possible" },
+//           { label: "Unlikely", key: "Unlikely" },
+//           { label: "Rare", key: "Rare" },
+//         ];
+//         const menu = buildMenu(probabilityOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "probabilityLikelihood")
+//         );
+//         const { bgColor, textColor, borderColor } = getColorForSeverity(text);
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div
+//               className="flex items-center cursor-pointer p-2 rounded"
+//               style={{
+//                 backgroundColor: bgColor,
+//                 color: textColor,
+//                 border: `1px solid ${borderColor}`,
+//                 fontWeight: "600",
+//               }}
+//             >
+//               {text || "Select"}
+//               <DownOutlined className="ml-2" style={{ color: textColor }} />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
+//     },
+//     {
+//       title: "Classification",
+//       dataIndex: "classification",
+//       key: "classification",
+//       width: 150,
+//       render: (text: any, record: DataType) => {
+//         const classificationOptions = [
+//           { label: "Critical", key: "Critical" },
+//           { label: "High", key: "High" },
+//           { label: "Moderate", key: "Moderate" },
+//           { label: "Low", key: "Low" },
+//           { label: "Lowest", key: "Lowest" },
+//         ];
+//         const menu = buildMenu(classificationOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "classification")
+//         );
+//         const { bgColor, textColor, borderColor } = getColorForSeverity(text);
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div
+//               className="flex items-center cursor-pointer p-2 rounded"
+//               style={{
+//                 backgroundColor: bgColor,
+//                 color: textColor,
+//                 border: `1px solid ${borderColor}`,
+//                 fontWeight: "600",
+//               }}
+//             >
+//               {text || "Select"}
+//               <DownOutlined className="ml-2" style={{ color: textColor }} />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
+//     },
+//   ];
+//   const riskResponsesColumns: ColumnsType<DataType> = [
+//     {
+//       title: "Type of Risk Response",
+//       dataIndex: "riskResponseType",
+//       key: "riskResponseType",
+//       width: 300,
+//       render: (text: any, record: DataType) => {
+//         const responseOptions = [
+//           { label: "Avoid", key: "Avoid" },
+//           { label: "Mitigate", key: "Mitigate" },
+//           { label: "Transfer", key: "Transfer" },
+//           { label: "Share", key: "Share" },
+//           { label: "Accept", key: "Accept" },
+//         ];
+//         const menu = buildMenu(responseOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "riskResponseType")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {text || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
+//     },
+//   ];
+//   const controlActivitiesColumns: ColumnsType<DataType> = [
+//     {
+//       title: "Control Objectives",
+//       dataIndex: "controlObjectives",
+//       key: "controlObjectives",
+//       width: 320,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <TextArea
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "controlObjectives",
+//                   e.target.value
+//                 )
+//               }
+//               autoSize={{ minRows: 3 }}
+//             />
+//           );
+//         }
+//         return (
+//           <div style={{ whiteSpace: "pre-line", lineHeight: "1.4" }}>
+//             {text}
+//           </div>
+//         );
+//       },
+//     },
+//     {
+//       title: "Control Ref",
+//       dataIndex: "controlRef",
+//       key: "controlRef",
+//       width: 100,
+//       align: "center" as const,
+//       render: () => "—",
+//     },
+//     {
+//       title: "Control Definition",
+//       dataIndex: "controlDefinition",
+//       key: "controlDefinition",
+//       width: 300,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <TextArea
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "controlDefinition",
+//                   e.target.value
+//                 )
+//               }
+//               autoSize={{ minRows: 3 }}
+//             />
+//           );
+//         }
+//         return (
+//           <div style={{ whiteSpace: "pre-line", lineHeight: "1.4" }}>
+//             {text}
+//           </div>
+//         );
+//       },
+//     },
+//     {
+//       title: "Control Description",
+//       dataIndex: "controlDescription",
+//       key: "controlDescription",
+//       width: 320,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <TextArea
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "controlDescription",
+//                   e.target.value
+//                 )
+//               }
+//               autoSize={{ minRows: 3 }}
+//             />
+//           );
+//         }
+//         return (
+//           <div style={{ whiteSpace: "pre-line", lineHeight: "1.4" }}>
+//             {text}
+//           </div>
+//         );
+//       },
+//     },
+//     {
+//       title: "Control Responsibility",
+//       dataIndex: "controlResponsibility",
+//       key: "controlResponsibility",
+//       width: 180,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "controlResponsibility",
+//                   e.target.value
+//                 )
+//               }
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     // {
+//     //   title: "Process Stage",
+//     //   dataIndex: "processStage",
+//     //   key: "processStage",
+//     //   width: 150,
+//     //   render: (text: any, record: DataType) => {
+//     //     const menu = buildMenu(yesNoOptions, (key) =>
+//     //       handlers?.onSelectGeneric?.(key, record.key, "processStage")
+//     //     );
+//     //     return (
+//     //       <Dropdown overlay={menu} trigger={["click"]}>
+//     //         <div className="flex items-center cursor-pointer">
+//     //           {text || "Select"}
+//     //           <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//     //         </div>
+//     //       </Dropdown>
+//     //     );
+//     //   },
+//     // },
+//     {
+//       title: "Key Control",
+//       dataIndex: "keyControl",
+//       key: "keyControl",
+//       width: 110,
+//       align: "center" as const,
+//       render: () => "Yes",
+//     },
+//     {
+//       title: "Zero Tolerance",
+//       dataIndex: "zeroTolerance",
+//       key: "zeroTolerance",
+//       width: 130,
+//       align: "center" as const,
+//       render: () => "Yes",
+//     },
+//   ];
+//   const controlAssessmentColumns: ColumnsType<DataType> = [
+//     // {
+//     //   title: "Level of Responsibility",
+//     //   dataIndex: "levelResponsibility",
+//     //   key: "levelResponsibility",
+//     //   width: 200,
+//     //   render: (text: string, record: DataType) => {
+//     //     if (editingKeys.includes(record.key)) {
+//     //       return (
+//     //         <Input
+//     //           value={text}
+//     //           onChange={(e) =>
+//     //             handlers?.onTextChange?.(
+//     //               record.key,
+//     //               "levelResponsibility",
+//     //               e.target.value
+//     //             )
+//     //           }
+//     //         />
+//     //       );
+//     //     }
+//     //     return text;
+//     //   },
+//     // },
+//     {
+//       title: "Level of Responsibility",
+//       dataIndex: "levelResponsibility",
+//       key: "levelResponsibility",
+//       width: 200,
+//       render: (text: any, record: DataType) => {
+//         const levelOptions = [
+//           { label: "Process Level", key: "Process Level" },
+//           { label: "Functional Level", key: "Functional Level" },
+//           { label: "Operating Unit Level", key: "Operating Unit Level" },
+//           { label: "Division Level", key: "Division Level" },
+//           { label: "Entity Level", key: "Entity Level" },
+//         ];
+//         const menu = buildMenu(levelOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "levelResponsibility")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {text || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
+//     },
+
+//     {
+//       title: "COSO Principle",
+//       dataIndex: "cosoPrinciple",
+//       key: "cosoPrinciple",
+//       width: 250,
+//       render: (text: any, record: DataType) => {
+//         const menu = buildMenu(cosoPrincipleOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "cosoPrinciple")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {text || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
+//     },
+//     {
+//       title: "Operational Approach",
+//       dataIndex: "operationalApproach",
+//       key: "operationalApproach",
+//       width: 200,
+//       render: (text: any, record: DataType) => {
+//         const approachOptions = [
+//           { label: "Automated", key: "automated" },
+//           { label: "Manual", key: "manual" },
+//         ];
+//         const menu = buildMenu(approachOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "operationalApproach")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {text || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
+//     },
+//     {
+//       title: "Operational Frequency",
+//       dataIndex: "operationalFrequency",
+//       key: "operationalFrequency",
+//       width: 200,
+//       render: (text: any, record: DataType) => {
+//         const menu = buildMenu(operationalFrequencyOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "operationalFrequency")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {text || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
+//     },
+//     {
+//       title: "Control Classification",
+//       dataIndex: "controlClassification",
+//       key: "controlClassification",
+//       width: 200,
+//       render: (text: any, record: DataType) => {
+//         const classificationOptions = [
+//           { label: "Directive Control", key: "Directive Control" },
+//           { label: "Preventive Control", key: "Preventive Control" },
+//           { label: "Detective Control", key: "Detective Control" },
+//           { label: "Corrective Control", key: "Corrective Control" },
+//         ];
+//         const menu = buildMenu(classificationOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "controlClassification")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {text || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
+//     },
+//   ];
+//   const riskAssessmentResidualColumns: ColumnsType<DataType> =
+//     riskAssessmentInherentColumns.map((col) => ({ ...col })); // copy to avoid reference issues
+//   const soxSubTabColumns: ColumnsType<DataType> = [
+//     {
+//       title: "SOX Control Activity",
+//       dataIndex: "soxControlActivity",
+//       key: "soxControlActivity",
+//       width: 250,
+//       render: (text: any, record: DataType) => {
+//         const menu = buildMenu(soxControlActivityOptions, (key) =>
+//           handlers?.onSelectGeneric?.(key, record.key, "soxControlActivity")
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {text || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
+//     },
+//   ];
+
+//   const financialStatementAssertionsColumns: ColumnsType<DataType> = [
+//     // REMOVED: Internal Control Over Financial Reporting? from here
+//     {
+//       title: "Occurrence",
+//       dataIndex: "occurrence",
+//       key: "occurrence",
+//       width: 150,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "occurrence",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Completeness",
+//       dataIndex: "completeness",
+//       key: "completeness",
+//       width: 150,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "completeness",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Accuracy",
+//       dataIndex: "accuracy",
+//       key: "accuracy",
+//       width: 150,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "accuracy",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Authorization",
+//       dataIndex: "authorization",
+//       key: "authorization",
+//       width: 150,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "authorization",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Cutoff",
+//       dataIndex: "cutoff",
+//       key: "cutoff",
+//       width: 120,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "cutoff",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Classification and Understandability",
+//       dataIndex: "classificationSOX",
+//       key: "classificationSOX",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "classificationSOX",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Existence",
+//       dataIndex: "existence",
+//       key: "existence",
+//       width: 150,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "existence",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Rights and Obligations",
+//       dataIndex: "rightsObligations",
+//       key: "rightsObligations",
+//       width: 180,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "rightsObligations",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Valuation and Allocation",
+//       dataIndex: "valuationAllocation",
+//       key: "valuationAllocation",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "valuationAllocation",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Presentation / Disclosure",
+//       dataIndex: "presentationDisclosure",
+//       key: "presentationDisclosure",
+//       width: 200,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "presentationDisclosure",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//   ];
+
+//   // NEW: Dedicated column for Internal Control Over Financial Reporting
+//   const icfrColumn: ColumnsType<DataType> = [
+//     {
+//       title: "Internal Control Over Financial Reporting",
+//       dataIndex: "internalControlFinancial",
+//       key: "internalControlFinancial",
+//       width: 320,
+//       render: (value: any, record: DataType) => {
+//         const displayValue =
+//           value === true
+//             ? "Yes"
+//             : value === false
+//             ? "No"
+//             : value === "Yes" || value === "No"
+//             ? value
+//             : "";
+//         const menu = buildMenu(yesNoOptions, (key) =>
+//           handlers?.onSelectGeneric?.(
+//             key,
+//             record.key,
+//             "internalControlFinancial"
+//           )
+//         );
+//         return (
+//           <Dropdown overlay={menu} trigger={["click"]}>
+//             <div className="flex items-center cursor-pointer">
+//               {displayValue || "Select"}
+//               <DownOutlined className="ml-1 text-gray-500 text-xs" />
+//             </div>
+//           </Dropdown>
+//         );
+//       },
+//     },
+//   ];
+//   const internalAuditTestColumns: ColumnsType<DataType> = [
+//     {
+//       title: "Check",
+//       dataIndex: "check",
+//       key: "check",
+//       width: 150,
+//       render: (checked: boolean, record: DataType) =>
+//         renderEditableCheckbox(
+//           checked,
+//           record,
+//           "check",
+//           handlers?.onCheckboxChange
+//         ),
+//     },
+//     {
+//       title: "Internal Audit Test",
+//       dataIndex: "internalAuditTest",
+//       key: "internalAuditTest",
+//       width: 400,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <TextArea
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "internalAuditTest",
+//                   e.target.value
+//                 )
+//               }
+//               autoSize={{ minRows: 2 }}
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//     {
+//       title: "Sample Size",
+//       dataIndex: "sampleSize",
+//       key: "sampleSize",
+//       width: 150,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "sampleSize",
+//                   e.target.value
+//                 )
+//               }
+//             />
+//           );
+//         }
+//         return text;
+//       },
+//     },
+//   ];
+
+//   const grcExceptionLogColumns: ColumnsType<DataType> = [
+//     {
+//       title: "GRC Adequacy",
+//       dataIndex: "grcAdequacy",
+//       key: "grcAdequacy",
+//       width: 200,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "grcAdequacy",
+//                   e.target.value
+//                 )
+//               }
+//               placeholder="Enter GRC Adequacy"
+//             />
+//           );
+//         }
+//         return text || "-";
+//       },
+//     },
+//     {
+//       title: "GRC Effectiveness",
+//       dataIndex: "grcEffectiveness",
+//       key: "grcEffectiveness",
+//       width: 200,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <Input
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "grcEffectiveness",
+//                   e.target.value
+//                 )
+//               }
+//               placeholder="Enter GRC Effectiveness"
+//             />
+//           );
+//         }
+//         return text || "-";
+//       },
+//     },
+
+//     {
+//       title: "Explanation",
+//       dataIndex: "explanation",
+//       key: "explanation",
+//       width: 400,
+//       render: (text: string, record: DataType) => {
+//         if (editingKeys.includes(record.key)) {
+//           return (
+//             <TextArea
+//               value={text}
+//               onChange={(e) =>
+//                 handlers?.onTextChange?.(
+//                   record.key,
+//                   "explanation",
+//                   e.target.value
+//                 )
+//               }
+//               autoSize={{ minRows: 2, maxRows: 6 }}
+//               placeholder="Enter explanation..."
+//             />
+//           );
+//         }
+//         return <div style={{ whiteSpace: "pre-line" }}>{text || "-"}</div>;
+//       },
+//     },
+//   ];
+//   let dynamicColumns: ColumnsType<DataType> = processColumns;
+//   switch (activeTab) {
+//     case "1":
+//       dynamicColumns = processColumns;
+//       break;
+//     case "2":
+//       dynamicColumns = ownershipColumns;
+//       break;
+//     case "3":
+//       if (activeSubTab === "coso") dynamicColumns = cosoColumns;
+//       else if (activeSubTab === "intosai") dynamicColumns = intosaiColumns;
+//       else dynamicColumns = otherEnvColumns;
+//       break;
+//     case "4":
+//       dynamicColumns = riskAssessmentInherentColumns;
+//       break;
+//     case "5":
+//       dynamicColumns = riskResponsesColumns;
+//       break;
+//     case "6":
+//       dynamicColumns = controlActivitiesColumns;
+//       break;
+//     case "7":
+//       dynamicColumns = controlAssessmentColumns;
+//       break;
+//     case "8":
+//       dynamicColumns = riskAssessmentResidualColumns;
+//       break;
+
+//     case "9":
+//       if (activeSubTab === "sox") dynamicColumns = soxSubTabColumns;
+//       else if (activeSubTab === "financial")
+//         dynamicColumns = financialStatementAssertionsColumns;
+//       else if (activeSubTab === "icfr")
+//         dynamicColumns = icfrColumn; // New subtab
+//       else dynamicColumns = soxSubTabColumns;
+//       break;
+//     case "10":
+//       if (activeSubTab === "audit") dynamicColumns = internalAuditTestColumns;
+//       else if (activeSubTab === "grc") dynamicColumns = grcExceptionLogColumns;
+//       else dynamicColumns = internalAuditTestColumns; // default to audit
+//       break;
+//     default:
+//       dynamicColumns = processColumns;
+//   }
+//   const actionsColumn: ColumnsType<DataType>[0] = {
+//     title: "Actions",
+//     key: "actions",
+//     width: 200,
+//     render: (_, record: DataType) => {
+//       // use isActive boolean (default true when undefined)
+//       const isActive = record.isActive !== false;
+
+//       if (editingKeys.includes(record.key)) {
+//         return (
+//           <Button onClick={() => handlers?.onSaveRow?.(record.key)}>
+//             Save
+//           </Button>
+//         );
+//       } else {
+//         return (
+//           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+//             {isActive && (
+//               <Button
+//                 icon={<EditOutlined />}
+//                 onClick={() => handlers?.onEditRow?.(record.key)}
+//               />
+//             )}
+//             <Popconfirm
+//               title="Sure to delete?"
+//               onConfirm={() => handlers?.onDeleteRow?.(record.key)}
+//             >
+//               <Button icon={<DeleteOutlined />} danger />
+//             </Popconfirm>
+//             <Button
+//               icon={isActive ? <LockOutlined /> : <UnlockOutlined />}
+//               onClick={() => handlers?.onToggleStatus?.(record.key)}
+//               type={isActive ? "default" : "primary"}
+//               title={isActive ? "Deactivate" : "Activate"}
+//             />
+//           </div>
+//         );
+//       }
+//     },
+//   };
+//   return [...baseColumns, ...dynamicColumns, actionsColumn];
+// }
 "use client";
 import React from "react";
 import {
@@ -12,6 +1971,9 @@ import { Menu, Dropdown, Checkbox, Button, Input, Popconfirm } from "antd";
 import { DownOutlined, PlusOutlined } from "@ant-design/icons";
 import { DataType } from "./types";
 import { Select } from "antd";
+import { useState, useEffect } from "react";
+import { useDebouncedCallback } from "use-debounce";
+
 const { TextArea } = Input;
 export const stageOptions = [
   { label: "Processing", key: "Processing" },
@@ -113,6 +2075,60 @@ export const soxControlActivityOptions = [
   },
   { label: "Other", key: "Other" },
 ];
+
+interface EditableProps {
+  initialValue: string;
+  onChange: (value: string) => void;
+}
+
+const EditableInput: React.FC<EditableProps & { placeholder?: string }> = ({
+  initialValue,
+  onChange,
+  placeholder,
+}) => {
+  const [value, setValue] = useState(initialValue);
+  const debouncedOnChange = useDebouncedCallback(onChange, 300);
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVal = e.target.value;
+    setValue(newVal);
+    debouncedOnChange(newVal);
+  };
+
+  return (
+    <Input value={value} onChange={handleChange} placeholder={placeholder} />
+  );
+};
+
+const EditableTextArea: React.FC<
+  EditableProps & { autoSize?: any; placeholder?: string }
+> = ({ initialValue, onChange, autoSize, placeholder }) => {
+  const [value, setValue] = useState(initialValue);
+  const debouncedOnChange = useDebouncedCallback(onChange, 300);
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newVal = e.target.value;
+    setValue(newVal);
+    debouncedOnChange(newVal);
+  };
+
+  return (
+    <TextArea
+      value={value}
+      onChange={handleChange}
+      autoSize={autoSize}
+      placeholder={placeholder}
+    />
+  );
+};
 
 const buildMenu = (
   items: { label: string; key: string }[],
@@ -329,10 +2345,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(record.key, "process", e.target.value)
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "process", v)
               }
             />
           );
@@ -350,14 +2366,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <TextArea
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "processDescription",
-                  e.target.value
-                )
+            <EditableTextArea
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "processDescription", v)
               }
               autoSize={{ minRows: 2 }}
             />
@@ -374,14 +2386,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <TextArea
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "processObjective",
-                  e.target.value
-                )
+            <EditableTextArea
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "processObjective", v)
               }
               autoSize={{ minRows: 2 }}
             />
@@ -419,10 +2427,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(record.key, "activity", e.target.value)
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "activity", v)
               }
             />
           );
@@ -438,10 +2446,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(record.key, "process2", e.target.value)
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "process2", v)
               }
             />
           );
@@ -476,14 +2484,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "functions",
-                  e.target.value
-                )
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "functions", v)
               }
             />
           );
@@ -499,14 +2503,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "clientSegment",
-                  e.target.value
-                )
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "clientSegment", v)
               }
             />
           );
@@ -522,14 +2522,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "operationalUnit",
-                  e.target.value
-                )
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "operationalUnit", v)
               }
             />
           );
@@ -545,10 +2541,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(record.key, "division", e.target.value)
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "division", v)
               }
             />
           );
@@ -564,10 +2560,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(record.key, "entity", e.target.value)
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "entity", v)
               }
             />
           );
@@ -583,14 +2579,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "unitDepartment",
-                  e.target.value
-                )
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "unitDepartment", v)
               }
             />
           );
@@ -606,14 +2598,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "productClass",
-                  e.target.value
-                )
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "productClass", v)
               }
             />
           );
@@ -629,14 +2617,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "productName",
-                  e.target.value
-                )
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "productName", v)
               }
             />
           );
@@ -1089,10 +3073,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(record.key, "riskType", e.target.value)
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "riskType", v)
               }
             />
           );
@@ -1108,14 +3092,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <TextArea
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "riskDescription",
-                  e.target.value
-                )
+            <EditableTextArea
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "riskDescription", v)
               }
               autoSize={{ minRows: 2 }}
             />
@@ -1260,14 +3240,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <TextArea
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "controlObjectives",
-                  e.target.value
-                )
+            <EditableTextArea
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "controlObjectives", v)
               }
               autoSize={{ minRows: 3 }}
             />
@@ -1296,14 +3272,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <TextArea
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "controlDefinition",
-                  e.target.value
-                )
+            <EditableTextArea
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "controlDefinition", v)
               }
               autoSize={{ minRows: 3 }}
             />
@@ -1324,14 +3296,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <TextArea
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "controlDescription",
-                  e.target.value
-                )
+            <EditableTextArea
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "controlDescription", v)
               }
               autoSize={{ minRows: 3 }}
             />
@@ -1352,14 +3320,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "controlResponsibility",
-                  e.target.value
-                )
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "controlResponsibility", v)
               }
             />
           );
@@ -1755,14 +3719,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <TextArea
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "internalAuditTest",
-                  e.target.value
-                )
+            <EditableTextArea
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "internalAuditTest", v)
               }
               autoSize={{ minRows: 2 }}
             />
@@ -1779,14 +3739,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "sampleSize",
-                  e.target.value
-                )
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "sampleSize", v)
               }
             />
           );
@@ -1805,14 +3761,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "grcAdequacy",
-                  e.target.value
-                )
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "grcAdequacy", v)
               }
               placeholder="Enter GRC Adequacy"
             />
@@ -1829,14 +3781,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <Input
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "grcEffectiveness",
-                  e.target.value
-                )
+            <EditableInput
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "grcEffectiveness", v)
               }
               placeholder="Enter GRC Effectiveness"
             />
@@ -1854,14 +3802,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <TextArea
-              value={text}
-              onChange={(e) =>
-                handlers?.onTextChange?.(
-                  record.key,
-                  "explanation",
-                  e.target.value
-                )
+            <EditableTextArea
+              initialValue={text}
+              onChange={(v) =>
+                handlers?.onTextChange?.(record.key, "explanation", v)
               }
               autoSize={{ minRows: 2, maxRows: 6 }}
               placeholder="Enter explanation..."
