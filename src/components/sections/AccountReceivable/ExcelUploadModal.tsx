@@ -38,6 +38,8 @@ const ExcelUploadModal: React.FC<ExcelUploadModalProps> = ({
   const [sections, setSections] = useState<string[]>([]);
   const [instructions, setInstructions] = useState<string[]>([]);
   const [selectedSection, setSelectedSection] = useState<string | undefined>();
+  const [currentSectionForReview, setCurrentSectionForReview] =
+    useState<string>("");
   const [sheetName, setSheetName] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -119,6 +121,8 @@ const ExcelUploadModal: React.FC<ExcelUploadModalProps> = ({
           data,
         });
         setImportedData(data);
+        // IMPORTANT: Store section name BEFORE closing the modal
+        setCurrentSectionForReview(selectedSection!);
         // Close current modal and open review modal
         handleClose();
         setReviewModalVisible(true);
@@ -407,7 +411,7 @@ const ExcelUploadModal: React.FC<ExcelUploadModalProps> = ({
         onClose={() => setReviewModalVisible(false)}
         onConfirm={handleDataConfirmed}
         importedData={importedData}
-        sectionName={selectedSection || ""}
+        sectionName={currentSectionForReview}
       />
 
       <MultipleTablesReviewModal

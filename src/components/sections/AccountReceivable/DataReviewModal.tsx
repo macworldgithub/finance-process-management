@@ -14,6 +14,7 @@ import {
 } from "antd";
 import { EditOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
 import { submitSectionData } from "@/utils/sectionDataService";
+import { importSectionData } from "@/utils/importSectionDataService";
 import { getEditableColumns } from "@/utils/columnConfigs";
 
 const { Text } = Typography;
@@ -205,9 +206,48 @@ const DataReviewModal: React.FC<DataReviewModalProps> = ({
     setEditingKey(null);
   };
 
-  const handleConfirm = () => {
-    onConfirm(data);
-    onClose();
+  const handleConfirm = async () => {
+    try {
+      console.log("[DataReviewModal] ===== CONFIRM BUTTON CLICKED =====");
+      console.log("[DataReviewModal] handleConfirm fired with:", {
+        sectionName,
+        dataLength: data.length,
+        hasData: data && data.length > 0,
+      });
+
+      if (data.length === 0) {
+        console.warn("[DataReviewModal] No data in array, showing warning");
+        message.warning("No data to import");
+        return;
+      }
+
+      console.log("[DataReviewModal] Setting loading to true");
+      setLoading(true);
+
+      // Call the import API with transformed data
+      console.log("[DataReviewModal] About to call importSectionData");
+      const response = await importSectionData(sectionName, data);
+
+      console.log(
+        "[DataReviewModal] Got response from importSectionData:",
+        response
+      );
+
+      if (response.success) {
+        message.success(response.message);
+        // Pass data to parent component callback
+        onConfirm(data);
+        onClose();
+      } else {
+        message.error(response.message);
+      }
+    } catch (error) {
+      message.error("Failed to import data");
+      console.error("Error importing data:", error);
+    } finally {
+      console.log("[DataReviewModal] Setting loading to false");
+      setLoading(false);
+    }
   };
   const columns = useMemo(() => {
     return getEditableColumns({
@@ -237,13 +277,24 @@ const DataReviewModal: React.FC<DataReviewModalProps> = ({
       width="90%"
       style={{ top: 20 }}
       footer={[
-        <Button key="cancel" onClick={onClose}>
+        <Button
+          key="cancel"
+          onClick={() => {
+            console.log("[DataReviewModal] Cancel button clicked");
+            onClose();
+          }}
+        >
           Cancel
         </Button>,
         <Button
           key="submit"
           type="primary"
-          onClick={handleConfirm}
+          onClick={() => {
+            console.log(
+              "[DataReviewModal] Confirm Import button clicked - calling handleConfirm"
+            );
+            handleConfirm();
+          }}
           loading={loading}
         >
           Confirm Import
