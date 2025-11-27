@@ -119,54 +119,6 @@ const DataReviewModal: React.FC<DataReviewModalProps> = ({
     }
   }, [visible, importedData, sectionName]);
 
-  // Generate columns dynamically based on the first data item
-  // Update the columns generation
-  // const columns = useMemo(() => {
-  //   if (data.length === 0) return [];
-
-  //   // Get all unique keys from all data items
-  //   const allKeys = new Set<string>();
-  //   data.forEach((item) => {
-  //     Object.keys(item).forEach((key) => {
-  //       if (key !== "key") {
-  //         allKeys.add(key);
-  //       }
-  //     });
-  //   });
-
-  //   // Create columns for each key
-  //   return Array.from(allKeys).map((key) => {
-  //     // Customize column width based on content
-  //     const isDescription =
-  //       key.toLowerCase().includes("description") ||
-  //       key.toLowerCase().includes("objectives");
-  //     const width = isDescription ? 300 : 200;
-
-  //     return {
-  //       title: key,
-  //       dataIndex: key,
-  //       key: key,
-  //       width: width,
-  //       render: (text: any, record: DataItem) => {
-  //         if (editingKey === record.key) {
-  //           return (
-  //             <Input
-  //               value={text}
-  //               onChange={(e) =>
-  //                 handleFieldChange(record.key!, key, e.target.value)
-  //               }
-  //               style={{ width: "100%" }}
-  //               {...(isDescription && { rows: 3, as: "textarea" })}
-  //             />
-  //           );
-  //         }
-  //         return <div style={{ whiteSpace: "pre-wrap" }}>{text}</div>;
-  //       },
-  //     };
-  //   });
-  // }, [data, editingKey]);
-  // Generate columns using the getEditableColumns utility
-
   const handleFieldChange = (key: string, field: string, value: any) => {
     const newData = [...data];
     const index = newData.findIndex((item) => key === item.key);
@@ -250,6 +202,12 @@ const DataReviewModal: React.FC<DataReviewModalProps> = ({
     }
   };
   const columns = useMemo(() => {
+    const severityLevels =
+      sectionName === "Risk Assessment  (Inherent Risk)" ||
+      sectionName === "Risk Assessment (Residual Risk)"
+        ? undefined
+        : ["Critical", "High", "Medium", "Low"];
+
     return getEditableColumns({
       editingKey,
       handleFieldChange,
@@ -258,6 +216,7 @@ const DataReviewModal: React.FC<DataReviewModalProps> = ({
       handleCancel,
       sectionName,
       data,
+      severityLevels,
     });
   }, [
     editingKey,

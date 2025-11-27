@@ -4,7 +4,6 @@ interface ApiResponse {
   message: string;
   data?: any;
 }
-
 import { apiClientDotNet } from "@/config/apiClientDotNet";
 import { getEndpointForSection } from "./sectionMappings";
 export const submitSectionData = async (
@@ -12,30 +11,28 @@ export const submitSectionData = async (
   data: any
 ): Promise<ApiResponse> => {
   const endpoint = getEndpointForSection(section);
-
   if (!endpoint) {
     return {
       success: false,
       message: `No API endpoint found for section: ${section}`,
     };
   }
-
   try {
     // Transform data to match the expected API format
     const requestData = data.map((item: any) => {
       const transformed: any = {};
-
       // Copy all properties except the key
       Object.keys(item).forEach((key) => {
         if (key !== "key") {
           transformed[key] = item[key];
         }
       });
-
       return transformed;
     });
-
-    const response = await apiClientDotNet.post(`/${endpoint}`, requestData);
+    const response = await apiClientDotNet.post(
+      `/${endpoint}/bulk`,
+      requestData
+    ); // Keep bulk post
     return {
       success: true,
       data: response.data,
