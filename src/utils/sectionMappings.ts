@@ -11,11 +11,11 @@ export const SECTION_TO_ENDPOINT: Record<string, string> = {
   "Risk Responses": "RiskResponses/bulk",
   "Control Activities": "ControlActivities/bulk",
   "Control Assessment": "ControlAssessments/bulk",
-  "Risk Assessment (Residual Risk)": "RiskAssessmentResidualRisks",
-  SOX: "Sox",
-  "Financial Statement Assertions": "FinancialStatementAssertions",
-  "Internal Audit Test": "InternalAuditTests",
-  "GRC Exception Log": "GrcExceptionLogs",
+  "Risk Assessment (Residual Risk)": "RiskAssessmentResidualRisks/bulk",
+  SOX: "Sox/bulk",
+  "Financial Statement Assertions": "FinancialStatementAssertions/bulk",
+  "Internal Audit Test": "InternalAuditTests/bulk",
+  "GRC Exception Log": "GrcExceptionLogs/bulk",
 };
 
 export const getEndpointForSection = (section: string): string | undefined => {
