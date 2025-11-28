@@ -2080,36 +2080,90 @@ interface EditableProps {
   initialValue: string;
   onChange: (value: string) => void;
 }
-
+// EditableInput - FULLY FIXED VERSION
 const EditableInput: React.FC<EditableProps & { placeholder?: string }> = ({
-  initialValue,
+  initialValue = "",
   onChange,
   placeholder,
 }) => {
-  const [value, setValue] = useState(initialValue);
-  const debouncedOnChange = useDebouncedCallback(onChange, 300);
+  const [value, setValue] = useState<string>(initialValue);
 
+  // Yeh line sabse important hai - parent se value aaye to local state sync ho jaye
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVal = e.target.value;
-    setValue(newVal);
-    debouncedOnChange(newVal);
+    setValue(newVal);           // Real-time typing (smooth)
+    onChange(newVal);           // Direct update (no debounce lagao text pe)
   };
 
   return (
-    <Input value={value} onChange={handleChange} placeholder={placeholder} />
+    <Input
+      value={value}
+      onChange={handleChange}
+      placeholder={placeholder}
+      autoFocus
+      style={{ width: "100%" }}
+    />
   );
 };
+// const EditableInput: React.FC<EditableProps & { placeholder?: string }> = ({
+//   initialValue,
+//   onChange,
+//   placeholder,
+// }) => {
+//   const [value, setValue] = useState(initialValue);
+//   const debouncedOnChange = useDebouncedCallback(onChange, 300);
 
+//   useEffect(() => {
+//     setValue(initialValue);
+//   }, [initialValue]);
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     const newVal = e.target.value;
+//     setValue(newVal);
+//     debouncedOnChange(newVal);
+//   };
+
+//   return (
+//     <Input value={value} onChange={handleChange} placeholder={placeholder} />
+//   );
+// };
+
+// const EditableTextArea: React.FC<
+//   EditableProps & { autoSize?: any; placeholder?: string }
+// > = ({ initialValue, onChange, autoSize, placeholder }) => {
+//   const [value, setValue] = useState(initialValue);
+//   const debouncedOnChange = useDebouncedCallback(onChange, 300);
+
+//   useEffect(() => {
+//     setValue(initialValue);
+//   }, [initialValue]);
+
+//   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+//     const newVal = e.target.value;
+//     setValue(newVal);
+//     debouncedOnChange(newVal);
+//   };
+
+//   return (
+//     <TextArea
+//       value={value}
+//       onChange={handleChange}
+//       autoSize={autoSize}
+//       placeholder={placeholder}
+//     />
+//   );
+// };
+// EditableTextArea - FULLY FIXED VERSION
 const EditableTextArea: React.FC<
   EditableProps & { autoSize?: any; placeholder?: string }
-> = ({ initialValue, onChange, autoSize, placeholder }) => {
-  const [value, setValue] = useState(initialValue);
-  const debouncedOnChange = useDebouncedCallback(onChange, 300);
+> = ({ initialValue = "", onChange, autoSize = { minRows: 2 }, placeholder }) => {
+  const [value, setValue] = useState<string>(initialValue);
 
+  // Parent se value update hone par local state sync karo
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
@@ -2117,7 +2171,7 @@ const EditableTextArea: React.FC<
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newVal = e.target.value;
     setValue(newVal);
-    debouncedOnChange(newVal);
+    onChange(newVal); // Direct call - no debounce
   };
 
   return (
@@ -2126,6 +2180,8 @@ const EditableTextArea: React.FC<
       onChange={handleChange}
       autoSize={autoSize}
       placeholder={placeholder}
+      autoFocus
+      style={{ width: "100%" }}
     />
   );
 };
