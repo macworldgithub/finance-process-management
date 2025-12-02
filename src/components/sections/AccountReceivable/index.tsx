@@ -399,10 +399,8 @@ const AccountReceivable = forwardRef<
       const endpoint = SECTION_TO_BASE_ENDPOINT[section];
       try {
         if (item.id) {
-          // Use Mongo Id from backend as query parameter in delete API
-          await apiClientDotNet.delete(`/${endpoint}`, {
-            params: { id: item.id },
-          });
+          // Use RESTful pattern: DELETE /{endpoint}/{id}
+          await apiClientDotNet.delete(`/${endpoint}/${item.id}`);
         }
         setDataBySection((prev) => ({
           ...prev,
