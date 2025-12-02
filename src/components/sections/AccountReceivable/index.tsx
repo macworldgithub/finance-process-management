@@ -122,6 +122,7 @@ const AccountReceivable = forwardRef<
       const mappedItems = items.map((item: any) => {
         const base: any = {
           key: item.Id ?? String(item.id ?? item.key ?? Date.now()),
+          id: item.Id ?? item.id, // keep backend Id so delete API can use it
           no: item.No ?? item.no ?? "",
           process: item.Process ?? item.process ?? "",
         };
@@ -398,8 +399,10 @@ const AccountReceivable = forwardRef<
       const endpoint = SECTION_TO_BASE_ENDPOINT[section];
       try {
         if (item.id) {
-          // Assuming id from backend
-          await apiClientDotNet.delete(`/${endpoint}/${item.id}`);
+          // Use Mongo Id from backend as query parameter in delete API
+          await apiClientDotNet.delete(`/${endpoint}`, {
+            params: { id: item.id },
+          });
         }
         setDataBySection((prev) => ({
           ...prev,
