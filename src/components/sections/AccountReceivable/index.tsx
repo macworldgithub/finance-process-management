@@ -115,16 +115,148 @@ const AccountReceivable = forwardRef<
       const response = await apiClientDotNet.get(`/${endpoint}`, {
         params: { page: 1, pageSize: 10000, search: debouncedSearchText },
       });
-      const items = response.data.Items || [];
+
+      // NOTE: .items (lowercase) matches the API responses you shared
+      const items: any[] = response.data.items || response.data.Items || [];
+
+      const mappedItems = items.map((item: any) => {
+        const base: any = {
+          key: item.Id ?? String(item.id ?? item.key ?? Date.now()),
+          no: item.No ?? item.no ?? "",
+          process: item.Process ?? item.process ?? "",
+        };
+
+        switch (section) {
+          case "Process": {
+            return {
+              ...base,
+              processDescription:
+                item["Process Description"] ?? item.processDescription,
+              processObjective:
+                item["Process Objectives"] ?? item.processObjective,
+              processSeverityLevels:
+                item["Process Severity Levels"] ?? item.processSeverityLevels,
+            };
+          }
+
+          case "Ownership": {
+            return {
+              ...base,
+              activity: item.Activity ?? item.activity,
+              process2: item.Process ?? item.process2 ?? base.process,
+              stage: item["Process Stage"] ?? item.stage,
+              functions: item.Functions ?? item.functions,
+              clientSegment:
+                item["Client Segment and/or Functional Segment"] ??
+                item.clientSegment,
+              operationalUnit: item["Operational Unit"] ?? item.operationalUnit,
+              division: item.Division ?? item.division,
+              entity: item.Entity ?? item.entity,
+              unitDepartment: item["Unit / Department"] ?? item.unitDepartment,
+              productClass: item["Product Class"] ?? item.productClass,
+              productName: item["Product Name"] ?? item.productName,
+            };
+          }
+
+          case "COSO-Control Environment": {
+            const integrityVal =
+              item["Integrity & Ethical Values"] ?? item.integrityEthical;
+            const boardVal = item["Board Oversight"] ?? item.boardOversight;
+            const orgVal =
+              item["Organizational Structure"] ?? item.orgStructure;
+            const commitVal =
+              item["Commitment to Competence"] ?? item.commitmentCompetence;
+            const mgmtVal =
+              item["Management Philosophy"] ?? item.managementPhilosophy;
+
+            const toBool = (v: any) =>
+              v === "P" ? true : v === "O" ? false : !!v;
+
+            return {
+              ...base,
+              integrityEthical: toBool(integrityVal),
+              boardOversight: toBool(boardVal),
+              orgStructure: toBool(orgVal),
+              commitmentCompetence: toBool(commitVal),
+              managementPhilosophy: toBool(mgmtVal),
+            };
+          }
+
+          case "Risk Responses": {
+            return {
+              ...base,
+              riskResponseType:
+                item["Type of Risk Response"] ?? item.riskResponseType ?? "",
+            };
+          }
+
+          case "Control Activities": {
+            return {
+              ...base,
+              controlObjectives:
+                item["Control Objectives"] ?? item.controlObjectives ?? "",
+              controlRef: item["Control Ref"] ?? item.controlRef ?? "",
+              controlDefinition:
+                item["Control Definition"] ?? item.controlDefinition ?? "",
+              controlDescription:
+                item["Control Description"] ?? item.controlDescription ?? "",
+              controlResponsibility:
+                item["Control Responsibility"] ??
+                item.controlResponsibility ??
+                "",
+              keyControl: item["Key Control"] ?? item.keyControl,
+              zeroTolerance: item["Zero Tolerance"] ?? item.zeroTolerance,
+            };
+          }
+
+          case "Control Assessment": {
+            return {
+              ...base,
+              levelResponsibility:
+                item[
+                  "Level of Responsibility-Operating Level (Entity / Activity)"
+                ] ?? item.levelResponsibility,
+              cosoPrinciple: item["COSO Principle #"] ?? item.cosoPrinciple,
+              operationalApproach:
+                item["Operational Approach (Automated / Manual)"] ??
+                item.operationalApproach,
+              operationalFrequency:
+                item["Operational Frequency"] ?? item.operationalFrequency,
+              controlClassification:
+                item[
+                  "Control Classification (Preventive / Detective / Corrective)"
+                ] ?? item.controlClassification,
+            };
+          }
+
+          case "Risk Assessment (Residual Risk)": {
+            return {
+              ...base,
+              riskType: item["Risk Type"] ?? item.riskType,
+              riskDescription: item["Risk Description"] ?? item.riskDescription,
+              severityImpact: item["Severity/ Impact"] ?? item.severityImpact,
+              probabilityLikelihood:
+                item["Probability/ Likelihood"] ?? item.probabilityLikelihood,
+              classification: item["Classification"] ?? item.classification,
+            };
+          }
+
+          case "SOX": {
+            return {
+              ...base,
+              soxControlActivity:
+                item["SOX Control Activity"] ?? item.soxControlActivity,
+            };
+          }
+
+          default:
+            return base;
+        }
+      });
+
       setDataBySection((prev) => ({
         ...prev,
-        [section]: items.map((item: any) => ({
-          ...item,
-          key: item.Id,
-          no: item.No,
-          process: item.Process,
-          // Map other fields based on section, but assume DataType handles all
-        })),
+        [section]: mappedItems,
       }));
     } catch (error) {
       console.error("Error fetching data:", error);
