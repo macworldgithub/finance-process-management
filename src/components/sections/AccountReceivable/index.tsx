@@ -113,7 +113,12 @@ const AccountReceivable = forwardRef<
     const endpoint = SECTION_TO_BASE_ENDPOINT[section]; // From sectionMappings.ts
     try {
       const response = await apiClientDotNet.get(`/${endpoint}`, {
-        params: { page: 1, pageSize: 10000, search: debouncedSearchText },
+        params: {
+          page: 1,
+          pageSize: 10000,
+          search: debouncedSearchText,
+          sortByNoAsc: true, // always sort by No ascending on backend
+        },
       });
 
       // NOTE: .items (lowercase) matches the API responses you shared
@@ -230,6 +235,18 @@ const AccountReceivable = forwardRef<
             };
           }
 
+          case "Risk Assessment (Inherent Risk)": {
+            return {
+              ...base,
+              riskType: item["Risk Type"] ?? item.riskType,
+              riskDescription: item["Risk Description"] ?? item.riskDescription,
+              severityImpact: item["Severity/ Impact"] ?? item.severityImpact,
+              probabilityLikelihood:
+                item["Probability/ Likelihood"] ?? item.probabilityLikelihood,
+              classification: item["Classification"] ?? item.classification,
+            };
+          }
+
           case "Risk Assessment (Residual Risk)": {
             return {
               ...base,
@@ -247,6 +264,16 @@ const AccountReceivable = forwardRef<
               ...base,
               soxControlActivity:
                 item["SOX Control Activity"] ?? item.soxControlActivity,
+            };
+          }
+
+          case "Internal Audit Test": {
+            return {
+              ...base,
+              // API fields: "Internal Audit Test", "Sample Size"
+              internalAuditTest:
+                item["Internal Audit Test"] ?? item.internalAuditTest,
+              sampleSize: item["Sample Size"] ?? item.sampleSize,
             };
           }
 

@@ -6,7 +6,7 @@ export const SECTION_TO_BASE_ENDPOINT: Record<string, string> = {
   "INTOSAI, IFAC, and Government Audit Standards - Control Environment":
     "IntosaiIfacControlEnvironments",
   "Other- - Control Environment": "OtherControlEnvironments",
-  "Risk Assessment  (Inherent Risk)": "RiskAssessmentInherentRisks",
+  "Risk Assessment (Inherent Risk)": "RiskAssessmentInherentRisks",
   "Risk Responses": "RiskResponses",
   "Control Activities": "ControlActivities",
   "Control Assessment": "ControlAssessments",
