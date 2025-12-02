@@ -132,6 +132,12 @@ const AccountReceivable = forwardRef<
           process: item.Process ?? item.process ?? "",
         };
 
+        // Helper: map P/O flags for checkboxes (P = true, everything else = false)
+        const toCheckboxBool = (v: any) => v === "P";
+
+        // Helper: map P/O flags into Yes/No strings where needed
+        const toYesNo = (v: any) => (v === "P" ? "Yes" : v === "O" ? "No" : v);
+
         switch (section) {
           case "Process": {
             return {
@@ -175,16 +181,13 @@ const AccountReceivable = forwardRef<
             const mgmtVal =
               item["Management Philosophy"] ?? item.managementPhilosophy;
 
-            const toBool = (v: any) =>
-              v === "P" ? true : v === "O" ? false : !!v;
-
             return {
               ...base,
-              integrityEthical: toBool(integrityVal),
-              boardOversight: toBool(boardVal),
-              orgStructure: toBool(orgVal),
-              commitmentCompetence: toBool(commitVal),
-              managementPhilosophy: toBool(mgmtVal),
+              integrityEthical: toCheckboxBool(integrityVal),
+              boardOversight: toCheckboxBool(boardVal),
+              orgStructure: toCheckboxBool(orgVal),
+              commitmentCompetence: toCheckboxBool(commitVal),
+              managementPhilosophy: toCheckboxBool(mgmtVal),
             };
           }
 
@@ -210,8 +213,69 @@ const AccountReceivable = forwardRef<
                 item["Control Responsibility"] ??
                 item.controlResponsibility ??
                 "",
-              keyControl: item["Key Control"] ?? item.keyControl,
-              zeroTolerance: item["Zero Tolerance"] ?? item.zeroTolerance,
+              // If backend uses P/O here, convert to Yes/No for display
+              keyControl: toYesNo(item["Key Control"] ?? item.keyControl),
+              zeroTolerance: toYesNo(
+                item["Zero Tolerance"] ?? item.zeroTolerance
+              ),
+            };
+          }
+
+          case "INTOSAI, IFAC, and Government Audit Standards - Control Environment": {
+            return {
+              ...base,
+              integrityEthical: toCheckboxBool(
+                item["Integrity and Ethical Values"] ?? item.integrityEthical
+              ),
+              commitmentCompetence: toCheckboxBool(
+                item["Commitment to Competence"] ?? item.commitmentCompetence
+              ),
+              managementPhilosophy: toCheckboxBool(
+                item["Management’s Philosophy and Operating Style"] ??
+                  item.managementPhilosophy
+              ),
+              orgStructure: toCheckboxBool(
+                item["Organizational Structure"] ?? item.orgStructure
+              ),
+              assignmentAuthority: toCheckboxBool(
+                item["Assignment of Authority and Responsibility"] ??
+                  item.assignmentAuthority
+              ),
+              hrPolicies: toCheckboxBool(
+                item["Human Resource Policies and Practices"] ?? item.hrPolicies
+              ),
+              boardAudit: toCheckboxBool(
+                item[
+                  "Board of Directors’ or Audit Committee’s Participation"
+                ] ?? item.boardAudit
+              ),
+              managementControl: toCheckboxBool(
+                item["Management Control Methods"] ?? item.managementControl
+              ),
+              externalInfluences: toCheckboxBool(
+                item["External Influences"] ?? item.externalInfluences
+              ),
+              commitmentInternal: toCheckboxBool(
+                item["Management’s Commitment to Internal Control"] ??
+                  item.commitmentInternal
+              ),
+              enforcementIntegrity: toCheckboxBool(
+                item[
+                  "Communication and Enforcement of Integrity and Ethical Values"
+                ] ?? item.enforcementIntegrity
+              ),
+              employeeAwareness: toCheckboxBool(
+                item["Employee Awareness and Understanding"] ??
+                  item.employeeAwareness
+              ),
+              accountability: toCheckboxBool(
+                item["Accountability and Performance Measurement"] ??
+                  item.accountability
+              ),
+              commitmentTransparency: toCheckboxBool(
+                item["Commitment to Transparency and Openness"] ??
+                  item.commitmentTransparency
+              ),
             };
           }
 
