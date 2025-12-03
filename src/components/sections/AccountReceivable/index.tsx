@@ -712,7 +712,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                     opacity: 0.7;
                   }
                 `}</style>
-
+                {/* 
                 <Table
                   columns={tableColumns}
                   dataSource={tableData}
@@ -733,7 +733,23 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                       }
                     },
                   })}
-                  // FIXED: Added key to force proper re-rendering
+                  key={`table-${activeTab}-${activeSubTab}-${tableData.length}`}
+                /> */}
+                <Table
+                  columns={tableColumns}
+                  dataSource={tableData}
+                  pagination={false}
+                  scroll={{
+                    x: 1300,
+                    y: "calc(100dvh - 320px)", // This works 99% of the time
+                  }}
+                  bordered
+                  rowKey={(record) =>
+                    `${record.key}-${record.isActive?.toString()}`
+                  }
+                  rowClassName={(record) =>
+                    record.isActive === false ? "row-deactivated" : ""
+                  }
                   key={`table-${activeTab}-${activeSubTab}-${tableData.length}`}
                 />
               </div>
