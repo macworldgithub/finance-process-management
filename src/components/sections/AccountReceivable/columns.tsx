@@ -1959,9 +1959,6 @@
 //   return [...baseColumns, ...dynamicColumns, actionsColumn];
 // }
 
-
-
-
 "use client";
 import React from "react";
 import {
@@ -2112,7 +2109,7 @@ const EditableInput: React.FC<EditableProps & { placeholder?: string }> = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setValue(newValue);
-    
+
     // Only call onChange if not in composition (IME input)
     if (!isComposing) {
       onChange(newValue);
@@ -2124,7 +2121,9 @@ const EditableInput: React.FC<EditableProps & { placeholder?: string }> = ({
     setIsComposing(true);
   };
 
-  const handleCompositionEnd = (e: React.CompositionEvent<HTMLInputElement>) => {
+  const handleCompositionEnd = (
+    e: React.CompositionEvent<HTMLInputElement>
+  ) => {
     const newValue = e.currentTarget.value;
     setValue(newValue);
     onChange(newValue);
@@ -2144,7 +2143,7 @@ const EditableInput: React.FC<EditableProps & { placeholder?: string }> = ({
 
   return (
     <Input
-      ref={inputRef}
+      // ref={inputRef}
       value={value}
       onChange={handleChange}
       onCompositionStart={handleCompositionStart}
@@ -2240,7 +2239,9 @@ const EditableTextArea: React.FC<{
   };
 
   const handleCompositionStart = () => setIsComposing(true);
-  const handleCompositionEnd = (e: React.CompositionEvent<HTMLTextAreaElement>) => {
+  const handleCompositionEnd = (
+    e: React.CompositionEvent<HTMLTextAreaElement>
+  ) => {
     setIsComposing(false);
     const newVal = e.currentTarget.value;
     setValue(newVal);
