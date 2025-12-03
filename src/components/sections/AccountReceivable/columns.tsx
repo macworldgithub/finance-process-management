@@ -1974,6 +1974,8 @@ import { DataType } from "./types";
 import { Select } from "antd";
 import { useState, useEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
+import { InputRef } from "antd";
+import { useRef } from "react";
 
 const { TextArea } = Input;
 export const stageOptions = [
@@ -2088,7 +2090,8 @@ const EditableInput: React.FC<EditableProps & { placeholder?: string }> = ({
 }) => {
   const [value, setValue] = React.useState(initialValue);
   const [isComposing, setIsComposing] = React.useState(false);
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  // const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = useRef<InputRef>(null);
   const isMounted = React.useRef(true);
 
   // Initialize value only once when component mounts
@@ -2143,7 +2146,7 @@ const EditableInput: React.FC<EditableProps & { placeholder?: string }> = ({
 
   return (
     <Input
-      // ref={inputRef}
+      ref={inputRef}
       value={value}
       onChange={handleChange}
       onCompositionStart={handleCompositionStart}
