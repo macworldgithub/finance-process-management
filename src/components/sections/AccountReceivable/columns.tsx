@@ -283,12 +283,15 @@ export function getColumns(
       title: () => (
         <div style={{ display: "flex", alignItems: "center" }}>
           <span>No.</span>
-          <Button
-            style={{ marginLeft: 8 }}
-            size="small"
-            icon={<PlusOutlined />}
-            onClick={handlers?.onAddRow}
-          />
+             <Button
+        style={{ marginLeft: 8 }}
+        size="small"
+        icon={<PlusOutlined />}
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent row selection
+          handlers?.onAddRow?.();
+        }}
+      />
         </div>
       ),
       dataIndex: "no",
@@ -1907,7 +1910,12 @@ export function getColumns(
             {isActive && (
               <Button
                 icon={<EditOutlined />}
-                onClick={() => handlers?.onEditRow?.(record.key)}
+                // onClick={() => handlers?.onEditRow?.(record.key)}
+                 onClick={(e) => {
+          e.stopPropagation(); 
+          //@ts-ignore
+          handlers?.onEditRow?.(record);
+        }}
               />
             )}
             <Popconfirm

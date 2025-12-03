@@ -24,6 +24,7 @@ import ExcelUploadModal from "./ExcelUploadModal";
 import { apiClientDotNet } from "@/config/apiClientDotNet"; // Assuming this is your API client
 import { importSectionData } from "@/utils/importSectionDataService";
 import { SECTION_TO_BASE_ENDPOINT } from "@/utils/sectionMappings";
+import ProcessFormModal from "./ProcessFormModal";
 const { TextArea } = Input;
 export interface AccountReceivableRef {
   triggerImport: (file: File) => void;
@@ -61,6 +62,8 @@ const AccountReceivable = forwardRef<
   const debouncedSearchText = useDebounce(searchText, 500)[0];
   // Add this state to your component
   const [excelModalVisible, setExcelModalVisible] = useState(false);
+  const [formModalVisible, setFormModalVisible] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<DataType | null>(null);
   // Reset sub-tab when switching main tabs
   useEffect(() => {
     if (activeTab === "3") setActiveSubTab("coso");
@@ -107,6 +110,7 @@ const AccountReceivable = forwardRef<
   const setTableData = (newData: DataType[]) => {
     setDataBySection((prev) => ({ ...prev, [currentSection]: newData }));
   };
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     const section = getCurrentSection();
@@ -232,21 +236,21 @@ const AccountReceivable = forwardRef<
               ),
               managementPhilosophy: toCheckboxBool(
                 item["Management’s Philosophy and Operating Style"] ??
-                  item.managementPhilosophy
+                item.managementPhilosophy
               ),
               orgStructure: toCheckboxBool(
                 item["Organizational Structure"] ?? item.orgStructure
               ),
               assignmentAuthority: toCheckboxBool(
                 item["Assignment of Authority and Responsibility"] ??
-                  item.assignmentAuthority
+                item.assignmentAuthority
               ),
               hrPolicies: toCheckboxBool(
                 item["Human Resource Policies and Practices"] ?? item.hrPolicies
               ),
               boardAudit: toCheckboxBool(
                 item[
-                  "Board of Directors’ or Audit Committee’s Participation"
+                "Board of Directors’ or Audit Committee’s Participation"
                 ] ?? item.boardAudit
               ),
               managementControl: toCheckboxBool(
@@ -257,24 +261,24 @@ const AccountReceivable = forwardRef<
               ),
               commitmentInternal: toCheckboxBool(
                 item["Management’s Commitment to Internal Control"] ??
-                  item.commitmentInternal
+                item.commitmentInternal
               ),
               enforcementIntegrity: toCheckboxBool(
                 item[
-                  "Communication and Enforcement of Integrity and Ethical Values"
+                "Communication and Enforcement of Integrity and Ethical Values"
                 ] ?? item.enforcementIntegrity
               ),
               employeeAwareness: toCheckboxBool(
                 item["Employee Awareness and Understanding"] ??
-                  item.employeeAwareness
+                item.employeeAwareness
               ),
               accountability: toCheckboxBool(
                 item["Accountability and Performance Measurement"] ??
-                  item.accountability
+                item.accountability
               ),
               commitmentTransparency: toCheckboxBool(
                 item["Commitment to Transparency and Openness"] ??
-                  item.commitmentTransparency
+                item.commitmentTransparency
               ),
             };
           }
@@ -284,7 +288,7 @@ const AccountReceivable = forwardRef<
               ...base,
               levelResponsibility:
                 item[
-                  "Level of Responsibility-Operating Level (Entity / Activity)"
+                "Level of Responsibility-Operating Level (Entity / Activity)"
                 ] ?? item.levelResponsibility,
               cosoPrinciple: item["COSO Principle #"] ?? item.cosoPrinciple,
               operationalApproach:
@@ -294,7 +298,7 @@ const AccountReceivable = forwardRef<
                 item["Operational Frequency"] ?? item.operationalFrequency,
               controlClassification:
                 item[
-                  "Control Classification (Preventive / Detective / Corrective)"
+                "Control Classification (Preventive / Detective / Corrective)"
                 ] ?? item.controlClassification,
             };
           }
@@ -458,6 +462,7 @@ const AccountReceivable = forwardRef<
     const wb = XLSX.utils.book_new();
     tabConfigs.forEach((config) => {
       const sheetName = config.label.slice(0, 31);
+      //@ts-ignore
       const columnsRaw = getColumns(config.key, "", handlers, editingKeys);
       const fields = columnsRaw
         .filter(
@@ -479,9 +484,9 @@ const AccountReceivable = forwardRef<
     XLSX.writeFile(wb, "AccountReceivable_Export.xlsx");
   };
   // Handler functions
-  const handleEdit = useCallback((key: string) => {
-    setEditingKeys((prev) => [...prev, key]);
-  }, []);
+  // const handleEdit = useCallback((key: string) => {
+  //   setEditingKeys((prev) => [...prev, key]);
+  // }, []);
   const handleDelete = useCallback(
     async (key: string) => {
       const item = tableData.find((r) => r.key === key);
@@ -599,6 +604,18 @@ const AccountReceivable = forwardRef<
     },
     [tableData, setTableData]
   );
+
+  // Add this function with other handler functions
+  const handleFormSubmit = () => {
+    fetchData(); // This will refresh the table data
+    setFormModalVisible(false);
+    setEditingRecord(null);
+  };
+
+  const handleEdit = useCallback((record: DataType) => {
+    setEditingRecord(record);
+    setFormModalVisible(true);
+  }, []);
   // Memoized handlers object
   const handlers = useMemo(
     () => ({
@@ -609,8 +626,16 @@ const AccountReceivable = forwardRef<
       onCheckboxChange: handleCheckboxChange,
       onSelectGeneric: handleSelectGeneric,
       onTextChange: handleTextChange,
-      onAddRow: handleAddRow,
-      onEditRow: handleEditRow,
+      // onAddRow: handleAddRow,
+      // onEditRow: handleEditRow,
+      onAddRow: () => {
+        setEditingRecord(null);
+        setFormModalVisible(true);
+      },
+      onEditRow: (record: DataType) => {
+        setEditingRecord(record);
+        setFormModalVisible(true);
+      },
       onDeleteRow: handleDeleteRow,
       onStageChange: handleStageChange,
       onToggleStatus: handleToggleStatus,
@@ -633,6 +658,7 @@ const AccountReceivable = forwardRef<
   // Improved columns memo with cleanup
   const columns = useMemo(() => {
     // Clear any pending edits when tab changes
+    //@ts-ignore
     return getColumns(activeTab, activeSubTab, handlers, editingKeys);
   }, [activeTab, activeSubTab, editingKeys, handlers]);
   // Handle tab changes with cleanup
@@ -694,11 +720,10 @@ const AccountReceivable = forwardRef<
               <button
                 onClick={goPrev}
                 disabled={!hasPrev}
-                className={`p-2 rounded-md transition font-bold ${
-                  hasPrev
-                    ? "text-black hover:bg-gray-50 cursor-pointer"
-                    : "text-gray-400 cursor-not-allowed"
-                }`}
+                className={`p-2 rounded-md transition font-bold ${hasPrev
+                  ? "text-black hover:bg-gray-50 cursor-pointer"
+                  : "text-gray-400 cursor-not-allowed"
+                  }`}
               >
                 <LeftOutlined />
               </button>
@@ -706,11 +731,10 @@ const AccountReceivable = forwardRef<
               <button
                 onClick={goNext}
                 disabled={!hasNext}
-                className={`p-2 rounded-md transition font-bold ${
-                  hasNext
-                    ? "text-black hover:bg-gray-50 cursor-pointer"
-                    : "text-gray-400 cursor-not-allowed"
-                }`}
+                className={`p-2 rounded-md transition font-bold ${hasNext
+                  ? "text-black hover:bg-gray-50 cursor-pointer"
+                  : "text-gray-400 cursor-not-allowed"
+                  }`}
               >
                 <RightOutlined />
               </button>
@@ -860,6 +884,12 @@ const AccountReceivable = forwardRef<
             visible={excelModalVisible}
             onClose={() => setExcelModalVisible(false)}
             onDataLoaded={handleDataLoaded}
+          />
+          <ProcessFormModal
+            visible={formModalVisible}
+            onCancel={() => setFormModalVisible(false)}
+            onSuccess={handleFormSubmit}
+            tabKey={activeTab}
           />
         </div>
       </div>
