@@ -288,7 +288,7 @@ export function getColumns(
             size="small"
             icon={<PlusOutlined />}
             onClick={(e) => {
-              e.stopPropagation();
+              e.stopPropagation(); // Prevent row selection
               handlers?.onAddRow?.();
             }}
           />
@@ -298,9 +298,8 @@ export function getColumns(
       key: "no",
       width: 80,
       fixed: "left",
-      render: (text: string) => text || "-",
+      render: (text: string) => text || "-", // Add this line
     },
-
     {
       title: "Processes",
       dataIndex: "process",

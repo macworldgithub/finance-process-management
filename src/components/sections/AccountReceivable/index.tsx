@@ -134,7 +134,13 @@ const AccountReceivable = forwardRef<
           key: item.Id ?? String(item.id ?? item.key ?? Date.now()),
           id: item.Id ?? item.id, // keep backend Id so delete API can use it
           no: item.No ?? item.no ?? "",
-          process: item.Process ?? item.process ?? "",
+          // process: item.Process ?? item.process ?? "",
+          process:
+            item["Main Process"] ??
+            item.MainProcess ??
+            item.Process ??
+            item.process ??
+            "",
         };
 
         // Helper: map P/O flags for checkboxes (P = true, everything else = false)
@@ -160,7 +166,8 @@ const AccountReceivable = forwardRef<
             return {
               ...base,
               activity: item.Activity ?? item.activity,
-              process2: item.Process ?? item.process2 ?? base.process,
+              // process2: item.Process ?? item.process2 ?? base.process,
+              process2: item.Process ?? item.process2 ?? "",
               stage: item["Process Stage"] ?? item.stage,
               functions: item.Functions ?? item.functions,
               clientSegment:

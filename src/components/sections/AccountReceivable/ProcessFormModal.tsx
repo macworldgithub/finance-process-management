@@ -65,21 +65,67 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
     { key: "other-control-environments", title: "Other Control Environment" },
   ];
 
+  useEffect(() => {
+    // currentStep 0 = basic, 1 = first section in sectionOrder ("processes"), ...
+    const sectionIndex = currentStep - 1;
+    const section = sectionOrder[sectionIndex];
+
+    if (section?.key === "ownerships") {
+      const commonProcess = form.getFieldValue("Process"); // from basic step
+      form.setFieldsValue({ "Main Process": commonProcess });
+    }
+  }, [currentStep, sectionOrder, form]);
+
+  // const submitSection = async (sectionKey: string) => {
+  //   // Get shared basic values
+  //   const noValue = form.getFieldValue("No");
+  //   const processValue = form.getFieldValue("Process");
+  //   const stepValues = form.getFieldsValue();
+
+  //   const fullValues = {
+  //     No: noValue,
+  //     Process: processValue,
+  //     ...stepValues,
+  //   };
+
+  //   const { Id, Date, ...submitValues } = fullValues;
+
+  //   // Decide create vs update based on initialValues.Id
+  //   if (initialValues && initialValues.Id) {
+  //     await processService.update(sectionKey, {
+  //       ...submitValues,
+  //       Id: initialValues.Id,
+  //     });
+  //   } else {
+  //     await processService.create(sectionKey, submitValues);
+  //   }
+  // };
   const submitSection = async (sectionKey: string) => {
-    // Get shared basic values
     const noValue = form.getFieldValue("No");
-    const processValue = form.getFieldValue("Process");
+    const commonProcess = form.getFieldValue("Process"); // shared for all tabs
     const stepValues = form.getFieldsValue();
 
-    const fullValues = {
-      No: noValue,
-      Process: processValue,
-      ...stepValues,
-    };
+    let fullValues: any;
+
+    if (sectionKey === "ownerships") {
+      const { Process: ownershipProcess, ...restStepValues } = stepValues;
+
+      fullValues = {
+        No: noValue,
+        Process: ownershipProcess, // Ownership-specific
+        "Main Process": commonProcess, // same as basic Process, autofilled
+        ...restStepValues,
+      };
+    } else {
+      fullValues = {
+        No: noValue,
+        Process: commonProcess,
+        ...stepValues,
+      };
+    }
 
     const { Id, Date, ...submitValues } = fullValues;
 
-    // Decide create vs update based on initialValues.Id
     if (initialValues && initialValues.Id) {
       await processService.update(sectionKey, {
         ...submitValues,
@@ -89,7 +135,6 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
       await processService.create(sectionKey, submitValues);
     }
   };
-
   const commonFields = (
     <>
       <Form.Item
@@ -689,14 +734,18 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
     ownerships: (
       <>
         <Form.Item name="Main Process" label="Main Process">
-          <Input />
+          <Input disabled />
         </Form.Item>
         <Form.Item name="Activity" label="Activity">
           <Input />
         </Form.Item>
-        <Form.Item name="Process" label="Process">
+        {/* <Form.Item name="Process" label="Process">
+          <Input />
+        </Form.Item> */}
+        <Form.Item name="Ownership Process" label="Process">
           <Input />
         </Form.Item>
+
         <Form.Item name="Process Stage" label="Process Stage">
           <Input />
         </Form.Item>
