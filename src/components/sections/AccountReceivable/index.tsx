@@ -64,6 +64,7 @@ const AccountReceivable = forwardRef<
   const [excelModalVisible, setExcelModalVisible] = useState(false);
   const [formModalVisible, setFormModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState<DataType | null>(null);
+
   // Reset sub-tab when switching main tabs
   useEffect(() => {
     if (activeTab === "3") setActiveSubTab("coso");
@@ -236,21 +237,21 @@ const AccountReceivable = forwardRef<
               ),
               managementPhilosophy: toCheckboxBool(
                 item["Management’s Philosophy and Operating Style"] ??
-                item.managementPhilosophy
+                  item.managementPhilosophy
               ),
               orgStructure: toCheckboxBool(
                 item["Organizational Structure"] ?? item.orgStructure
               ),
               assignmentAuthority: toCheckboxBool(
                 item["Assignment of Authority and Responsibility"] ??
-                item.assignmentAuthority
+                  item.assignmentAuthority
               ),
               hrPolicies: toCheckboxBool(
                 item["Human Resource Policies and Practices"] ?? item.hrPolicies
               ),
               boardAudit: toCheckboxBool(
                 item[
-                "Board of Directors’ or Audit Committee’s Participation"
+                  "Board of Directors’ or Audit Committee’s Participation"
                 ] ?? item.boardAudit
               ),
               managementControl: toCheckboxBool(
@@ -261,24 +262,24 @@ const AccountReceivable = forwardRef<
               ),
               commitmentInternal: toCheckboxBool(
                 item["Management’s Commitment to Internal Control"] ??
-                item.commitmentInternal
+                  item.commitmentInternal
               ),
               enforcementIntegrity: toCheckboxBool(
                 item[
-                "Communication and Enforcement of Integrity and Ethical Values"
+                  "Communication and Enforcement of Integrity and Ethical Values"
                 ] ?? item.enforcementIntegrity
               ),
               employeeAwareness: toCheckboxBool(
                 item["Employee Awareness and Understanding"] ??
-                item.employeeAwareness
+                  item.employeeAwareness
               ),
               accountability: toCheckboxBool(
                 item["Accountability and Performance Measurement"] ??
-                item.accountability
+                  item.accountability
               ),
               commitmentTransparency: toCheckboxBool(
                 item["Commitment to Transparency and Openness"] ??
-                item.commitmentTransparency
+                  item.commitmentTransparency
               ),
             };
           }
@@ -288,7 +289,7 @@ const AccountReceivable = forwardRef<
               ...base,
               levelResponsibility:
                 item[
-                "Level of Responsibility-Operating Level (Entity / Activity)"
+                  "Level of Responsibility-Operating Level (Entity / Activity)"
                 ] ?? item.levelResponsibility,
               cosoPrinciple: item["COSO Principle #"] ?? item.cosoPrinciple,
               operationalApproach:
@@ -298,7 +299,7 @@ const AccountReceivable = forwardRef<
                 item["Operational Frequency"] ?? item.operationalFrequency,
               controlClassification:
                 item[
-                "Control Classification (Preventive / Detective / Corrective)"
+                  "Control Classification (Preventive / Detective / Corrective)"
                 ] ?? item.controlClassification,
             };
           }
@@ -702,6 +703,37 @@ const AccountReceivable = forwardRef<
     await importSectionData(currentSection, data); // Assuming this posts bulk
     fetchData();
   };
+  const getModalTabKey = (tabKey: string, subTabKey: string): string => {
+    switch (tabKey) {
+      case "1":
+        return "processes";
+      case "2":
+        return "ownerships";
+      case "3":
+        if (subTabKey === "coso") return "coso-control-environments";
+        if (subTabKey === "intosai") return "intosai-ifac-control-environments";
+        return "other-control-environments";
+      case "4":
+        return "risk-assessment-inherent-risks";
+      case "5":
+        return "risk-responses";
+      case "6":
+        return "control-activities";
+      case "7":
+        return "control-assessments";
+      case "8":
+        return "risk-assessment-residual-risks";
+      case "9":
+        if (subTabKey === "sox") return "sox";
+        return "financial-statement-assertions";
+      case "10":
+        if (subTabKey === "grc") return "grc-exception-logs";
+        return "internal-audit-tests";
+      default:
+        return "processes";
+    }
+  };
+  const modalTabKey = getModalTabKey(activeTab, activeSubTab);
   return (
     <div className="flex flex-col h-screen bg-[#f8fafc]">
       {/* Header */}
@@ -720,10 +752,11 @@ const AccountReceivable = forwardRef<
               <button
                 onClick={goPrev}
                 disabled={!hasPrev}
-                className={`p-2 rounded-md transition font-bold ${hasPrev
-                  ? "text-black hover:bg-gray-50 cursor-pointer"
-                  : "text-gray-400 cursor-not-allowed"
-                  }`}
+                className={`p-2 rounded-md transition font-bold ${
+                  hasPrev
+                    ? "text-black hover:bg-gray-50 cursor-pointer"
+                    : "text-gray-400 cursor-not-allowed"
+                }`}
               >
                 <LeftOutlined />
               </button>
@@ -731,10 +764,11 @@ const AccountReceivable = forwardRef<
               <button
                 onClick={goNext}
                 disabled={!hasNext}
-                className={`p-2 rounded-md transition font-bold ${hasNext
-                  ? "text-black hover:bg-gray-50 cursor-pointer"
-                  : "text-gray-400 cursor-not-allowed"
-                  }`}
+                className={`p-2 rounded-md transition font-bold ${
+                  hasNext
+                    ? "text-black hover:bg-gray-50 cursor-pointer"
+                    : "text-gray-400 cursor-not-allowed"
+                }`}
               >
                 <RightOutlined />
               </button>
@@ -889,7 +923,8 @@ const AccountReceivable = forwardRef<
             visible={formModalVisible}
             onCancel={() => setFormModalVisible(false)}
             onSuccess={handleFormSubmit}
-            tabKey={activeTab}
+            tabKey={modalTabKey}
+            initialValues={editingRecord}
           />
         </div>
       </div>
