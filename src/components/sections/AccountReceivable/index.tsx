@@ -484,10 +484,7 @@ const AccountReceivable = forwardRef<
     });
     XLSX.writeFile(wb, "AccountReceivable_Export.xlsx");
   };
-  // Handler functions
-  // const handleEdit = useCallback((key: string) => {
-  //   setEditingKeys((prev) => [...prev, key]);
-  // }, []);
+
   const handleDelete = useCallback(
     async (key: string) => {
       const item = tableData.find((r) => r.key === key);
@@ -703,37 +700,6 @@ const AccountReceivable = forwardRef<
     await importSectionData(currentSection, data); // Assuming this posts bulk
     fetchData();
   };
-  const getModalTabKey = (tabKey: string, subTabKey: string): string => {
-    switch (tabKey) {
-      case "1":
-        return "processes";
-      case "2":
-        return "ownerships";
-      case "3":
-        if (subTabKey === "coso") return "coso-control-environments";
-        if (subTabKey === "intosai") return "intosai-ifac-control-environments";
-        return "other-control-environments";
-      case "4":
-        return "risk-assessment-inherent-risks";
-      case "5":
-        return "risk-responses";
-      case "6":
-        return "control-activities";
-      case "7":
-        return "control-assessments";
-      case "8":
-        return "risk-assessment-residual-risks";
-      case "9":
-        if (subTabKey === "sox") return "sox";
-        return "financial-statement-assertions";
-      case "10":
-        if (subTabKey === "grc") return "grc-exception-logs";
-        return "internal-audit-tests";
-      default:
-        return "processes";
-    }
-  };
-  const modalTabKey = getModalTabKey(activeTab, activeSubTab);
   return (
     <div className="flex flex-col h-screen bg-[#f8fafc]">
       {/* Header */}
@@ -923,7 +889,6 @@ const AccountReceivable = forwardRef<
             visible={formModalVisible}
             onCancel={() => setFormModalVisible(false)}
             onSuccess={handleFormSubmit}
-            tabKey={modalTabKey}
             initialValues={editingRecord}
           />
         </div>

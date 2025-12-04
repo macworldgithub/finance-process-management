@@ -11,7 +11,6 @@ interface ProcessFormModalProps {
   visible: boolean;
   onCancel: () => void;
   onSuccess: () => void;
-  tabKey: string;
   initialValues?: any;
 }
 
@@ -19,7 +18,6 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
   visible,
   onCancel,
   onSuccess,
-  tabKey,
   initialValues,
 }) => {
   const [form] = Form.useForm();
@@ -37,46 +35,58 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
     }
   }, [visible, initialValues, form]);
 
-  const handleSubmit = async (values: any) => {
-    try {
-      setLoading(true);
-      // Ensure basic fields (No, Process) are always included
-      const noValue = form.getFieldValue("No");
-      const processValue = form.getFieldValue("Process");
+  // Ordered list of section keys for multi-section creation
+  const sectionOrder: { key: string; title: string }[] = [
+    { key: "processes", title: "Processes" },
+    { key: "ownerships", title: "Ownership" },
+    { key: "coso-control-environments", title: "COSO Control Environment" },
+    {
+      key: "risk-assessment-inherent-risks",
+      title: "Risk Assessment (Inherent)",
+    },
+    { key: "risk-responses", title: "Risk Responses" },
+    { key: "control-activities", title: "Control Activities" },
+    { key: "control-assessments", title: "Control Assessment" },
+    {
+      key: "risk-assessment-residual-risks",
+      title: "Risk Assessment (Residual)",
+    },
+    {
+      key: "financial-statement-assertions",
+      title: "Financial Statement Assertions",
+    },
+    { key: "sox", title: "SOX" },
+    { key: "grc-exception-logs", title: "GRC Exception Logs" },
+    { key: "internal-audit-tests", title: "Internal Audit Tests" },
+    {
+      key: "intosai-ifac-control-environments",
+      title: "INTOSAI/IFAC Control Environment",
+    },
+    { key: "other-control-environments", title: "Other Control Environment" },
+  ];
 
-      const fullValues = {
-        No: noValue,
-        Process: processValue,
-        ...values,
-      };
+  const submitSection = async (sectionKey: string) => {
+    // Get shared basic values
+    const noValue = form.getFieldValue("No");
+    const processValue = form.getFieldValue("Process");
+    const stepValues = form.getFieldsValue();
 
-      // Remove Id and Date from the values
-      const { Id, Date, ...submitValues } = fullValues;
+    const fullValues = {
+      No: noValue,
+      Process: processValue,
+      ...stepValues,
+    };
 
-      // Call the appropriate service based on tabKey
-      if (initialValues) {
-        //@ts-ignore
-        await processService.update(tabKey, {
-          ...submitValues,
-          Id: initialValues.Id,
-        });
-      } else {
-        //@ts-ignore
-        await processService.create(tabKey, submitValues);
-      }
+    const { Id, Date, ...submitValues } = fullValues;
 
-      message.success(
-        initialValues
-          ? "Record updated successfully"
-          : "Record created successfully"
-      );
-      onSuccess();
-      onCancel();
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      message.error("Failed to save record");
-    } finally {
-      setLoading(false);
+    // Decide create vs update based on initialValues.Id
+    if (initialValues && initialValues.Id) {
+      await processService.update(sectionKey, {
+        ...submitValues,
+        Id: initialValues.Id,
+      });
+    } else {
+      await processService.create(sectionKey, submitValues);
     }
   };
 
@@ -827,28 +837,64 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
 
   const steps = [
     {
+      key: "basic",
       title: "Basic Information",
       content: commonFields,
     },
-    {
-      title: "Additional Information",
-      content: tabForms[tabKey] || (
+    ...sectionOrder.map((s) => ({
+      key: s.key,
+      title: s.title,
+      content: tabForms[s.key] || (
         <div>Form for this tab is not implemented yet</div>
       ),
-    },
+    })),
   ];
 
-  const next = () => {
-    form
-      .validateFields()
-      .then(() => {
-        setCurrentStep(currentStep + 1);
-      })
-      .catch(() => {});
+  const next = async () => {
+    try {
+      setLoading(true);
+      await form.validateFields();
+
+      // Step 0 is basic information (no API call yet)
+      if (currentStep === 0) {
+        setCurrentStep(1);
+        return;
+      }
+
+      const sectionIndex = currentStep - 1;
+      const section = sectionOrder[sectionIndex];
+      if (section) {
+        await submitSection(section.key);
+      }
+
+      const nextStep = currentStep + 1;
+      if (nextStep < steps.length) {
+        // Keep No/Process while moving to next section
+        const noValue = form.getFieldValue("No");
+        const processValue = form.getFieldValue("Process");
+        form.resetFields();
+        form.setFieldsValue({ No: noValue, Process: processValue });
+        setCurrentStep(nextStep);
+      } else {
+        message.success(
+          initialValues
+            ? "Record updated successfully"
+            : "Record created successfully"
+        );
+        onSuccess();
+        onCancel();
+      }
+    } catch (e) {
+      // validation or submit error already surfaced via message
+    } finally {
+      setLoading(false);
+    }
   };
 
   const prev = () => {
-    setCurrentStep(currentStep - 1);
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
   };
 
   return (
@@ -870,33 +916,26 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
             Previous
           </button>
         ),
-        currentStep < steps.length - 1 ? (
-          <button key="next" onClick={next} className="ant-btn ant-btn-primary">
-            Next
-          </button>
-        ) : (
-          <button
-            key="submit"
-            onClick={() => form.submit()}
-            className="ant-btn ant-btn-primary"
-            disabled={loading}
-          >
-            {initialValues ? "Update" : "Create"}
-          </button>
-        ),
+        <button
+          key="next"
+          onClick={next}
+          className="ant-btn ant-btn-primary"
+          disabled={loading}
+        >
+          {currentStep < steps.length - 1
+            ? "Next"
+            : initialValues
+            ? "Finish Update"
+            : "Finish Create"}
+        </button>,
       ]}
     >
       <Steps current={currentStep} style={{ marginBottom: 24 }}>
         {steps.map((item) => (
-          <Step key={item.title} title={item.title} />
+          <Step key={item.key} title={item.title} />
         ))}
       </Steps>
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSubmit}
-        initialValues={initialValues}
-      >
+      <Form form={form} layout="vertical" initialValues={initialValues}>
         {steps[currentStep].content}
       </Form>
     </Modal>
