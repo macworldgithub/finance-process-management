@@ -448,7 +448,7 @@ const AccountReceivable = forwardRef<
       case "2":
         return "Ownership";
       case "3":
-        return "COSO-Control Environment"; // Simplified, since subtab handles
+        return "COSO-Control Environment";
       case "4":
         return "Risk Assessment (Inherent Risk)";
       case "5":

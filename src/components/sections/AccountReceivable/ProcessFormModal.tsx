@@ -1,6 +1,6 @@
 // src/components/sections/AccountReceivable/ProcessFormModal.tsx
 import React, { useState, useEffect } from "react";
-import { Form, Input, Modal, Steps, Select, message } from "antd";
+import { Form, Input, Modal, Steps, Select, message, Button } from "antd";
 import { processService } from "@/services/processService";
 
 const { Step } = Steps;
@@ -990,35 +990,26 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
       onCancel={onCancel}
       width={800}
       footer={[
-        <button
-          key="cancel"
-          onClick={onCancel}
-          className="ant-btn ant-btn-default"
-        >
+        <Button key="cancel" onClick={onCancel} disabled={loading}>
           Cancel
-        </button>,
+        </Button>,
         currentStep > 0 && (
-          <button key="prev" onClick={prev} className="ant-btn ant-btn-default">
+          <Button key="prev" onClick={prev} disabled={loading}>
             Previous
-          </button>
+          </Button>
         ),
-        <button
-          key="next"
-          onClick={next}
-          className="ant-btn ant-btn-default"
-          disabled={loading}
-        >
+        <Button key="next" onClick={next} disabled={loading}>
           Next
-        </button>,
+        </Button>,
         currentStep === 1 && (
-          <button
+          <Button
             key="add-row"
+            type="primary"
             onClick={handleAddRow}
-            className="ant-btn ant-btn-primary"
-            disabled={loading}
+            loading={loading}
           >
             Add Row
-          </button>
+          </Button>
         ),
       ]}
     >
