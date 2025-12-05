@@ -629,6 +629,7 @@ const AccountReceivable = forwardRef<
       onEdit: handleEdit,
       onDelete: handleDelete,
       onSave: handleSave,
+      onSaveRow: handleSave,
       onCancel: handleCancel,
       onCheckboxChange: handleCheckboxChange,
       onSelectGeneric: handleSelectGeneric,
@@ -683,10 +684,7 @@ const AccountReceivable = forwardRef<
         }
         setFormModalVisible(true);
       },
-      onEditRow: (record: DataType) => {
-        setEditingRecord(record);
-        setFormModalVisible(true);
-      },
+      onEditRow: handleEditRow,
       onDeleteRow: handleDeleteRow,
       onStageChange: handleStageChange,
       onToggleStatus: handleToggleStatus,

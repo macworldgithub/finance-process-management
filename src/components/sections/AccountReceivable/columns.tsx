@@ -1910,11 +1910,9 @@ export function getColumns(
             {isActive && (
               <Button
                 icon={<EditOutlined />}
-                // onClick={() => handlers?.onEditRow?.(record.key)}
                 onClick={(e) => {
                   e.stopPropagation();
-                  //@ts-ignore
-                  handlers?.onEditRow?.(record);
+                  handlers?.onEditRow?.(record.key);
                 }}
               />
             )}
