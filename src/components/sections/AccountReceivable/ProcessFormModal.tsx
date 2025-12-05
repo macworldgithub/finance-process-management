@@ -948,7 +948,9 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
 
   return (
     <Modal
-      title={initialValues ? "Edit Record" : "Add New Record"}
+      title={`${initialValues ? "Edit" : "Add New"} Record - ${
+        steps[currentStep].title
+      }`}
       open={visible}
       onCancel={onCancel}
       width={800}
@@ -979,11 +981,13 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         </button>,
       ]}
     >
-      <Steps current={currentStep} style={{ marginBottom: 24 }}>
-        {steps.map((item) => (
-          <Step key={item.key} title={item.title} />
-        ))}
-      </Steps>
+      <div style={{ overflowX: "auto", paddingBottom: 8 }}>
+        <Steps current={currentStep} style={{ marginBottom: 16 }} size="small">
+          {steps.map((item) => (
+            <Step key={item.key} />
+          ))}
+        </Steps>
+      </div>
       <Form form={form} layout="vertical" initialValues={initialValues}>
         {steps[currentStep].content}
       </Form>
