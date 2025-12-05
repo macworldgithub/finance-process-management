@@ -12,6 +12,7 @@ interface ProcessFormModalProps {
   onCancel: () => void;
   onSuccess: () => void;
   initialValues?: any;
+  startSectionKey?: string; // which additional section to open first
 }
 
 const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
@@ -19,10 +20,17 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
   onCancel,
   onSuccess,
   initialValues,
+  startSectionKey,
 }) => {
   const [form] = Form.useForm();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0); // 0 = Basic, 1 = Additional
   const [loading, setLoading] = useState(false);
+  const [selectedSectionKey, setSelectedSectionKey] = useState<string | null>(
+    null
+  );
+  const [completedSections, setCompletedSections] = useState<Set<string>>(
+    () => new Set()
+  );
 
   // Reset form when modal is opened/closed
   useEffect(() => {
@@ -32,8 +40,10 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         form.setFieldsValue(initialValues);
       }
       setCurrentStep(0);
+      setCompletedSections(new Set());
+      setSelectedSectionKey(startSectionKey ?? null);
     }
-  }, [visible, initialValues, form]);
+  }, [visible, initialValues, form, startSectionKey]);
 
   // Ordered list of section keys for multi-section creation
   const sectionOrder: { key: string; title: string }[] = [
@@ -66,15 +76,11 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
   ];
 
   useEffect(() => {
-    // currentStep 0 = basic, 1 = first section in sectionOrder ("processes"), ...
-    const sectionIndex = currentStep - 1;
-    const section = sectionOrder[sectionIndex];
-
-    if (section?.key === "ownerships") {
-      const commonProcess = form.getFieldValue("Process"); // from basic step
+    if (selectedSectionKey === "ownerships") {
+      const commonProcess = form.getFieldValue("Process");
       form.setFieldsValue({ "Main Process": commonProcess });
     }
-  }, [currentStep, sectionOrder, form]);
+  }, [selectedSectionKey, form]);
 
   // const submitSection = async (sectionKey: string) => {
   //   // Get shared basic values
@@ -891,42 +897,74 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
     {
       key: "basic",
       title: "Basic Information",
-      content: commonFields,
     },
-    ...sectionOrder.map((s) => ({
-      key: s.key,
-      title: s.title,
-      content: tabForms[s.key] || (
-        <div>Form for this tab is not implemented yet</div>
-      ),
-    })),
+    {
+      key: "additional",
+      title: "Additional Fields",
+    },
   ];
 
   const next = async () => {
     try {
       setLoading(true);
-      await form.validateFields();
-
-      // Step 0 is basic information (no API call yet)
+      // Step 0: validate basic info only and move to additional fields
       if (currentStep === 0) {
+        await form.validateFields(["No", "Process"]);
         setCurrentStep(1);
         return;
       }
 
-      const sectionIndex = currentStep - 1;
-      const section = sectionOrder[sectionIndex];
-      if (section) {
-        await submitSection(section.key);
+      // Step 1: optional behavior – move to next uncompleted section (no API)
+      if (currentStep === 1) {
+        const remaining = sectionOrder.find(
+          (s) => !completedSections.has(s.key)
+        );
+        if (remaining) {
+          setSelectedSectionKey(remaining.key);
+        } else {
+          message.info("All sections for this record are already completed.");
+        }
       }
+    } catch (e) {
+      // validation error already surfaced
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      const nextStep = currentStep + 1;
-      if (nextStep < steps.length) {
-        // Keep No/Process while moving to next section
+  const prev = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleAddRow = async () => {
+    if (!selectedSectionKey) {
+      message.error("Please select a section to add a row.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await form.validateFields();
+      await submitSection(selectedSectionKey);
+
+      setCompletedSections((prev) => {
+        const next = new Set(prev);
+        next.add(selectedSectionKey);
+        return next;
+      });
+
+      const remaining = sectionOrder.find(
+        (s) => !completedSections.has(s.key) && s.key !== selectedSectionKey
+      );
+
+      if (remaining) {
         const noValue = form.getFieldValue("No");
         const processValue = form.getFieldValue("Process");
         form.resetFields();
         form.setFieldsValue({ No: noValue, Process: processValue });
-        setCurrentStep(nextStep);
+        setSelectedSectionKey(remaining.key);
       } else {
         message.success(
           initialValues
@@ -937,15 +975,9 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         onCancel();
       }
     } catch (e) {
-      // validation or submit error already surfaced via message
+      // validation or submit error
     } finally {
       setLoading(false);
-    }
-  };
-
-  const prev = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
     }
   };
 
@@ -973,26 +1005,57 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <button
           key="next"
           onClick={next}
-          className="ant-btn ant-btn-primary"
+          className="ant-btn ant-btn-default"
           disabled={loading}
         >
-          {currentStep < steps.length - 1
-            ? "Next"
-            : initialValues
-            ? "Finish Update"
-            : "Finish Create"}
+          Next
         </button>,
+        currentStep === 1 && (
+          <button
+            key="add-row"
+            onClick={handleAddRow}
+            className="ant-btn ant-btn-primary"
+            disabled={loading}
+          >
+            Add Row
+          </button>
+        ),
       ]}
     >
       <div style={{ overflowX: "auto", paddingBottom: 8 }}>
         <Steps current={currentStep} style={{ marginBottom: 16 }} size="small">
           {steps.map((item) => (
-            <Step key={item.key} />
+            <Step key={item.key} title={item.title} />
           ))}
         </Steps>
       </div>
       <Form form={form} layout="vertical" initialValues={initialValues}>
-        {steps[currentStep].content}
+        {currentStep === 0 && commonFields}
+        {currentStep === 1 && (
+          <>
+            <Form.Item label="Select Section">
+              <Select
+                value={selectedSectionKey ?? undefined}
+                onChange={(value) => setSelectedSectionKey(value)}
+                placeholder="Choose section"
+              >
+                {sectionOrder.map((section) => (
+                  <Option
+                    key={section.key}
+                    value={section.key}
+                    disabled={completedSections.has(section.key)}
+                  >
+                    {section.title}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+            {selectedSectionKey &&
+              (tabForms[selectedSectionKey] || (
+                <div>Form for this tab is not implemented yet</div>
+              ))}
+          </>
+        )}
       </Form>
     </Modal>
   );

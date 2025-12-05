@@ -64,6 +64,7 @@ const AccountReceivable = forwardRef<
   const [excelModalVisible, setExcelModalVisible] = useState(false);
   const [formModalVisible, setFormModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState<DataType | null>(null);
+  const [startSectionKey, setStartSectionKey] = useState<string | null>(null);
 
   // Reset sub-tab when switching main tabs
   useEffect(() => {
@@ -619,6 +620,7 @@ const AccountReceivable = forwardRef<
 
   const handleEdit = useCallback((record: DataType) => {
     setEditingRecord(record);
+    setStartSectionKey(null);
     setFormModalVisible(true);
   }, []);
   // Memoized handlers object
@@ -635,6 +637,50 @@ const AccountReceivable = forwardRef<
       // onEditRow: handleEditRow,
       onAddRow: () => {
         setEditingRecord(null);
+        const section = getCurrentSection();
+        switch (section) {
+          case "Process":
+            setStartSectionKey("processes");
+            break;
+          case "Ownership":
+            setStartSectionKey("ownerships");
+            break;
+          case "COSO-Control Environment":
+            setStartSectionKey("coso-control-environments");
+            break;
+          case "INTOSAI, IFAC, and Government Audit Standards - Control Environment":
+            setStartSectionKey("intosai-ifac-control-environments");
+            break;
+          case "Other- - Control Environment":
+            setStartSectionKey("other-control-environments");
+            break;
+          case "Risk Assessment (Inherent Risk)":
+            setStartSectionKey("risk-assessment-inherent-risks");
+            break;
+          case "Risk Responses":
+            setStartSectionKey("risk-responses");
+            break;
+          case "Control Activities":
+            setStartSectionKey("control-activities");
+            break;
+          case "Control Assessment":
+            setStartSectionKey("control-assessments");
+            break;
+          case "Risk Assessment (Residual Risk)":
+            setStartSectionKey("risk-assessment-residual-risks");
+            break;
+          case "SOX":
+            setStartSectionKey("sox");
+            break;
+          case "Internal Audit Test":
+            setStartSectionKey("internal-audit-tests");
+            break;
+          case "GRC Exception Log":
+            setStartSectionKey("grc-exception-logs");
+            break;
+          default:
+            setStartSectionKey("processes");
+        }
         setFormModalVisible(true);
       },
       onEditRow: (record: DataType) => {
@@ -894,9 +940,13 @@ const AccountReceivable = forwardRef<
           />
           <ProcessFormModal
             visible={formModalVisible}
-            onCancel={() => setFormModalVisible(false)}
+            onCancel={() => {
+              setFormModalVisible(false);
+              setEditingRecord(null);
+            }}
             onSuccess={handleFormSubmit}
             initialValues={editingRecord}
+            startSectionKey={startSectionKey || undefined}
           />
         </div>
       </div>
