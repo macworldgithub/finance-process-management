@@ -176,7 +176,10 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
     "Low",
     "Lowest",
   ];
-  const yesNoOptions = ["P", "O"]; // P for Yes, O for No
+  const yesNoOptions = [
+    { value: "P", label: "Yes" },
+    { value: "O", label: "No" },
+  ]; // P for Yes, O for No
 
   // Tab-specific form fields (match single-row API request bodies)
   //@ts-ignore
@@ -225,8 +228,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="Key Control" label="Key Control">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -234,8 +237,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="Zero Tolerance" label="Zero Tolerance">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -280,8 +283,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -289,8 +292,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="Board Oversight" label="Board Oversight">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -301,8 +304,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -313,8 +316,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -322,8 +325,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="Management Philosophy" label="Management Philosophy">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -339,8 +342,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -348,8 +351,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="Occurrence" label="Occurrence">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -357,8 +360,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="Completeness" label="Completeness">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -366,8 +369,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="Accuracy" label="Accuracy">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -375,8 +378,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="Authorization" label="Authorization">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -384,8 +387,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="Cutoff" label="Cutoff">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -396,8 +399,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -405,8 +408,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="Existence" label="Existence">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -414,8 +417,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="Rights and Obligations" label="Rights and Obligations">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -426,8 +429,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -438,8 +441,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -483,8 +486,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -495,8 +498,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -507,8 +510,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -519,8 +522,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -531,8 +534,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -543,8 +546,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -555,8 +558,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -567,8 +570,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -576,8 +579,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="External Influences" label="External Influences">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -588,8 +591,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -600,8 +603,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -612,8 +615,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -624,8 +627,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -636,8 +639,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -653,8 +656,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -662,8 +665,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="Segregation of duties" label="Segregation of duties">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -671,8 +674,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="Reporting Lines" label="Reporting Lines">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -704,8 +707,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         >
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
@@ -713,8 +716,8 @@ const ProcessFormModal: React.FC<ProcessFormModalProps> = ({
         <Form.Item name="Oversight structure" label="Oversight structure">
           <Select>
             {yesNoOptions.map((option) => (
-              <Option key={option} value={option}>
-                {option}
+              <Option key={option.value} value={option.value}>
+                {option.label}
               </Option>
             ))}
           </Select>
