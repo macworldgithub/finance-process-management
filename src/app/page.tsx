@@ -29,6 +29,9 @@ import Navbar from "@/components/layout/Navbar";
 import AccountReceivable, {
   AccountReceivableRef,
 } from "@/components/sections/AccountReceivable/index";
+import RCMAssessment, {
+  RCMAssessmentRef,
+} from "@/components/sections/RCMAssessment/index";
 import ExcelUploadModal from "@/components/sections/AccountReceivable/ExcelUploadModal";
 import RCMLanding from "@/components/sections/AccountReceivable/RCMLanding";
 import AssessmentModal from "@/components/sections/AccountReceivable/AssessmentModal";
@@ -36,6 +39,7 @@ import { useRef, useState } from "react";
 
 export default function HomePage() {
   const arRef = useRef<AccountReceivableRef>(null);
+  const rcmRef = useRef<RCMAssessmentRef>(null);
   const [excelModalVisible, setExcelModalVisible] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
   const [initialTabKey, setInitialTabKey] = useState<string | undefined>();
@@ -45,6 +49,9 @@ export default function HomePage() {
   const [showAdequacy, setShowAdequacy] = useState(false);
   const [showEffectiveness, setShowEffectiveness] = useState(false);
   const [showEfficiency, setShowEfficiency] = useState(false);
+  const [currentView, setCurrentView] = useState<"landing" | "ar" | "rcm">(
+    "landing"
+  );
 
   const handleImport = (file: File) => {
     arRef.current?.triggerImport(file);
@@ -58,6 +65,14 @@ export default function HomePage() {
   const handleNavigateFromLanding = (tabKey: string, subTabKey?: string) => {
     setInitialTabKey(tabKey);
     setInitialSubTabKey(subTabKey);
+
+    // Route to appropriate component based on tab key
+    if (["11", "12", "13", "14"].includes(tabKey)) {
+      setCurrentView("rcm"); // RCM Assessment tabs
+    } else {
+      setCurrentView("ar"); // Account Receivable tabs (1-10)
+    }
+
     setShowLanding(false);
   };
 
@@ -71,12 +86,25 @@ export default function HomePage() {
           onOpenEffectiveness={() => setShowEffectiveness(true)}
           onOpenEfficiency={() => setShowEfficiency(true)}
         />
+      ) : currentView === "rcm" ? (
+        <RCMAssessment
+          ref={rcmRef}
+          initialTabKey={initialTabKey}
+          initialSubTabKey={initialSubTabKey}
+          onBackToLanding={() => {
+            setShowLanding(true);
+            setCurrentView("landing");
+          }}
+        />
       ) : (
         <AccountReceivable
           ref={arRef}
           initialTabKey={initialTabKey}
           initialSubTabKey={initialSubTabKey}
-          onBackToLanding={() => setShowLanding(true)}
+          onBackToLanding={() => {
+            setShowLanding(true);
+            setCurrentView("landing");
+          }}
         />
       )}
 
