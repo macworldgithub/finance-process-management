@@ -11,9 +11,6 @@ import { Menu, Dropdown, Checkbox, Button, Input, Popconfirm } from "antd";
 import { DownOutlined, PlusOutlined } from "@ant-design/icons";
 import { DataType } from "./types";
 import { Select } from "antd";
-import { useState, useEffect } from "react";
-import { useDebouncedCallback } from "use-debounce";
-
 const { TextArea } = Input;
 export const stageOptions = [
   { label: "Processing", key: "Processing" },
@@ -504,10 +501,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "process", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(record.key, "process", e.target.value)
               }
             />
           );
@@ -525,10 +522,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableTextArea
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "processDescription", v)
+            <TextArea
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "processDescription",
+                  e.target.value
+                )
               }
               autoSize={{ minRows: 2 }}
             />
@@ -545,10 +546,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableTextArea
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "processObjective", v)
+            <TextArea
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "processObjective",
+                  e.target.value
+                )
               }
               autoSize={{ minRows: 2 }}
             />
@@ -612,10 +617,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "activity", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(record.key, "activity", e.target.value)
               }
             />
           );
@@ -631,10 +636,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "process2", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(record.key, "process2", e.target.value)
               }
             />
           );
@@ -669,10 +674,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "functions", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "functions",
+                  e.target.value
+                )
               }
             />
           );
@@ -688,10 +697,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "clientSegment", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "clientSegment",
+                  e.target.value
+                )
               }
             />
           );
@@ -707,10 +720,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "operationalUnit", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "operationalUnit",
+                  e.target.value
+                )
               }
             />
           );
@@ -726,10 +743,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "division", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(record.key, "division", e.target.value)
               }
             />
           );
@@ -745,10 +762,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "entity", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(record.key, "entity", e.target.value)
               }
             />
           );
@@ -764,10 +781,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "unitDepartment", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "unitDepartment",
+                  e.target.value
+                )
               }
             />
           );
@@ -783,10 +804,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "productClass", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "productClass",
+                  e.target.value
+                )
               }
             />
           );
@@ -802,10 +827,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "productName", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "productName",
+                  e.target.value
+                )
               }
             />
           );
@@ -1263,10 +1292,10 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "riskType", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(record.key, "riskType", e.target.value)
               }
             />
           );
@@ -1282,10 +1311,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableTextArea
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "riskDescription", v)
+            <TextArea
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "riskDescription",
+                  e.target.value
+                )
               }
               autoSize={{ minRows: 2 }}
             />
@@ -1480,10 +1513,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableTextArea
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "controlObjectives", v)
+            <TextArea
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "controlObjectives",
+                  e.target.value
+                )
               }
               autoSize={{ minRows: 3 }}
             />
@@ -1512,10 +1549,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableTextArea
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "controlDefinition", v)
+            <TextArea
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "controlDefinition",
+                  e.target.value
+                )
               }
               autoSize={{ minRows: 3 }}
             />
@@ -1536,10 +1577,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableTextArea
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "controlDescription", v)
+            <TextArea
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "controlDescription",
+                  e.target.value
+                )
               }
               autoSize={{ minRows: 3 }}
             />
@@ -1560,10 +1605,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "controlResponsibility", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "controlResponsibility",
+                  e.target.value
+                )
               }
             />
           );
@@ -2069,10 +2118,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableTextArea
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "internalAuditTest", v)
+            <TextArea
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "internalAuditTest",
+                  e.target.value
+                )
               }
               autoSize={{ minRows: 2 }}
             />
@@ -2089,10 +2142,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "sampleSize", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "sampleSize",
+                  e.target.value
+                )
               }
             />
           );
@@ -2110,10 +2167,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "grcAdequacy", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "grcAdequacy",
+                  e.target.value
+                )
               }
               placeholder="Enter GRC Adequacy"
             />
@@ -2130,10 +2191,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableInput
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "grcEffectiveness", v)
+            <Input
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "grcEffectiveness",
+                  e.target.value
+                )
               }
               placeholder="Enter GRC Effectiveness"
             />
@@ -2150,10 +2215,14 @@ export function getColumns(
       render: (text: string, record: DataType) => {
         if (editingKeys.includes(record.key)) {
           return (
-            <EditableTextArea
-              initialValue={text}
-              onChange={(v) =>
-                handlers?.onTextChange?.(record.key, "explanation", v)
+            <TextArea
+              value={text}
+              onChange={(e) =>
+                handlers?.onTextChange?.(
+                  record.key,
+                  "explanation",
+                  e.target.value
+                )
               }
               autoSize={{ minRows: 2, maxRows: 6 }}
               placeholder="Enter explanation..."
