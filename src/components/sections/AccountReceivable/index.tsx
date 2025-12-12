@@ -16,535 +16,1004 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { getColumns } from "./columns";
-import {
-  data as importedData,
-  controlAssessmentData,
-  financialAssertionsData,
-  internalAuditData,
-} from "./data";
 import { DataType } from "./types";
 import * as XLSX from "xlsx";
-import type { ColumnType, ColumnGroupType } from "antd/es/table";
-import { useDebouncedCallback } from "use-debounce";
-
+import type { ColumnType } from "antd/es/table";
+import { useDebouncedCallback, useDebounce } from "use-debounce";
+import ExcelUploadModal from "./ExcelUploadModal";
+import { apiClientDotNet } from "@/config/apiClientDotNet"; // Assuming this is your API client
+import { importSectionData } from "@/utils/importSectionDataService";
+import { SECTION_TO_BASE_ENDPOINT } from "@/utils/sectionMappings";
+import ProcessFormModal from "./ProcessFormModal";
 const { TextArea } = Input;
-
-const readFromLocalStorage = <T,>(key: string, fallback: T): T => {
-  try {
-    if (typeof window === "undefined") return fallback;
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch (err) {
-    console.warn(`Failed to parse localStorage ${key}`, err);
-    return fallback;
-  }
-};
-
 export interface AccountReceivableRef {
   triggerImport: (file: File) => void;
 }
-
-// Helper: flatten columns to leaf ColumnType<DataType>[]
-const flattenColumns = (
-  cols: Array<ColumnType<DataType> | ColumnGroupType<DataType>>
-): ColumnType<DataType>[] => {
-  const result: ColumnType<DataType>[] = [];
-  cols.forEach((col) => {
-    const maybeGroup = col as ColumnGroupType<DataType>;
-    if (
-      (maybeGroup as ColumnGroupType<DataType>).children &&
-      (maybeGroup as ColumnGroupType<DataType>).children!.length > 0
-    ) {
-      const children = (maybeGroup as ColumnGroupType<DataType>)
-        .children as Array<ColumnType<DataType> | ColumnGroupType<DataType>>;
-      result.push(...flattenColumns(children));
-    } else {
-      result.push(col as ColumnType<DataType>);
-    }
-  });
-  return result;
+interface AccountReceivableProps {
+  excelModalVisible?: boolean;
+  onExcelModalClose?: () => void;
+  onExcelModalOpen?: () => void;
+  initialTabKey?: string;
+  initialSubTabKey?: string;
+  onBackToLanding?: () => void;
+}
+const defaultNewRow = (maxNo: number): DataType => {
+  const newKey = String(Date.now());
+  const newNo = (maxNo + 0.1).toFixed(1);
+  return {
+    key: newKey,
+    no: newNo,
+    process: "",
+    isActive: true,
+  };
 };
-
-const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+const AccountReceivable = forwardRef<
+  AccountReceivableRef,
+  AccountReceivableProps
+>((props, ref) => {
   const tableWrapperRef = useRef<HTMLDivElement>(null);
   const topScrollbarRef = useRef<HTMLDivElement>(null);
-
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("1");
-  const [activeSubTab, setActiveSubTab] = useState("coso");
+  const scrollSyncRef = useRef<boolean>(true);
+  const [activeTab, setActiveTab] = useState(props.initialTabKey ?? "1");
+  const [activeSubTab, setActiveSubTab] = useState(
+    props.initialSubTabKey ?? "coso"
+  );
+  const [dataBySection, setDataBySection] = useState<
+    Record<string, DataType[]>
+  >({});
+  const [editingKeys, setEditingKeys] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const debouncedSearchText = useDebounce(searchText, 500)[0];
+  // Add this state to your component
+  const [excelModalVisible, setExcelModalVisible] = useState(false);
+  const [formModalVisible, setFormModalVisible] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<DataType | null>(null);
+  const [startSectionKey, setStartSectionKey] = useState<string | null>(null);
 
   // Reset sub-tab when switching main tabs
   useEffect(() => {
-    if (activeTab === "3") {
-      setActiveSubTab("coso");
-    } else if (activeTab === "9") {
-      setActiveSubTab("sox");
-    } else if (activeTab === "10") {
-      setActiveSubTab("audit");
-    }
+    if (activeTab === "3") setActiveSubTab("coso");
+    else if (activeTab === "9") setActiveSubTab("sox");
+    else if (activeTab === "10") setActiveSubTab("audit");
   }, [activeTab]);
 
-  const [tableData, setTableData] = useState<DataType[]>([]);
-  const [editingKeys, setEditingKeys] = useState<string[]>([]);
+  // Sync with optional initial props when they change (e.g. navigating from landing page)
+  useEffect(() => {
+    if (props.initialTabKey) {
+      setActiveTab(props.initialTabKey);
+    }
+  }, [props.initialTabKey]);
 
+  useEffect(() => {
+    if (props.initialSubTabKey) {
+      setActiveSubTab(props.initialSubTabKey);
+    }
+  }, [props.initialSubTabKey]);
+  const getCurrentSection = useCallback((): string => {
+    switch (activeTab) {
+      case "1":
+        return "Process";
+      case "2":
+        return "Ownership";
+      case "3":
+        if (activeSubTab === "coso") return "COSO-Control Environment";
+        if (activeSubTab === "intosai")
+          return "INTOSAI, IFAC, and Government Audit Standards - Control Environment";
+        if (activeSubTab === "other") return "Other- - Control Environment";
+        return "COSO-Control Environment"; // default
+      case "4":
+        return "Risk Assessment (Inherent Risk)";
+      case "5":
+        return "Risk Responses";
+      case "6":
+        return "Control Activities";
+      case "7":
+        return "Control Assessment";
+      case "8":
+        return "Risk Assessment (Residual Risk)";
+      case "9":
+        if (activeSubTab === "sox") return "SOX";
+        if (activeSubTab === "financial" || activeSubTab === "icfr")
+          return "Financial Statement Assertions";
+        return "SOX"; // default
+      case "10":
+        if (activeSubTab === "audit") return "Internal Audit Test";
+        if (activeSubTab === "grc") return "GRC Exception Log";
+        return "Internal Audit Test"; // default
+      default:
+        return "Process";
+    }
+  }, [activeTab, activeSubTab]);
+  const currentSection = getCurrentSection();
+  const tableData = dataBySection[currentSection] || [];
+  const setTableData = (newData: DataType[]) => {
+    setDataBySection((prev) => ({ ...prev, [currentSection]: newData }));
+  };
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    const section = getCurrentSection();
+    const endpoint = SECTION_TO_BASE_ENDPOINT[section]; // From sectionMappings.ts
+    try {
+      const response = await apiClientDotNet.get(`/${endpoint}`, {
+        params: {
+          page: 1,
+          pageSize: 10000,
+          search: debouncedSearchText,
+          sortByNoAsc: true, // always sort by No ascending on backend
+        },
+      });
+
+      // NOTE: .items (lowercase) matches the API responses you shared
+      const items: any[] = response.data.items || response.data.Items || [];
+
+      const mappedItems = items.map((item: any) => {
+        const base: any = {
+          key: item.Id ?? String(item.id ?? item.key ?? Date.now()),
+          id: item.Id ?? item.id, // keep backend Id so delete API can use it
+          no: item.No ?? item.no ?? "",
+          // process: item.Process ?? item.process ?? "",
+          process:
+            item["Main Process"] ??
+            item.MainProcess ??
+            item.Process ??
+            item.process ??
+            "",
+        };
+
+        // Helper: map P/O flags for checkboxes (P = true, everything else = false)
+        const toCheckboxBool = (v: any) => v === "P";
+
+        // Helper: map P/O flags into Yes/No strings where needed
+        const toYesNo = (v: any) => (v === "P" ? "Yes" : v === "O" ? "No" : v);
+
+        switch (section) {
+          case "Process": {
+            return {
+              ...base,
+              processDescription:
+                item["Process Description"] ?? item.processDescription,
+              processObjective:
+                item["Process Objectives"] ?? item.processObjective,
+              processSeverityLevels:
+                item["Process Severity Levels"] ?? item.processSeverityLevels,
+            };
+          }
+
+          case "Ownership": {
+            return {
+              ...base,
+              activity: item.Activity ?? item.activity,
+              // process2: item.Process ?? item.process2 ?? base.process,
+              process2: item.Process ?? item.process2 ?? "",
+              stage: item["Process Stage"] ?? item.stage,
+              functions: item.Functions ?? item.functions,
+              clientSegment:
+                item["Client Segment and/or Functional Segment"] ??
+                item.clientSegment,
+              operationalUnit: item["Operational Unit"] ?? item.operationalUnit,
+              division: item.Division ?? item.division,
+              entity: item.Entity ?? item.entity,
+              unitDepartment: item["Unit / Department"] ?? item.unitDepartment,
+              productClass: item["Product Class"] ?? item.productClass,
+              productName: item["Product Name"] ?? item.productName,
+            };
+          }
+
+          case "COSO-Control Environment": {
+            const integrityVal =
+              item["Integrity & Ethical Values"] ?? item.integrityEthical;
+            const boardVal = item["Board Oversight"] ?? item.boardOversight;
+            const orgVal =
+              item["Organizational Structure"] ?? item.orgStructure;
+            const commitVal =
+              item["Commitment to Competence"] ?? item.commitmentCompetence;
+            const mgmtVal =
+              item["Management Philosophy"] ?? item.managementPhilosophy;
+
+            return {
+              ...base,
+              integrityEthical: toCheckboxBool(integrityVal),
+              boardOversight: toCheckboxBool(boardVal),
+              orgStructure: toCheckboxBool(orgVal),
+              commitmentCompetence: toCheckboxBool(commitVal),
+              managementPhilosophy: toCheckboxBool(mgmtVal),
+            };
+          }
+
+          case "Risk Responses": {
+            return {
+              ...base,
+              riskResponseType:
+                item["Type of Risk Response"] ?? item.riskResponseType ?? "",
+            };
+          }
+
+          case "Control Activities": {
+            return {
+              ...base,
+              controlObjectives:
+                item["Control Objectives"] ?? item.controlObjectives ?? "",
+              controlRef: item["Control Ref"] ?? item.controlRef ?? "",
+              controlDefinition:
+                item["Control Definition"] ?? item.controlDefinition ?? "",
+              controlDescription:
+                item["Control Description"] ?? item.controlDescription ?? "",
+              controlResponsibility:
+                item["Control Responsibility"] ??
+                item.controlResponsibility ??
+                "",
+              // If backend uses P/O here, convert to Yes/No for display
+              keyControl: toYesNo(item["Key Control"] ?? item.keyControl),
+              zeroTolerance: toYesNo(
+                item["Zero Tolerance"] ?? item.zeroTolerance
+              ),
+            };
+          }
+
+          case "INTOSAI, IFAC, and Government Audit Standards - Control Environment": {
+            return {
+              ...base,
+              integrityEthical: toCheckboxBool(
+                item["Integrity and Ethical Values"] ?? item.integrityEthical
+              ),
+              commitmentCompetence: toCheckboxBool(
+                item["Commitment to Competence"] ?? item.commitmentCompetence
+              ),
+              managementPhilosophy: toCheckboxBool(
+                item["Management’s Philosophy and Operating Style"] ??
+                  item.managementPhilosophy
+              ),
+              orgStructure: toCheckboxBool(
+                item["Organizational Structure"] ?? item.orgStructure
+              ),
+              assignmentAuthority: toCheckboxBool(
+                item["Assignment of Authority and Responsibility"] ??
+                  item.assignmentAuthority
+              ),
+              hrPolicies: toCheckboxBool(
+                item["Human Resource Policies and Practices"] ?? item.hrPolicies
+              ),
+              boardAudit: toCheckboxBool(
+                item[
+                  "Board of Directors’ or Audit Committee’s Participation"
+                ] ?? item.boardAudit
+              ),
+              managementControl: toCheckboxBool(
+                item["Management Control Methods"] ?? item.managementControl
+              ),
+              externalInfluences: toCheckboxBool(
+                item["External Influences"] ?? item.externalInfluences
+              ),
+              commitmentInternal: toCheckboxBool(
+                item["Management’s Commitment to Internal Control"] ??
+                  item.commitmentInternal
+              ),
+              enforcementIntegrity: toCheckboxBool(
+                item[
+                  "Communication and Enforcement of Integrity and Ethical Values"
+                ] ?? item.enforcementIntegrity
+              ),
+              employeeAwareness: toCheckboxBool(
+                item["Employee Awareness and Understanding"] ??
+                  item.employeeAwareness
+              ),
+              accountability: toCheckboxBool(
+                item["Accountability and Performance Measurement"] ??
+                  item.accountability
+              ),
+              commitmentTransparency: toCheckboxBool(
+                item["Commitment to Transparency and Openness"] ??
+                  item.commitmentTransparency
+              ),
+            };
+          }
+
+          case "Control Assessment": {
+            return {
+              ...base,
+              levelResponsibility:
+                item[
+                  "Level of Responsibility-Operating Level (Entity / Activity)"
+                ] ?? item.levelResponsibility,
+              cosoPrinciple: item["COSO Principle #"] ?? item.cosoPrinciple,
+              operationalApproach:
+                item["Operational Approach (Automated / Manual)"] ??
+                item.operationalApproach,
+              operationalFrequency:
+                item["Operational Frequency"] ?? item.operationalFrequency,
+              controlClassification:
+                item[
+                  "Control Classification (Preventive / Detective / Corrective)"
+                ] ?? item.controlClassification,
+            };
+          }
+
+          case "Risk Assessment (Inherent Risk)": {
+            return {
+              ...base,
+              riskType: item["Risk Type"] ?? item.riskType,
+              riskDescription: item["Risk Description"] ?? item.riskDescription,
+              severityImpact: item["Severity/ Impact"] ?? item.severityImpact,
+              probabilityLikelihood:
+                item["Probability/ Likelihood"] ?? item.probabilityLikelihood,
+              classification: item["Classification"] ?? item.classification,
+            };
+          }
+
+          case "Risk Assessment (Residual Risk)": {
+            return {
+              ...base,
+              riskType: item["Risk Type"] ?? item.riskType,
+              riskDescription: item["Risk Description"] ?? item.riskDescription,
+              severityImpact: item["Severity/ Impact"] ?? item.severityImpact,
+              probabilityLikelihood:
+                item["Probability/ Likelihood"] ?? item.probabilityLikelihood,
+              classification: item["Classification"] ?? item.classification,
+            };
+          }
+
+          case "SOX": {
+            return {
+              ...base,
+              soxControlActivity:
+                item["SOX Control Activity"] ?? item.soxControlActivity,
+            };
+          }
+
+          case "Internal Audit Test": {
+            return {
+              ...base,
+              // API fields: "Internal Audit Test", "Sample Size", "Check"
+              check: item.Check === "P" ? true : item.check,
+              internalAuditTest:
+                item["Internal Audit Test"] ?? item.internalAuditTest,
+              sampleSize: item["Sample Size"] ?? item.sampleSize,
+            };
+          }
+
+          case "GRC Exception Log": {
+            return {
+              ...base,
+              grcAdequacy: item["GRC Adequacy"] ?? item.grcAdequacy,
+              grcEffectiveness:
+                item["GRC Effectiveness"] ?? item.grcEffectiveness,
+              explanation: item["Explanation"] ?? item.explanation,
+            };
+          }
+
+          case "Financial Statement Assertions": {
+            const mappedData = {
+              ...base,
+              internalControlOverFinancialReporting:
+                item["Internal Control Over Financial Reporting?"] === "P"
+                  ? true
+                  : item["Internal Control Over Financial Reporting?"] === "O"
+                  ? false
+                  : item.internalControlOverFinancialReporting,
+              occurrence: item.Occurrence === "P" ? true : item.occurrence,
+              completeness:
+                item.Completeness === "P" ? true : item.completeness,
+              accuracy: item.Accuracy === "P" ? true : item.accuracy,
+              authorization:
+                item.Authorization === "P" ? true : item.authorization,
+              cutoff: item.Cutoff === "P" ? true : item.cutoff,
+              classificationAndUnderstandability:
+                item["Classification and Understandability"] === "P"
+                  ? true
+                  : item.classificationAndUnderstandability,
+              existence: item.Existence === "P" ? true : item.existence,
+              rightsAndObligations:
+                item["Rights and Obligations"] === "P"
+                  ? true
+                  : item.rightsAndObligations,
+              valuationAndAllocation:
+                item["Valuation and Allocation"] === "P"
+                  ? true
+                  : item.valuationAndAllocation,
+              presentationDisclosure:
+                item["Presentation / Disclosure"] === "P"
+                  ? true
+                  : item.presentationDisclosure,
+            };
+            return mappedData;
+          }
+
+          default:
+            return base;
+        }
+      });
+
+      setDataBySection((prev) => ({
+        ...prev,
+        [section]: mappedItems,
+      }));
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [debouncedSearchText, getCurrentSection]);
+  useEffect(() => {
+    fetchData();
+  }, [debouncedSearchText, activeTab, activeSubTab, fetchData]);
   const tabKeys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
-
-  const [mainData, setMainData] = useState<DataType[]>(() =>
-    readFromLocalStorage<DataType[]>("mainData", importedData)
-  );
-  const [controlData, setControlData] = useState<DataType[]>(() =>
-    readFromLocalStorage<DataType[]>("controlData", controlAssessmentData)
-  );
-  const [financialData, setFinancialData] = useState<DataType[]>(() =>
-    readFromLocalStorage<DataType[]>("financialData", financialAssertionsData)
-  );
-  const [auditData, setAuditData] = useState<DataType[]>(() =>
-    readFromLocalStorage<DataType[]>("auditData", internalAuditData)
-  );
-
-  // Navigation state
   const currentTabIndex = tabKeys.indexOf(activeTab);
   const hasPrev = currentTabIndex > 0;
   const hasNext = currentTabIndex < tabKeys.length - 1;
-
   const goPrev = useCallback(() => {
     if (hasPrev) {
+      setEditingKeys([]); // Clear editing state
       setActiveTab(tabKeys[currentTabIndex - 1]);
     }
   }, [currentTabIndex, hasPrev]);
-
   const goNext = useCallback(() => {
     if (hasNext) {
+      setEditingKeys([]); // Clear editing state
       setActiveTab(tabKeys[currentTabIndex + 1]);
     }
   }, [currentTabIndex, hasNext]);
-
   const debouncedResize = useDebouncedCallback(() => {
     window.dispatchEvent(new Event("resize"));
   }, 50);
-
-  // Fixed scroll effect with proper dependencies
+  // Fixed useEffect
   useEffect(() => {
     debouncedResize();
   }, [tableData, activeTab, activeSubTab, debouncedResize]);
-
-  // Persist to localStorage
+  // Keep top scrollbar width in sync with table content (excluding Process column)
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem("mainData", JSON.stringify(mainData));
-  }, [mainData]);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem("controlData", JSON.stringify(controlData));
-  }, [controlData]);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem("financialData", JSON.stringify(financialData));
-  }, [financialData]);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem("auditData", JSON.stringify(auditData));
-  }, [auditData]);
-
-  // Load table data based on active tab
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      let dataToSet: DataType[];
-      if (activeTab === "7") dataToSet = controlData;
-      else if (activeTab === "9") dataToSet = financialData;
-      else if (activeTab === "10") dataToSet = auditData;
-      else dataToSet = mainData;
-      setTableData(dataToSet);
-      setLoading(false);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [activeTab, mainData, controlData, financialData, auditData]);
-
-  const getCurrentSetter = useCallback(() => {
-    if (activeTab === "7") return setControlData;
-    else if (activeTab === "9") return setFinancialData;
-    else if (activeTab === "10") return setAuditData;
-    else return setMainData;
-  }, [activeTab]);
-
-  // ADD THIS: Debounced text change handler
-  const debouncedTextChange = useDebouncedCallback(
-    (rowKey: string, field: keyof DataType, value: string) => {
-      const setter = getCurrentSetter();
-      setter((prev) =>
-        prev.map((item) =>
-          item.key === rowKey ? { ...item, [field]: value } : item
-        )
-      );
-    },
-    50
-  ); // 300ms delay
-
-  // ADD THIS useEffect — keeps top scrollbar in sync when tab changes
-  useEffect(() => {
-    const updateTopScrollbar = () => {
-      if (topScrollbarRef.current && tableWrapperRef.current) {
-        const tableContent =
-          tableWrapperRef.current.querySelector(".ant-table-content");
+    const updateWidth = () => {
+      if (!topScrollbarRef.current || !tableWrapperRef.current) return;
+      const table = tableWrapperRef.current.querySelector(
+        ".ant-table"
+      ) as HTMLElement;
+      if (table) {
+        const tableContent = table.querySelector(
+          ".ant-table-content"
+        ) as HTMLElement;
         if (tableContent) {
+          // Find the Process column width (first fixed column)
+          const processCol = table.querySelector(
+            ".ant-table-cell-fix-left:first-child"
+          ) as HTMLElement;
+          const processColWidth = processCol ? processCol.offsetWidth : 0;
+
+          // Set scrollbar width to total width minus Process column width
           const dummy = topScrollbarRef.current.querySelector("div");
           if (dummy) {
-            dummy.style.width = `${tableContent.scrollWidth}px`;
+            dummy.style.width = `${Math.max(
+              tableContent.scrollWidth - processColWidth,
+              window.innerWidth - processColWidth - 100
+            )}px`;
           }
         }
       }
     };
 
-    updateTopScrollbar();
-    window.addEventListener("resize", updateTopScrollbar);
-    return () => window.removeEventListener("resize", updateTopScrollbar);
-  }, [activeTab, activeSubTab, tableData]);
+    // Initial update
+    updateWidth();
 
-  const tabConfigs: {
-    key: string;
-    label: string;
-    dataSource: string;
-    subTabs?: string[];
-  }[] = [
-    { key: "1", label: "Processes", dataSource: "main" },
-    { key: "2", label: "Ownership", dataSource: "main" },
+    // Update on resize and data changes
+    const timeoutId = setTimeout(updateWidth, 100);
+    window.addEventListener("resize", updateWidth);
+
+    return () => {
+      window.removeEventListener("resize", updateWidth);
+      clearTimeout(timeoutId);
+    };
+  }, [activeTab, activeSubTab, tableData]);
+  const tabConfigs = [
+    { key: "1", label: "Processes" },
+    { key: "2", label: "Ownership" },
     {
       key: "3",
       label: "Control Environment",
-      dataSource: "main",
       subTabs: ["coso", "intosai", "other"],
     },
-    { key: "4", label: "Risk Assessment (Inherent Risk)", dataSource: "main" },
-    { key: "5", label: "Risk Responses", dataSource: "main" },
-    { key: "6", label: "Control Activities", dataSource: "main" },
-    { key: "7", label: "Control Assessment", dataSource: "control" },
-    { key: "8", label: "Risk Assessment (Residual Risk)", dataSource: "main" },
+    { key: "4", label: "Risk Assessment (Inherent Risk)" },
+    { key: "5", label: "Risk Responses" },
+    { key: "6", label: "Control Activities" },
+    { key: "7", label: "Control Assessment" },
+    { key: "8", label: "Risk Assessment (Residual Risk)" },
     {
       key: "9",
       label: "Compliance Management",
-      dataSource: "financial",
       subTabs: ["sox", "financial", "icfr"],
     },
     {
       key: "10",
       label: "Internal Audit Management",
-      dataSource: "audit",
       subTabs: ["audit", "grc"],
     },
   ];
-
-  const getSubLabel = (subTab: string) => {
-    switch (subTab) {
-      case "coso":
-        return "COSO";
-      case "intosai":
-        return "INTOSAI";
-      case "other":
-        return "Other";
-      case "sox":
-        return "SOX";
-      case "financial":
-        return "Financial Statement Assertions";
-      case "icfr":
-        return "Internal Control Over Financial Reporting";
-      case "audit":
-        return "Internal Audit Test";
-      case "grc":
-        return "GRC Exception Logs";
+  const getSectionFromTabKey = (tabKey: string): string => {
+    switch (tabKey) {
+      case "1":
+        return "Process";
+      case "2":
+        return "Ownership";
+      case "3":
+        return "COSO-Control Environment";
+      case "4":
+        return "Risk Assessment (Inherent Risk)";
+      case "5":
+        return "Risk Responses";
+      case "6":
+        return "Control Activities";
+      case "7":
+        return "Control Assessment";
+      case "8":
+        return "Risk Assessment (Residual Risk)";
+      case "9":
+        return "SOX"; // Simplified
+      case "10":
+        return "Internal Audit Test"; // Simplified
       default:
-        return subTab;
+        return "Process";
     }
   };
-
-  const getDataForSource = useCallback(
-    (dataSource: string): DataType[] => {
-      if (dataSource === "main") return mainData;
-      if (dataSource === "control") return controlData;
-      if (dataSource === "financial") return financialData;
-      if (dataSource === "audit") return auditData;
-      return [];
-    },
-    [mainData, controlData, financialData, auditData]
-  );
-
-  const getSetterForSource = useCallback((dataSource: string) => {
-    if (dataSource === "main") return setMainData;
-    if (dataSource === "control") return setControlData;
-    if (dataSource === "financial") return setFinancialData;
-    if (dataSource === "audit") return setAuditData;
-    return () => {};
-  }, []);
-
   const handleExport = () => {
     const wb = XLSX.utils.book_new();
     tabConfigs.forEach((config) => {
-      if (config.subTabs) {
-        config.subTabs.forEach((subTab) => {
-          const subLabel = getSubLabel(subTab);
-          const sheetName = `${config.label} - ${subLabel}`.slice(0, 31);
-          const columnsRaw = getColumns(config.key, subTab, handlers, []);
-          const flat = flattenColumns(
-            columnsRaw as Array<
-              ColumnType<DataType> | ColumnGroupType<DataType>
-            >
-          );
-          const fields = flat
-            .map((col) => col.dataIndex as string)
-            .filter((f) => f && f !== "actions");
-
-          const dataSource = getDataForSource(config.dataSource);
-          const exportData = dataSource.map((row) => {
-            const expRow: Record<string, any> = {
-              key: row.key,
-              no: row.no,
-              process: row.process,
-            };
-            fields.forEach((field) => {
-              if (Object.prototype.hasOwnProperty.call(row, field)) {
-                let value = (row as any)[field];
-                if (field === "internalControlFinancial") {
-                  value = value === true || value === "Yes" ? "Yes" : "No";
-                }
-                expRow[field] = value;
-              }
-            });
-            return expRow;
-          });
-          const ws = XLSX.utils.json_to_sheet(exportData);
-          XLSX.utils.book_append_sheet(wb, ws, sheetName);
-        });
-      } else {
-        const sheetName = config.label.slice(0, 31);
-        const columnsRaw = getColumns(config.key, "", handlers, []);
-        const flat = flattenColumns(
-          columnsRaw as Array<ColumnType<DataType> | ColumnGroupType<DataType>>
-        );
-        const fields = flat
-          .map((col) => col.dataIndex as string)
-          .filter((f) => f && f !== "actions");
-
-        const dataSource = getDataForSource(config.dataSource);
-        const exportData = dataSource.map((row) => {
-          const expRow: Record<string, any> = {
-            key: row.key,
-            no: row.no,
-            process: row.process,
-          };
-          fields.forEach((field) => {
-            if (Object.prototype.hasOwnProperty.call(row, field)) {
-              let value = (row as any)[field];
-              if (field === "internalControlFinancial") {
-                value = value === true || value === "Yes" ? "Yes" : "No";
-              }
-              expRow[field] = value;
-            }
-          });
-          return expRow;
-        });
-        const ws = XLSX.utils.json_to_sheet(exportData);
-        XLSX.utils.book_append_sheet(wb, ws, sheetName);
-      }
+      const sheetName = config.label.slice(0, 31);
+      //@ts-ignore
+      const columnsRaw = getColumns(config.key, "", handlers, editingKeys);
+      const fields = columnsRaw
+        .filter(
+          (c): c is ColumnType<DataType> =>
+            "dataIndex" in c && c.dataIndex !== "actions"
+        )
+        .map((c) => c.dataIndex!);
+      const section = getSectionFromTabKey(config.key);
+      const exportDataSource = dataBySection[section] || [];
+      const exportData = exportDataSource.map((row) => {
+        const obj: any = {};
+        //@ts-ignore
+        fields.forEach((f) => (obj[f] = row[f as keyof DataType] ?? ""));
+        return obj;
+      });
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
     });
     XLSX.writeFile(wb, "AccountReceivable_Export.xlsx");
   };
 
-  useImperativeHandle(ref, () => ({
-    triggerImport: (file: File) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = e.target?.result;
-        const wb = XLSX.read(data, { type: "binary" });
-        const sheetNames = wb.SheetNames;
-        sheetNames.forEach((sheetName) => {
-          const [tabLabel, subLabel] = sheetName.split(" - ");
-          const config = tabConfigs.find((c) => c.label === tabLabel);
-          if (!config) return;
-          const ws = wb.Sheets[sheetName];
-          const importedData: DataType[] = XLSX.utils.sheet_to_json(ws, {
-            defval: "",
-          });
-          const setter = getSetterForSource(config.dataSource);
-          setter((prev: DataType[]) => {
-            const updated = [...prev];
-            importedData.forEach((impRow) => {
-              const index = updated.findIndex((r) => r.key === impRow.key);
-              if (index !== -1) {
-                Object.keys(impRow).forEach((field) => {
-                  if (field !== "key") {
-                    (updated[index] as any)[field] = (impRow as any)[field];
-                  }
-                });
-              } else {
-                updated.push(impRow as DataType);
-              }
-            });
-            return updated;
-          });
-        });
-      };
-      reader.readAsBinaryString(file);
+  const handleDelete = useCallback(
+    async (key: string) => {
+      const item = tableData.find((r) => r.key === key);
+      if (!item) return;
+      const section = getCurrentSection();
+      const endpoint = SECTION_TO_BASE_ENDPOINT[section];
+      try {
+        if (item.id) {
+          // Use RESTful pattern: DELETE /{endpoint}/{id}
+          await apiClientDotNet.delete(`/${endpoint}/${item.id}`);
+        }
+        setDataBySection((prev) => ({
+          ...prev,
+          [section]: (prev[section] || []).filter((r) => r.key !== key),
+        }));
+      } catch (error) {
+        console.error("Error deleting item:", error);
+      }
     },
-  }));
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft" && hasPrev) goPrev();
-      else if (e.key === "ArrowRight" && hasNext) goNext();
+    [tableData, getCurrentSection]
+  );
+  // Transform data to match API format before sending
+  const transformDataForAPI = (item: DataType, section: string): any => {
+    const basePayload = {
+      Id: item.id,
+      Date: new Date().toISOString(),
+      No: parseFloat(item.no as string) || 0,
+      Process: item.process,
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [goPrev, goNext, hasPrev, hasNext]);
 
-  // FIX: Memoize handlers to prevent unnecessary re-renders
-  const handlers = useMemo(
-    () => ({
-      onEdit: (key: string) => setEditingKeys((prev) => [...prev, key]),
-      onDelete: (key: string) => {
-        const setter = getCurrentSetter();
-        setter((prev) => prev.filter((item) => item.key !== key));
-      },
-      onSave: (key: string) =>
-        setEditingKeys((prev) => prev.filter((k) => k !== key)),
-      onCancel: (key: string) =>
-        setEditingKeys((prev) => prev.filter((k) => k !== key)),
-      onCheckboxChange: (
-        rowKey: string,
-        field: keyof DataType,
-        checked: boolean
-      ) => {
-        const setter = getCurrentSetter();
-        setter((prev) =>
-          prev.map((item) =>
-            item.key === rowKey ? { ...item, [field]: checked } : item
-          )
-        );
-      },
-      onSelectGeneric: (key: string, rowKey: string, field?: string) => {
-        if (!field) return;
-        const setter = getCurrentSetter();
-        setter((prev) =>
-          prev.map((item) =>
-            item.key === rowKey ? { ...item, [field]: key } : item
-          )
-        );
-      },
-      // UPDATED: Use debounced text change
-      onTextChange: (rowKey: string, field: keyof DataType, value: string) => {
-        debouncedTextChange(rowKey, field, value);
-      },
-
-      onAddRow: () => {
-        const setter = getCurrentSetter();
-        const newKey = String(Date.now());
-
-        // Get current data to calculate next number
-        const currentData = getDataForSource(
-          tabConfigs.find((tab) => tab.key === activeTab)?.dataSource || "main"
-        );
-
-        // Find the highest number in the 5.x series
-        let maxNumber = 0;
-        currentData.forEach((row) => {
-          if (row.no && typeof row.no === "string") {
-            const match = row.no.match(/^5\.(\d+)$/);
-            if (match) {
-              const num = parseInt(match[1], 10);
-              if (num > maxNumber) {
-                maxNumber = num;
-              }
-            }
-          }
-        });
-
-        // If no 5.x numbers found, start from 5.1, otherwise increment the highest found
-        const nextNumber = maxNumber > 0 ? maxNumber + 1 : 1;
-        const newNo = `5.${nextNumber.toString().padStart(2, "0")}`;
-
-        // Create and add the new row
-        const newRow: DataType = {
-          key: newKey,
-          no: newNo,
-          process: "",
-          isActive: true,
+    switch (section) {
+      case "Risk Assessment (Inherent Risk)":
+        return {
+          ...basePayload,
+          "Risk Type": item.riskType,
+          "Risk Description": item.riskDescription,
+          "Severity/ Impact": item.severityImpact,
+          "Probability/ Likelihood": item.probabilityLikelihood,
+          Classification: item.classification,
         };
 
-        setter((prev) => [...prev, newRow]);
-        setEditingKeys((prev) => [...prev, newKey]);
+      case "Risk Assessment (Residual Risk)":
+        return {
+          ...basePayload,
+          "Risk Type": item.riskType,
+          "Risk Description": item.riskDescription,
+          "Severity/ Impact": item.severityImpact,
+          "Probability/ Likelihood": item.probabilityLikelihood,
+          Classification: item.classification,
+        };
 
-        // Scroll to the new row after a short delay to ensure it's rendered
-        setTimeout(() => {
-          const tableBody = tableWrapperRef.current?.querySelector(
-            ".ant-table-body"
-          ) as HTMLElement;
-          if (tableBody) {
-            tableBody.scrollTop = tableBody.scrollHeight;
-          }
-        }, 100);
-      },
+      case "Process":
+        return {
+          ...basePayload,
+          "Process Description": item.processDescription,
+          "Process Objectives": item.processObjective,
+          "Process Severity Levels": item.processSeverityLevels,
+        };
 
-      onEditRow: (key: string) => setEditingKeys((prev) => [...prev, key]),
-      onSaveRow: (key: string) =>
-        setEditingKeys((prev) => prev.filter((k) => k !== key)),
-      onDeleteRow: (key: string) => {
-        const setter = getCurrentSetter();
-        setter((prev) => prev.filter((item) => item.key !== key));
-      },
-      onStageChange: (key: string, rowKey: string) => {
-        const setter = getCurrentSetter();
-        setter((prev) =>
-          prev.map((item) =>
-            item.key === rowKey ? { ...item, stage: key } : item
-          )
-        );
-      },
-      onToggleStatus: (rowKey: string) => {
-        const setter = getCurrentSetter();
-        setter((prev) =>
-          prev.map((item) =>
-            item.key === rowKey
-              ? {
-                  ...item,
-                  isActive: !(item.isActive !== false),
-                }
-              : item
-          )
-        );
+      case "Ownership":
+        return {
+          ...basePayload,
+          "Main Process": item.process2,
+          Activity: item.activity,
+          "Process Stage": item.stage,
+          Functions: item.functions,
+          "Client Segment and/or Functional Segment": item.clientSegment,
+          "Operational Unit": item.operationalUnit,
+          Division: item.division,
+          Entity: item.entity,
+          "Unit / Department": item.unitDepartment,
+          "Product Class": item.productClass,
+          "Product Name": item.productName,
+        };
 
-        // Auto-exit edit mode when deactivating
-        setEditingKeys((prev) => prev.filter((k) => k !== rowKey));
+      case "COSO-Control Environment":
+        return {
+          ...basePayload,
+          "Integrity & Ethical Values": item.integrityEthical ? "P" : "O",
+          "Board Oversight": item.boardOversight ? "P" : "O",
+          "Organizational Structure": item.orgStructure ? "P" : "O",
+          "Commitment to Competence": item.commitmentCompetence ? "P" : "O",
+          "Management Philosophy": item.managementPhilosophy ? "P" : "O",
+        };
+
+      case "Risk Responses":
+        return {
+          ...basePayload,
+          "Type of Risk Response": item.riskResponseType,
+        };
+
+      case "Control Activities":
+        return {
+          ...basePayload,
+          "Control Objectives": item.controlObjectives,
+          "Control Ref": item.controlRef,
+          "Control Definition": item.controlDefinition,
+          "Control Description": item.controlDescription,
+          "Control Responsibility": item.controlResponsibility,
+          "Key Control": item.keyControl ? "P" : "O",
+          "Zero Tolerance": item.zeroTolerance ? "P" : "O",
+        };
+
+      case "SOX":
+        return {
+          ...basePayload,
+          "SOX Control Activity": item.soxControlActivity,
+        };
+
+      case "Internal Audit Test":
+        return {
+          ...basePayload,
+          Check: item.check ? "P" : "O",
+          "Internal Audit Test": item.internalAuditTest,
+          "Sample Size": item.sampleSize,
+        };
+
+      case "GRC Exception Log":
+        return {
+          ...basePayload,
+          "GRC Adequacy": item.grcAdequacy,
+          "GRC Effectiveness": item.grcEffectiveness,
+          Explanation: item.explanation,
+        };
+
+      case "Financial Statement Assertions":
+        return {
+          ...basePayload,
+          "Internal Control Over Financial Reporting?":
+            item.internalControlOverFinancialReporting ? "P" : "O",
+          Occurrence: item.occurrence ? "P" : "O",
+          Completeness: item.completeness ? "P" : "O",
+          Accuracy: item.accuracy ? "P" : "O",
+          Authorization: item.authorization ? "P" : "O",
+          Cutoff: item.cutoff ? "P" : "O",
+          "Classification and Understandability":
+            item.classificationAndUnderstandability ? "P" : "O",
+          Existence: item.existence ? "P" : "O",
+          "Rights and Obligations": item.rightsAndObligations ? "P" : "O",
+          "Valuation and Allocation": item.valuationAndAllocation ? "P" : "O",
+          "Presentation / Disclosure": item.presentationDisclosure ? "P" : "O",
+        };
+
+      case "Control Assessment":
+        return {
+          ...basePayload,
+          "Level of Responsibility-Operating Level (Entity / Activity)":
+            item.levelResponsibility,
+          "COSO Principle #": item.cosoPrinciple,
+          "Operational Approach (Automated / Manual)": item.operationalApproach,
+          "Operational Frequency": item.operationalFrequency,
+          "Control Classification (Preventive / Detective / Corrective)":
+            item.controlClassification,
+        };
+
+      // Add other sections as needed
+      default:
+        return basePayload;
+    }
+  };
+
+  const handleSave = useCallback(
+    async (key: string) => {
+      const itemIndex = tableData.findIndex((r) => r.key === key);
+      if (itemIndex === -1) return;
+      const item = tableData[itemIndex];
+      const section = getCurrentSection();
+      const endpoint = SECTION_TO_BASE_ENDPOINT[section];
+      try {
+        let updatedItem;
+        if (item.id) {
+          // Transform data to match API format before sending
+          const payload = transformDataForAPI(item, section);
+          await apiClientDotNet.put(`/${endpoint}/${item.id}`, payload);
+          updatedItem = { ...item };
+        } else {
+          // Transform data to match API format before sending
+          const payload = transformDataForAPI(item, section);
+          const response = await apiClientDotNet.post(`/${endpoint}`, payload);
+          updatedItem = { ...response.data, key: response.data.Id };
+        }
+        const newData = [...tableData];
+        newData[itemIndex] = updatedItem;
+        setDataBySection((prev) => ({ ...prev, [section]: newData }));
+      } catch (error) {
+        console.error("Error saving item:", error);
+      } finally {
+        setEditingKeys((prev) => prev.filter((k) => k !== key));
+      }
+    },
+    [tableData, getCurrentSection, transformDataForAPI]
+  );
+  const handleCancel = useCallback((key: string) => {
+    setEditingKeys((prev) => prev.filter((k) => k !== key));
+  }, []);
+  const handleCheckboxChange = useCallback(
+    (rowKey: string, field: keyof DataType, checked: boolean) => {
+      const newData = tableData.map((r) =>
+        r.key === rowKey ? { ...r, [field]: checked } : r
+      );
+      setTableData(newData);
+    },
+    [tableData, setTableData]
+  );
+  const handleSelectGeneric = useCallback(
+    (value: string, rowKey: string, field?: string) => {
+      if (!field) return;
+
+      // Convert Yes/No to boolean for ICFR field
+      let processedValue = value;
+      if (field === "internalControlOverFinancialReporting") {
+        //@ts-ignore
+        processedValue =
+          value === "Yes" ? true : value === "No" ? false : value;
+      }
+
+      const newData = tableData.map((r) =>
+        r.key === rowKey ? { ...r, [field]: processedValue } : r
+      );
+      setTableData(newData);
+    },
+    [tableData, setTableData]
+  );
+  const handleTextChange = useCallback(
+    (rowKey: string, field: keyof DataType, value: string) => {
+      const newData = tableData.map((r) =>
+        r.key === rowKey ? { ...r, [field]: value } : r
+      );
+      setTableData(newData);
+    },
+    [tableData, setTableData]
+  );
+  const handleAddRow = useCallback(() => {
+    const maxNo = tableData.reduce((max, r) => {
+      const num = parseFloat(r.no as string) || 0;
+      return num > max ? num : max;
+    }, 0);
+    const newRow = defaultNewRow(maxNo);
+    const newData = [...tableData, newRow];
+    setTableData(newData);
+    setEditingKeys((prev) => [...prev, newRow.key]);
+  }, [tableData, setTableData]);
+  const handleEditRow = useCallback((key: string) => {
+    setEditingKeys((prev) => [...prev, key]);
+  }, []);
+  const handleDeleteRow = useCallback(
+    (key: string) => {
+      handleDelete(key);
+    },
+    [handleDelete]
+  );
+  const handleStageChange = useCallback(
+    (value: string, rowKey: string) => {
+      const newData = tableData.map((r) =>
+        r.key === rowKey ? { ...r, stage: value } : r
+      );
+      setTableData(newData);
+    },
+    [tableData, setTableData]
+  );
+  const handleToggleStatus = useCallback(
+    (rowKey: string) => {
+      const newData = tableData.map((r) =>
+        r.key === rowKey ? { ...r, isActive: !(r.isActive !== false) } : r
+      );
+      setTableData(newData);
+      setEditingKeys((prev) => prev.filter((k) => k !== rowKey));
+    },
+    [tableData, setTableData]
+  );
+
+  // Add this function with other handler functions
+  const handleFormSubmit = () => {
+    fetchData(); // This will refresh the table data
+    setFormModalVisible(false);
+    setEditingRecord(null);
+  };
+
+  const handleEdit = useCallback((record: DataType) => {
+    setEditingRecord(record);
+    setStartSectionKey(null);
+    setFormModalVisible(true);
+  }, []);
+  // Memoized handlers object
+  const handlers = useMemo(
+    () => ({
+      onEdit: handleEdit,
+      onDelete: handleDelete,
+      onSave: handleSave,
+      onSaveRow: handleSave,
+      onCancel: handleCancel,
+      onCheckboxChange: handleCheckboxChange,
+      onSelectGeneric: handleSelectGeneric,
+      onTextChange: handleTextChange,
+      // onAddRow: handleAddRow,
+      // onEditRow: handleEditRow,
+      onAddRow: () => {
+        setEditingRecord(null);
+        const section = getCurrentSection();
+        switch (section) {
+          case "Process":
+            setStartSectionKey("processes");
+            break;
+          case "Ownership":
+            setStartSectionKey("ownerships");
+            break;
+          case "COSO-Control Environment":
+            setStartSectionKey("coso-control-environments");
+            break;
+          case "INTOSAI, IFAC, and Government Audit Standards - Control Environment":
+            setStartSectionKey("intosai-ifac-control-environments");
+            break;
+          case "Other- - Control Environment":
+            setStartSectionKey("other-control-environments");
+            break;
+          case "Risk Assessment (Inherent Risk)":
+            setStartSectionKey("risk-assessment-inherent-risks");
+            break;
+          case "Risk Responses":
+            setStartSectionKey("risk-responses");
+            break;
+          case "Control Activities":
+            setStartSectionKey("control-activities");
+            break;
+          case "Control Assessment":
+            setStartSectionKey("control-assessments");
+            break;
+          case "Risk Assessment (Residual Risk)":
+            setStartSectionKey("risk-assessment-residual-risks");
+            break;
+          case "SOX":
+            setStartSectionKey("sox");
+            break;
+          case "Internal Audit Test":
+            setStartSectionKey("internal-audit-tests");
+            break;
+          case "GRC Exception Log":
+            setStartSectionKey("grc-exception-logs");
+            break;
+          default:
+            setStartSectionKey("processes");
+        }
+        setFormModalVisible(true);
       },
+      onEditRow: handleEditRow,
+      onDeleteRow: handleDeleteRow,
+      onStageChange: handleStageChange,
+      onToggleStatus: handleToggleStatus,
     }),
-    [getCurrentSetter, activeTab, debouncedTextChange]
+    [
+      handleEdit,
+      handleDelete,
+      handleSave,
+      handleCancel,
+      handleCheckboxChange,
+      handleSelectGeneric,
+      handleTextChange,
+      handleAddRow,
+      handleEditRow,
+      handleDeleteRow,
+      handleStageChange,
+      handleToggleStatus,
+    ]
   );
-
-  // FIX: Memoize columns to prevent regeneration on every render
-  const tableColumns = useMemo(
-    () => getColumns(activeTab, activeSubTab, handlers as any, editingKeys),
-    [activeTab, activeSubTab, handlers, editingKeys]
-  );
-
+  // Improved columns memo with cleanup
+  const columns = useMemo(() => {
+    // Clear any pending edits when tab changes
+    //@ts-ignore
+    return getColumns(activeTab, activeSubTab, handlers, editingKeys);
+  }, [activeTab, activeSubTab, editingKeys, handlers]);
+  // Handle tab changes with cleanup
+  const handleTabChange = useCallback((key: string) => {
+    setEditingKeys([]); // Clear editing state
+    setActiveTab(key);
+  }, []);
+  const handleSubTabChange = useCallback((key: string) => {
+    setEditingKeys([]); // Clear editing state
+    setActiveSubTab(key);
+  }, []);
+  // Scroll handler with cleanup
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    if (!scrollSyncRef.current) return;
+    const target = e.target as HTMLDivElement;
+    if (topScrollbarRef.current) {
+      scrollSyncRef.current = false;
+      topScrollbarRef.current.scrollLeft = target.scrollLeft;
+      setTimeout(() => {
+        scrollSyncRef.current = true;
+      }, 50);
+    }
+  }, []);
+  const handleTopScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    if (!scrollSyncRef.current) return;
+    const target = e.target as HTMLDivElement;
+    const body = tableWrapperRef.current?.querySelector(
+      ".ant-table-body"
+    ) as HTMLElement;
+    const header = tableWrapperRef.current?.querySelector(
+      ".ant-table-header"
+    ) as HTMLElement;
+    if (body) {
+      scrollSyncRef.current = false;
+      body.scrollLeft = target.scrollLeft;
+    }
+    if (header) {
+      header.scrollLeft = target.scrollLeft;
+    }
+    setTimeout(() => {
+      scrollSyncRef.current = true;
+    }, 50);
+  }, []);
+  const handleDataLoaded = async (data: DataType[]) => {
+    // Existing bulk post functionality remains unchanged
+    // But refresh data after import
+    await importSectionData(currentSection, data); // Assuming this posts bulk
+    fetchData();
+  };
   return (
     <div className="flex flex-col h-screen bg-[#f8fafc]">
-      {/* Fixed Header */}
+      {/* Header */}
       <div className="sticky top-0 z-50 bg-white shadow-sm">
         <div className="p-6 pb-2">
-          {/* Heading + Export Button + Navigation */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              {/* Reduced heading size */}
-              <h1 className="text-xl font-bold text-black">
+              <button
+                type="button"
+                onClick={props.onBackToLanding}
+                className="text-xl font-bold text-black hover:text-blue-700 underline-offset-4 hover:underline text-left"
+              >
                 RCM – Account Receivable
-              </h1>
-
-              {/* Export button next to heading */}
+              </button>
               <Button type="primary" onClick={handleExport}>
                 Export Data
               </Button>
             </div>
-
-            {/* Navigation arrows */}
             <div className="flex space-x-3 bg-white border border-black shadow-sm">
               <button
                 onClick={goPrev}
@@ -554,7 +1023,6 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                     ? "text-black hover:bg-gray-50 cursor-pointer"
                     : "text-gray-400 cursor-not-allowed"
                 }`}
-                aria-label="Previous Tab"
               >
                 <LeftOutlined />
               </button>
@@ -567,32 +1035,26 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                     ? "text-black hover:bg-gray-50 cursor-pointer"
                     : "text-gray-400 cursor-not-allowed"
                 }`}
-                aria-label="Next Tab"
               >
                 <RightOutlined />
               </button>
             </div>
           </div>
-
-          {/* Main Tabs */}
           <div className="bg-white/50 backdrop-blur-sm rounded-t-xl shadow-sm">
             <Tabs
               activeKey={activeTab}
-              onChange={setActiveTab}
+              onChange={handleTabChange}
               className="text-lg"
-              items={tabConfigs.map((config) => ({
-                key: config.key,
-                label: config.label,
-              }))}
+              items={tabConfigs.map((c) => ({ key: c.key, label: c.label }))}
+              destroyInactiveTabPane={true} // Add this to properly clean up
             />
           </div>
-
-          {/* Sub Tabs */}
+          {/* Sub-tabs */}
           {activeTab === "3" && (
             <div className="bg-white/50 backdrop-blur-sm rounded-b-xl shadow-sm mb-4">
               <Tabs
                 activeKey={activeSubTab}
-                onChange={setActiveSubTab}
+                onChange={handleSubTabChange}
                 className="text-sm"
                 items={[
                   { key: "coso", label: "COSO" },
@@ -602,6 +1064,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                   },
                   { key: "other", label: "Other" },
                 ]}
+                destroyInactiveTabPane={true}
               />
             </div>
           )}
@@ -609,7 +1072,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
             <div className="bg-white/50 backdrop-blur-sm rounded-b-xl shadow-sm mb-4">
               <Tabs
                 activeKey={activeSubTab}
-                onChange={setActiveSubTab}
+                onChange={handleSubTabChange}
                 className="text-sm"
                 items={[
                   { key: "sox", label: "SOX" },
@@ -619,6 +1082,7 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                     label: "Internal Control Over Financial Reporting",
                   },
                 ]}
+                destroyInactiveTabPane={true}
               />
             </div>
           )}
@@ -626,77 +1090,76 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
             <div className="bg-white/50 backdrop-blur-sm rounded-b-xl shadow-sm mb-4">
               <Tabs
                 activeKey={activeSubTab}
-                onChange={setActiveSubTab}
+                onChange={handleSubTabChange}
                 className="text-sm"
                 items={[
                   { key: "audit", label: "Internal Audit Test" },
                   { key: "grc", label: "GRC Exception Logs" },
                 ]}
+                destroyInactiveTabPane={true}
               />
             </div>
           )}
         </div>
       </div>
-
-      {/* Scrollable Content */}
+      {/* Content */}
       <div className="flex-1 overflow-auto">
         <div className="p-6 pt-4">
+          <div className="mb-4">
+            <Input.Search
+              placeholder="Search..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              style={{ width: 300 }}
+            />
+          </div>
           {loading ? (
             <div className="flex justify-center items-center h-full">
               <Spin size="large" />
             </div>
           ) : (
             <div className="relative">
-              {/* Top Horizontal Scrollbar (fake scrollbar) */}
-              {/* TOP SCROLLBAR — FINAL PERFECT VERSION */}
+              {/* Custom Top Scrollbar for all columns except 'Processes' */}
               <div
-                ref={topScrollbarRef}
                 className="sticky top-0 z-20 overflow-x-auto bg-white border-b border-gray-200 -mx-6 px-6 mb-3"
                 style={{
                   scrollbarWidth: "thin",
-                  scrollbarColor: "#787878 #121212",
+                  scrollbarColor: "#787878 #e5e7eb",
                 }}
-                onScroll={(e) => {
-                  const target = e.target as HTMLDivElement;
-                  const tableBody = tableWrapperRef.current?.querySelector(
-                    ".ant-table-body"
-                  ) as HTMLElement;
-                  if (tableBody) tableBody.scrollLeft = target.scrollLeft;
-                }}
+                onScroll={handleTopScroll}
+                ref={topScrollbarRef}
               >
                 <div
                   style={{
-                    width: tableWrapperRef.current?.querySelector(
-                      ".ant-table-content"
-                    )?.scrollWidth
-                      ? `${
-                          tableWrapperRef.current.querySelector(
-                            ".ant-table-content"
-                          )!.scrollWidth
-                        }px`
-                      : "3000px",
-                    height: "1px",
-                    background: "transparent",
+                    width: "2000px",
+                    height: "12px",
+                    background:
+                      "linear-gradient(to right, #e5e7eb 0%, #d1d5db 100%)",
+                    borderRadius: 6,
+                    border: "1px solid #9ca3af",
+                    cursor: "grab",
                   }}
                 />
               </div>
-
-              {/* Main Table */}
               <div
                 ref={tableWrapperRef}
-                className="bg-white shadow-md rounded-b-lg overflow-hidden"
-                style={{
-                  maxHeight: "calc(100vh - 280px)",
-                  minHeight: "500px",
-                }}
+                className="bg-white shadow-md rounded-b-lg"
+                style={{ maxHeight: "calc(100vh - 280px)", minHeight: "500px" }}
               >
                 <style jsx>{`
+                  .ant-table-body::-webkit-scrollbar {
+                    display: none;
+                  }
                   .ant-table-body {
                     scrollbar-width: none;
                     -ms-overflow-style: none;
                   }
-                  .ant-table-body::-webkit-scrollbar {
+                  .ant-table-header::-webkit-scrollbar {
                     display: none;
+                  }
+                  .ant-table-header {
+                    scrollbar-width: none;
+                    -ms-overflow-style: none;
                   }
                   .row-deactivated {
                     background-color: #e5e7eb !important;
@@ -704,38 +1167,43 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                     opacity: 0.7;
                   }
                 `}</style>
-
                 <Table
-                  columns={tableColumns}
+                  key={`table-${activeTab}-${activeSubTab}`}
+                  columns={columns}
                   dataSource={tableData}
                   pagination={false}
-                  scroll={{ x: 1300, y: "calc(100vh - 340px)" }}
+                  scroll={{ x: "max-content", y: "calc(100vh - 340px)" }}
                   bordered
-                  rowKey={(record) =>
-                    `${record.key}-${record.isActive?.toString()}`
-                  }
-                  rowClassName={(record) =>
-                    record.isActive === false ? "row-deactivated" : ""
+                  rowKey={(r) => `${r.key}-${r.isActive?.toString()}`}
+                  rowClassName={(r) =>
+                    r.isActive === false ? "row-deactivated" : ""
                   }
                   onHeaderRow={() => ({
-                    onScroll: (e: React.UIEvent<HTMLDivElement>) => {
-                      const target = e.target as HTMLDivElement;
-                      if (topScrollbarRef.current) {
-                        topScrollbarRef.current.scrollLeft = target.scrollLeft;
-                      }
-                    },
+                    onScroll: handleScroll,
                   })}
-                  // FIXED: Added key to force proper re-rendering
-                  key={`table-${activeTab}-${activeSubTab}-${tableData.length}`}
                 />
               </div>
             </div>
           )}
+          <ExcelUploadModal
+            visible={excelModalVisible}
+            onClose={() => setExcelModalVisible(false)}
+            onDataLoaded={handleDataLoaded}
+          />
+          <ProcessFormModal
+            visible={formModalVisible}
+            onCancel={() => {
+              setFormModalVisible(false);
+              setEditingRecord(null);
+            }}
+            onSuccess={handleFormSubmit}
+            initialValues={editingRecord}
+            startSectionKey={startSectionKey || undefined}
+          />
         </div>
       </div>
     </div>
   );
 });
-
 AccountReceivable.displayName = "AccountReceivable";
 export default AccountReceivable;
