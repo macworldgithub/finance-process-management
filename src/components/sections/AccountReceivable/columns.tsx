@@ -1958,6 +1958,7 @@
 //   };
 //   return [...baseColumns, ...dynamicColumns, actionsColumn];
 // }
+
 "use client";
 import React from "react";
 import {
@@ -1973,6 +1974,8 @@ import { DataType } from "./types";
 import { Select } from "antd";
 import { useState, useEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
+import { InputRef } from "antd";
+import { useRef } from "react";
 
 const { TextArea } = Input;
 export const stageOptions = [
@@ -2080,52 +2083,189 @@ interface EditableProps {
   initialValue: string;
   onChange: (value: string) => void;
 }
-
 const EditableInput: React.FC<EditableProps & { placeholder?: string }> = ({
-  initialValue,
+  initialValue = "",
   onChange,
   placeholder,
 }) => {
-  const [value, setValue] = useState(initialValue);
-  const debouncedOnChange = useDebouncedCallback(onChange, 300);
+  const [value, setValue] = React.useState(initialValue);
+  const [isComposing, setIsComposing] = React.useState(false);
+  // const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = useRef<InputRef>(null);
+  const isMounted = React.useRef(true);
 
-  useEffect(() => {
+  // Initialize value only once when component mounts
+  React.useEffect(() => {
     setValue(initialValue);
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  // Only update from props if the input is not focused
+  React.useEffect(() => {
+    if (document.activeElement !== inputRef.current) {
+      setValue(initialValue);
+    }
   }, [initialValue]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVal = e.target.value;
-    setValue(newVal);
-    debouncedOnChange(newVal);
+    const newValue = e.target.value;
+    setValue(newValue);
+
+    // Only call onChange if not in composition (IME input)
+    if (!isComposing) {
+      onChange(newValue);
+    }
+  };
+
+  // Handle composition events for IME input
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  const handleCompositionEnd = (
+    e: React.CompositionEvent<HTMLInputElement>
+  ) => {
+    const newValue = e.currentTarget.value;
+    setValue(newValue);
+    onChange(newValue);
+    setIsComposing(false);
+  };
+
+  // Handle blur to ensure any pending changes are saved
+  const handleBlur = () => {
+    if (isComposing) {
+      setIsComposing(false);
+    }
+    // Only update if the value has changed
+    if (value !== initialValue) {
+      onChange(value);
+    }
   };
 
   return (
-    <Input value={value} onChange={handleChange} placeholder={placeholder} />
+    <Input
+      ref={inputRef}
+      value={value}
+      onChange={handleChange}
+      onCompositionStart={handleCompositionStart}
+      onCompositionEnd={handleCompositionEnd}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      autoFocus
+      style={{ width: "100%" }}
+    />
   );
 };
+// const EditableInput: React.FC<EditableProps & { placeholder?: string }> = ({
+//   initialValue,
+//   onChange,
+//   placeholder,
+// }) => {
+//   const [value, setValue] = useState(initialValue);
+//   const debouncedOnChange = useDebouncedCallback(onChange, 300);
 
-const EditableTextArea: React.FC<
-  EditableProps & { autoSize?: any; placeholder?: string }
-> = ({ initialValue, onChange, autoSize, placeholder }) => {
+//   useEffect(() => {
+//     setValue(initialValue);
+//   }, [initialValue]);
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     const newVal = e.target.value;
+//     setValue(newVal);
+//     debouncedOnChange(newVal);
+//   };
+
+//   return (
+//     <Input value={value} onChange={handleChange} placeholder={placeholder} />
+//   );
+// };
+
+// const EditableTextArea: React.FC<
+//   EditableProps & { autoSize?: any; placeholder?: string }
+// > = ({ initialValue, onChange, autoSize, placeholder }) => {
+//   const [value, setValue] = useState(initialValue);
+//   const debouncedOnChange = useDebouncedCallback(onChange, 300);
+
+//   useEffect(() => {
+//     setValue(initialValue);
+//   }, [initialValue]);
+
+//   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+//     const newVal = e.target.value;
+//     setValue(newVal);
+//     debouncedOnChange(newVal);
+//   };
+
+//   return (
+//     <TextArea
+//       value={value}
+//       onChange={handleChange}
+//       autoSize={autoSize}
+//       placeholder={placeholder}
+//     />
+//   );
+// };
+// EditableTextArea - FULLY FIXED VERSION
+// === FIXED EditableTextArea – SMOOTH & NO OVERWRITE ===
+const EditableTextArea: React.FC<{
+  initialValue?: string;
+  onChange: (value: string) => void;
+  autoSize?: any;
+  placeholder?: string;
+}> = ({
+  initialValue = "",
+  onChange,
+  autoSize = { minRows: 2 },
+  placeholder,
+}) => {
   const [value, setValue] = useState(initialValue);
-  const debouncedOnChange = useDebouncedCallback(onChange, 300);
+  const [isComposing, setIsComposing] = useState(false);
+
+  const debouncedOnChange = useDebouncedCallback((val: string) => {
+    onChange(val);
+  }, 300);
 
   useEffect(() => {
-    setValue(initialValue);
+    const active = document.activeElement;
+    if (!active || (active as HTMLElement).tagName !== "TEXTAREA") {
+      setValue(initialValue);
+    }
   }, [initialValue]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newVal = e.target.value;
     setValue(newVal);
-    debouncedOnChange(newVal);
+    if (!isComposing) {
+      debouncedOnChange(newVal);
+    }
+  };
+
+  const handleCompositionStart = () => setIsComposing(true);
+  const handleCompositionEnd = (
+    e: React.CompositionEvent<HTMLTextAreaElement>
+  ) => {
+    setIsComposing(false);
+    const newVal = e.currentTarget.value;
+    setValue(newVal);
+    onChange(newVal);
+  };
+
+  const handleBlur = () => {
+    debouncedOnChange.flush();
   };
 
   return (
     <TextArea
       value={value}
       onChange={handleChange}
+      onCompositionStart={handleCompositionStart}
+      onCompositionEnd={handleCompositionEnd}
+      onBlur={handleBlur}
       autoSize={autoSize}
       placeholder={placeholder}
+      autoFocus
+      style={{ width: "100%" }}
     />
   );
 };

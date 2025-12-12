@@ -431,8 +431,16 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
         );
       },
       // UPDATED: Use debounced text change
+      // onTextChange: (rowKey: string, field: keyof DataType, value: string) => {
+      //   debouncedTextChange(rowKey, field, value);
+      // },
       onTextChange: (rowKey: string, field: keyof DataType, value: string) => {
-        debouncedTextChange(rowKey, field, value);
+        const setter = getCurrentSetter();
+        setter((prev) =>
+          prev.map((item) =>
+            item.key === rowKey ? { ...item, [field]: value } : item
+          )
+        );
       },
 
       onAddRow: () => {
@@ -684,10 +692,10 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
               {/* Main Table */}
               <div
                 ref={tableWrapperRef}
-                className="bg-white shadow-md rounded-b-lg overflow-hidden"
+                className="bg-white shadow-md rounded-b-lg overflow-hidden flex flex-col"
                 style={{
-                  maxHeight: "calc(100vh - 280px)",
-                  minHeight: "500px",
+                  height: "calc(100vh - 280px)",
+                  minHeight: "360px",
                 }}
               >
                 <style jsx>{`
@@ -704,12 +712,12 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                     opacity: 0.7;
                   }
                 `}</style>
-
+                {/* 
                 <Table
                   columns={tableColumns}
                   dataSource={tableData}
                   pagination={false}
-                  scroll={{ x: 1300, y: "calc(100vh - 340px)" }}
+                  scroll={{ x: 1300, y: "100%" }}
                   bordered
                   rowKey={(record) =>
                     `${record.key}-${record.isActive?.toString()}`
@@ -725,7 +733,23 @@ const AccountReceivable = forwardRef<AccountReceivableRef, {}>((props, ref) => {
                       }
                     },
                   })}
-                  // FIXED: Added key to force proper re-rendering
+                  key={`table-${activeTab}-${activeSubTab}-${tableData.length}`}
+                /> */}
+                <Table
+                  columns={tableColumns}
+                  dataSource={tableData}
+                  pagination={false}
+                  scroll={{
+                    x: 1300,
+                    y: "calc(100dvh - 320px)", // This works 99% of the time
+                  }}
+                  bordered
+                  rowKey={(record) =>
+                    `${record.key}-${record.isActive?.toString()}`
+                  }
+                  rowClassName={(record) =>
+                    record.isActive === false ? "row-deactivated" : ""
+                  }
                   key={`table-${activeTab}-${activeSubTab}-${tableData.length}`}
                 />
               </div>
